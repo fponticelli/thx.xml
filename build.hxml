@@ -1,0 +1,23 @@
+-js bin/xml.js
+-lib thx.core
+-cp src
+
+thx.xml.dom.Attr
+thx.xml.dom.CharacterData
+thx.xml.dom.ChildNode
+thx.xml.dom.CustomEvent
+thx.xml.dom.Document
+thx.xml.dom.DocumentFragment
+thx.xml.dom.DocumentType
+thx.xml.dom.DOMException
+thx.xml.dom.DOMString
+thx.xml.dom.DOMTimeStamp
+thx.xml.dom.Element
+thx.xml.dom.Event
+thx.xml.dom.EventTarget
+thx.xml.dom.HTMLCollection
+thx.xml.dom.NodeList
+thx.xml.dom.NonDocumentTypeChildNode
+thx.xml.dom.ParentNode
+thx.xml.dom.ProcessingInstruction
+thx.xml.dom.XMLDocument
