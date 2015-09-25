@@ -34,3 +34,5 @@ thx.xml.dom.Range
 thx.xml.dom.Text
 thx.xml.dom.TreeWalker
 thx.xml.dom.XMLDocument
+
+thx.xml.DOMException
