@@ -32,7 +32,20 @@ abstract EventPhase(Int) to Int {
   var BUBBLING_PHASE = 3;
 }
 
-typedef EventInit = {
-  bubbles : Bool,
-  cancelable : Bool
+abstract EventInit(EventInitImpl) from EventInitImpl {
+  public static function ensure(?init : EventInit) : EventInit
+    return null == init ? {} : init;
+
+  public var bubbles(get, set) : Bool;
+  public var cancelable(get, set) : Bool;
+
+  inline function get_bubbles() return null == this.bubbles ? false : this.bubbles;
+  inline function set_bubbles(v : Null<Bool>) return this.bubbles = v;
+  inline function get_cancelable() return null == this.cancelable ? false : this.cancelable;
+  inline function set_cancelable(v : Null<Bool>) return this.cancelable = v;
+}
+
+typedef EventInitImpl = {
+  ?bubbles : Bool, // false
+  ?cancelable : Bool // false
 }
