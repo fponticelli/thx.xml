@@ -1,6 +1,10 @@
--js bin/xml.js
+-js bin/test.js
 -lib thx.core
+-lib utest
 -cp src
+-cp test
+
+-main TestAll
 
 thx.xml.dom.Attr
 thx.xml.dom.CharacterData
@@ -36,3 +40,6 @@ thx.xml.dom.TreeWalker
 thx.xml.dom.XMLDocument
 
 thx.xml.DOMException
+
+
+-cmd node bin/test.js
