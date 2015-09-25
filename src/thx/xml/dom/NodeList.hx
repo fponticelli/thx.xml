@@ -1,7 +1,13 @@
 package thx.xml.dom;
 
-// [ArrayClass]
-interface NodeList {
-  // getter Node? item(unsigned long index);
-  // readonly attribute unsigned long length;
+@:forward(length)
+abstract NodeList(NodeListInt) from NodeListInt to NodeListInt {
+  @:arrayAccess
+  inline public function item(index : Int) : Null<Node>
+    return this.item(index);
+}
+
+interface NodeListInt {
+  function item(index : Int) : Null<Node>;
+  var length(default, null) : Int;
 }

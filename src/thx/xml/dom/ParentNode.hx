@@ -1,11 +1,11 @@
 package thx.xml.dom;
 
 interface ParentNode {
-  // readonly attribute HTMLCollection children;
-  // readonly attribute Element? firstElementChild;
-  // readonly attribute Element? lastElementChild;
-  // readonly attribute unsigned long childElementCount;
-  //
-  // Element? querySelector(DOMString selectors);
-  // [NewObject] NodeList querySelectorAll(DOMString selectors);
+  var children(default, null) : HTMLCollection;
+  var firstElementChild(default, null) : Null<Element>;
+  var lastElementChild(default, null) : Null<Element>;
+  var childElementCount(default, null) : Int;
+
+  function querySelector(selectors : DOMString) : Null<Element>;
+  function querySelectorAll(selectors : DOMString) : NodeList;
 }

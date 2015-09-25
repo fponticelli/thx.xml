@@ -4,27 +4,28 @@ interface Element
   extends ParentNode
   extends NonDocumentTypeChildNode
   extends ChildNode {
-    // readonly attribute DOMString? namespaceURI;
-    // readonly attribute DOMString? prefix;
-    // readonly attribute DOMString localName;
-    // readonly attribute DOMString tagName;
-    //
-    //          attribute DOMString id;
-    //          attribute DOMString className;
-    // [SameObject] readonly attribute DOMTokenList classList;
-    //
-    // [SameObject] readonly attribute Attr[] attributes;
-    // DOMString? getAttribute(DOMString name);
-    // DOMString? getAttributeNS(DOMString? namespace, DOMString localName);
-    // void setAttribute(DOMString name, DOMString value);
-    // void setAttributeNS(DOMString? namespace, DOMString name, DOMString value);
-    // void removeAttribute(DOMString name);
-    // void removeAttributeNS(DOMString? namespace, DOMString localName);
-    // boolean hasAttribute(DOMString name);
-    // boolean hasAttributeNS(DOMString? namespace, DOMString localName);
-    //
-    //
-    // HTMLCollection getElementsByTagName(DOMString localName);
-    // HTMLCollection getElementsByTagNameNS(DOMString? namespace, DOMString localName);
-    // HTMLCollection getElementsByClassName(DOMString classNames);
+    var namespaceURI(default, null) : Null<DOMString>;
+    var prefix(default, null) : Null<DOMString>;
+    var localName(default, null) : DOMString;
+    var tagName(default, null) : DOMString;
+
+    var id : DOMString;
+    var className : DOMString;
+    // [SameObject]
+    var classList(default, null) : DOMTokenList;
+
+    // [SameObject]
+    var attributes(default, null) : Array<Attr>;
+    function getAttribute(name : DOMString) : Null<DOMString>;
+    function getAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Null<DOMString>;
+    function setAttribute(name : DOMString, value : DOMString) : Void;
+    function setAttributeNS(namespace : Null<DOMString>, name : DOMString, value : DOMString) : Void;
+    function removeAttribute(name : DOMString) : Void;
+    function removeAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Void;
+    function hasAttribute(name : DOMString) : Bool;
+    function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool;
+
+    function getElementsByTagName(localName : DOMString) : HTMLCollection;
+    function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : HTMLCollection;
+    function getElementsByClassName(classNames : DOMString) : HTMLCollection;
 }

@@ -1,9 +1,10 @@
 package thx.xml.dom;
 
 interface DOMImplementation {
-  // [NewObject] DocumentType createDocumentType(DOMString qualifiedName, DOMString publicId, DOMString systemId);
-  // [NewObject] XMLDocument createDocument(DOMString? namespace, [TreatNullAs=EmptyString] DOMString qualifiedName, optional DocumentType? doctype = null);
-  // [NewObject] Document createHTMLDocument(optional DOMString title);
-  //
-  // boolean hasFeature(); // useless; always returns true
+  function createDocumentType(qualifiedName : DOMString, publicId : DOMString, systemId : DOMString) : DocumentType;
+  function createDocument(namespace : Null<DOMString>, /*[TreatNullAs=EmptyString]*/ ?qualifiedName : DOMString, ?doctype : DocumentType) : XMLDocument;
+  function createHTMLDocument(?title : DOMString) : Document;
+
+  // useless; always returns true
+  function hasFeature() : Bool;
 }

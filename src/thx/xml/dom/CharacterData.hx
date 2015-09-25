@@ -4,11 +4,12 @@ interface CharacterData
   extends NonDocumentTypeChildNode
   extends ChildNode
   extends Node {
-    // [TreatNullAs=EmptyString] attribute DOMString data;
-    // readonly attribute unsigned long length;
-    // DOMString substringData(unsigned long offset, unsigned long count);
-    // void appendData(DOMString data);
-    // void insertData(unsigned long offset, DOMString data);
-    // void deleteData(unsigned long offset, unsigned long count);
-    // void replaceData(unsigned long offset, unsigned long count, DOMString data);
+    // [TreatNullAs=EmptyString]
+    var data : DOMString;
+    var length(default, null) : Int;
+    function substringData(offset : Int, count : Int) : DOMString;
+    function appendData(data : DOMString) : Void;
+    function insertData(offset : Int, data : DOMString) : Void;
+    function deleteData(offset : Int, count : Int) : Void;
+    function replaceData(offset : Int, count : Int, data : DOMString) : Void;
 }

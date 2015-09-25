@@ -1,55 +1,63 @@
 package thx.xml.dom;
 
 interface Node extends EventTarget {
-  // const unsigned short ELEMENT_NODE = 1;
-  // const unsigned short ATTRIBUTE_NODE = 2; // historical
-  // const unsigned short TEXT_NODE = 3;
-  // const unsigned short CDATA_SECTION_NODE = 4; // historical
-  // const unsigned short ENTITY_REFERENCE_NODE = 5; // historical
-  // const unsigned short ENTITY_NODE = 6; // historical
-  // const unsigned short PROCESSING_INSTRUCTION_NODE = 7;
-  // const unsigned short COMMENT_NODE = 8;
-  // const unsigned short DOCUMENT_NODE = 9;
-  // const unsigned short DOCUMENT_TYPE_NODE = 10;
-  // const unsigned short DOCUMENT_FRAGMENT_NODE = 11;
-  // const unsigned short NOTATION_NODE = 12; // historical
-  // readonly attribute unsigned short nodeType;
-  // readonly attribute DOMString nodeName;
-  //
-  // readonly attribute DOMString? baseURI;
-  //
-  // readonly attribute Document? ownerDocument;
-  // readonly attribute Node? parentNode;
-  // readonly attribute Element? parentElement;
-  // boolean hasChildNodes();
-  // [SameObject] readonly attribute NodeList childNodes;
-  // readonly attribute Node? firstChild;
-  // readonly attribute Node? lastChild;
-  // readonly attribute Node? previousSibling;
-  // readonly attribute Node? nextSibling;
-  //
-  //          attribute DOMString? nodeValue;
-  //          attribute DOMString? textContent;
-  // void normalize();
-  //
-  // Node cloneNode(optional boolean deep = false);
-  // boolean isEqualNode(Node? node);
-  //
-  // const unsigned short DOCUMENT_POSITION_DISCONNECTED = 0x01;
-  // const unsigned short DOCUMENT_POSITION_PRECEDING = 0x02;
-  // const unsigned short DOCUMENT_POSITION_FOLLOWING = 0x04;
-  // const unsigned short DOCUMENT_POSITION_CONTAINS = 0x08;
-  // const unsigned short DOCUMENT_POSITION_CONTAINED_BY = 0x10;
-  // const unsigned short DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20;
-  // unsigned short compareDocumentPosition(Node other);
-  // boolean contains(Node? other);
-  //
-  // DOMString? lookupPrefix(DOMString? namespace);
-  // DOMString? lookupNamespaceURI(DOMString? prefix);
-  // boolean isDefaultNamespace(DOMString? namespace);
-  //
-  // Node insertBefore(Node node, Node? child);
-  // Node appendChild(Node node);
-  // Node replaceChild(Node node, Node child);
-  // Node removeChild(Node child);
+  var nodeType(default, null) : NodeType;
+  var nodeName(default, null) : DOMString;
+
+  var baseURI(default, null) : Null<DOMString>;
+
+  var ownerDocument(default, null) : Null<Document>;
+  var parentNode(default, null) : Null<Node>;
+  var parentElement(default, null) : Null<Element>;
+  function hasChildNodes() : Bool;
+  var childNodes(default, null) : NodeList;
+  var firstChild(default, null) : Null<Node>;
+  var lastChild(default, null) : Null<Node>;
+  var previousSibling(default, null) : Null<Node>;
+  var nextSibling(default, null) : Null<Node>;
+
+  var nodeValue : Null<DOMString>;
+  var textContent : Null<DOMString>;
+  function normalize() : Void;
+
+  function cloneNode(?deep : Bool = false) : Node;
+  function isEqualNode(?other : Node) : Bool;
+
+  function compareDocumentPosition(other : Node) : DocumentPosition;
+  function contains(?other : Node) : Bool;
+
+  function lookupPrefix(namespace : Null<DOMString>) : Null<DOMString>;
+  function lookupNamespaceURI(prefix : Null<DOMString>) : Null<DOMString>;
+  function isDefaultNamespace(namespace : Null<DOMString>) : Bool;
+
+  function insertBefore(node : Node, child : Null<Node>) : Node;
+  function appendChild(node : Node) : Node;
+  function replaceChild(node : Node, child : Node) : Node;
+  function removeChild(child : Node) : Node;
+}
+
+@:enum
+abstract NodeType(Int) to Int {
+  var ELEMENT_NODE : NodeType = 1;
+  var ATTRIBUTE_NODE : NodeType = 2; // historical
+  var TEXT_NODE : NodeType = 3;
+  var CDATA_SECTION_NODE : NodeType = 4; // historical
+  var ENTITY_REFERENCE_NODE : NodeType = 5; // historical
+  var ENTITY_NODE : NodeType = 6; // historical
+  var PROCESSING_INSTRUCTION_NODE : NodeType = 7;
+  var COMMENT_NODE : NodeType = 8;
+  var DOCUMENT_NODE : NodeType = 9;
+  var DOCUMENT_TYPE_NODE : NodeType = 10;
+  var DOCUMENT_FRAGMENT_NODE : NodeType = 11;
+  var NOTATION_NODE : NodeType = 12; // historical
+}
+
+@:enum
+abstract DocumentPosition(Int) to Int {
+  var DOCUMENT_POSITION_DISCONNECTED : DocumentPosition = 0x01;
+  var DOCUMENT_POSITION_PRECEDING : DocumentPosition = 0x02;
+  var DOCUMENT_POSITION_FOLLOWING : DocumentPosition = 0x04;
+  var DOCUMENT_POSITION_CONTAINS : DocumentPosition = 0x08;
+  var DOCUMENT_POSITION_CONTAINED_BY : DocumentPosition = 0x10;
+  var DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC : DocumentPosition = 0x20;
 }

@@ -1,16 +1,18 @@
 package thx.xml.dom;
 
+import thx.xml.dom.NodeFilter;
+
 interface TreeWalker {
-  // [SameObject] readonly attribute Node root;
-  // readonly attribute unsigned long whatToShow;
-  // readonly attribute NodeFilter? filter;
-  //          attribute Node currentNode;
-  //
-  // Node? parentNode();
-  // Node? firstChild();
-  // Node? lastChild();
-  // Node? previousSibling();
-  // Node? nextSibling();
-  // Node? previousNode();
-  // Node? nextNode();
+  var root(default, null) : Node;
+  var whatToShow(default, null) : WhatToShow;
+  var filter(default, null) : Null<NodeFilter>;
+  var currentNode : Node;
+
+  function parentNode() : Null<Node>;
+  function firstChild() : Null<Node>;
+  function lastChild() : Null<Node>;
+  function previousSibling() : Null<Node>;
+  function nextSibling() : Null<Node>;
+  function previousNode() : Null<Node>;
+  function nextNode() : Null<Node>;
 }

@@ -1,37 +1,41 @@
 package thx.xml.dom;
 
+import thx.xml.dom.NodeFilter;
+
 interface Document
   extends ParentNode
-  extends Node {
-  // [SameObject] readonly attribute DOMImplementation implementation;
-  // readonly attribute DOMString URL;
-  // readonly attribute DOMString documentURI;
-  // readonly attribute DOMString origin;
-  // readonly attribute DOMString compatMode;
-  // readonly attribute DOMString characterSet;
-  // readonly attribute DOMString contentType;
-  //
-  // readonly attribute DocumentType? doctype;
-  // readonly attribute Element? documentElement;
-  // HTMLCollection getElementsByTagName(DOMString localName);
-  // HTMLCollection getElementsByTagNameNS(DOMString? namespace, DOMString localName);
-  // HTMLCollection getElementsByClassName(DOMString classNames);
-  //
-  // [NewObject] Element createElement(DOMString localName);
-  // [NewObject] Element createElementNS(DOMString? namespace, DOMString qualifiedName);
-  // [NewObject] DocumentFragment createDocumentFragment();
-  // [NewObject] Text createTextNode(DOMString data);
-  // [NewObject] Comment createComment(DOMString data);
-  // [NewObject] ProcessingInstruction createProcessingInstruction(DOMString target, DOMString data);
-  //
-  // Node importNode(Node node, optional boolean deep = false);
-  // Node adoptNode(Node node);
-  //
-  // [NewObject] Event createEvent(DOMString interface);
-  //
-  // [NewObject] Range createRange();
-  //
-  // // NodeFilter.SHOW_ALL = 0xFFFFFFFF
-  // [NewObject] NodeIterator createNodeIterator(Node root, optional unsigned long whatToShow = 0xFFFFFFFF, optional NodeFilter? filter = null);
-  // [NewObject] TreeWalker createTreeWalker(Node root, optional unsigned long whatToShow = 0xFFFFFFFF, optional NodeFilter? filter = null);
+  extends Node
+  extends NonElementParentNode {
+  // [SameObject]
+  var implementation(default, null) : DOMImplementation;
+  var URL(default, null) : DOMString;
+  var documentURI(default, null) : DOMString;
+  var origin(default, null) : DOMString;
+  var compatMode(default, null) : DOMString;
+  var characterSet(default, null) : DOMString;
+  var contentType(default, null) : DOMString;
+
+  var doctype(default, null) : DocumentType;
+  var documentElement(default, null) : Null<Element>;
+  function getElementsByTagName(localName : DOMString) : HTMLCollection;
+  function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : HTMLCollection;
+  function getElementsByClassName(classNames : DOMString) : HTMLCollection;
+
+  function createElement(localName : DOMString) : Element;
+  function createElementNS(namespace : Null<DOMString>, qualifiedName : DOMString) : Element;
+  function createDocumentFragment() : DocumentFragment;
+  function createTextNode(data : DOMString) : Text;
+  function createComment(data : DOMString) : Comment;
+  function createProcessingInstruction(target : DOMString, data : DOMString) : ProcessingInstruction;
+
+  function importNode(node : Node, ?deep : Bool = false) : Node;
+  function adoptNode(node : Node) : Node;
+
+  function createEvent(interfaceName : DOMString) : Event;
+
+  function createRange() : Range;
+
+  // NodeFilter.SHOW_ALL = 0xFFFFFFFF
+  function createNodeIterator(root : Node, ?whatToShow : WhatToShow = 0xFFFFFFFF, ?filter : NodeFilter) : NodeIterator;
+  function createTreeWalker(root : Node, ?whatToShow : WhatToShow = 0xFFFFFFFF, ?filter : NodeFilter) : TreeWalker;
 }

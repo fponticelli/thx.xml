@@ -1,11 +1,13 @@
+package thx.xml.dom;
+
 interface MutationRecord {
-  // readonly attribute DOMString type;
-  // readonly attribute Node target;
-  // [SameObject] readonly attribute NodeList addedNodes;
-  // [SameObject] readonly attribute NodeList removedNodes;
-  // readonly attribute Node? previousSibling;
-  // readonly attribute Node? nextSibling;
-  // readonly attribute DOMString? attributeName;
-  // readonly attribute DOMString? attributeNamespace;
-  // readonly attribute DOMString? oldValue;
+  var type(default, null) : DOMString;
+  var target(default, null) : Node;
+  var addedNodes(default, null) : NodeList;
+  var removedNodes(default, null) : NodeList;
+  var previousSibling(default, null) : Null<Node>;
+  var nextSibling(default, null) : Null<Node>;
+  var attributeName(default, null) : Null<DOMString>;
+  var attributeNamespace(default, null) : Null<DOMString>;
+  var oldValue(default, null) : Null<DOMString>;
 }

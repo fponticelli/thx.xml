@@ -1,42 +1,46 @@
 package thx.xml.dom;
 
 interface Range {
-  // readonly attribute Node startContainer;
-  // readonly attribute unsigned long startOffset;
-  // readonly attribute Node endContainer;
-  // readonly attribute unsigned long endOffset;
-  // readonly attribute boolean collapsed;
-  // readonly attribute Node commonAncestorContainer;
-  //
-  // void setStart(Node node, unsigned long offset);
-  // void setEnd(Node node, unsigned long offset);
-  // void setStartBefore(Node node);
-  // void setStartAfter(Node node);
-  // void setEndBefore(Node node);
-  // void setEndAfter(Node node);
-  // void collapse(optional boolean toStart = false);
-  // void selectNode(Node node);
-  // void selectNodeContents(Node node);
-  //
-  // const unsigned short START_TO_START = 0;
-  // const unsigned short START_TO_END = 1;
-  // const unsigned short END_TO_END = 2;
-  // const unsigned short END_TO_START = 3;
-  // short compareBoundaryPoints(unsigned short how, Range sourceRange);
-  //
-  // void deleteContents();
-  // [NewObject] DocumentFragment extractContents();
-  // [NewObject] DocumentFragment cloneContents();
-  // void insertNode(Node node);
-  // void surroundContents(Node newParent);
-  //
-  // [NewObject] Range cloneRange();
-  // void detach();
-  //
-  // boolean isPointInRange(Node node, unsigned long offset);
-  // short comparePoint(Node node, unsigned long offset);
-  //
-  // boolean intersectsNode(Node node);
-  //
+  var startContainer(default, null) : Node;
+  var startOffset(default, null) : Int;
+  var endContainer(default, null) : Node;
+  var endOffset(default, null) : Int;
+  var collapsed(default, null) : Bool;
+  var commonAncestorContainer(default, null) : Node;
+
+  function setStart(node : Node, offset : Int) : Void;
+  function setEnd(node : Node, offset : Int) : Void;
+  function setStartBefore(node : Node) : Void;
+  function setStartAfter(node : Node) : Void;
+  function setEndBefore(node : Node) : Void;
+  function setEndAfter(node : Node) : Void;
+  function collapse(?toStart : Bool = false) : Void;
+  function selectNode(node : Node) : Void;
+  function selectNodeContents(node : Node) : Void;
+
+  function compareBoundaryPoints(how : RangeHow, sourceRange : Range) : Int;
+
+  function deleteContents() : Void;
+  function extractContents() : DocumentFragment;
+  function cloneContents() : DocumentFragment;
+  function insertNode(node : Node) : Void;
+  function surroundContents(newParent : Node) : Void;
+
+  function cloneRange() : Range;
+  function detach() : Void;
+
+  function isPointInRange(node : Node, offset : Int) : Bool;
+  function comparePoint(node : Node, offset : Int) : Int;
+
+  function intersectsNode(node : Node) : Bool;
+
   // stringifier;
+}
+
+@:enum
+abstract RangeHow(Int) to Int {
+  public var START_TO_START : RangeHow = 0;
+  public var START_TO_END : RangeHow = 1;
+  public var END_TO_END : RangeHow = 2;
+  public var END_TO_START : RangeHow = 3;
 }
