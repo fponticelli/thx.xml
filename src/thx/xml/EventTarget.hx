@@ -61,6 +61,11 @@ class EventTarget implements thx.xml.dom.EventTarget {
     map = new Map();
   }
 
+  public function fire(type : DOMString, ?bubbles = false, ?cancelable = false) {
+    var event = new thx.xml.Event(type, { bubbles : bubbles, cancelable : cancelable });
+    dispatchEvent(event);
+  }
+
   function existsListener(type : DOMString, ?callback : EventListener, ?capture : Null<Bool>) : Bool {
     var list = ensureList(type);
     var c : Bool = null == capture ? false : capture;
