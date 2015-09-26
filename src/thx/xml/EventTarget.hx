@@ -28,23 +28,25 @@ class EventTarget implements thx.xml.dom.EventTarget {
     event.isTrusted = false;
     // dispatch event
     event.dispatchFlag = true;
-    setTarget(event);
+    setEventTarget(event);
     var eventPath = getAncestors();
     event.eventPhase = CAPTURING_PHASE;
     for(eventTarget in eventPath) {
-      if(event.stopPropagationFlag) break;
-      eventTarget.invokeListeners(event);
+      if(event.stopPropagationFlag)
+        break;
+      eventTarget.invoke(event);
     }
     event.eventPhase = AT_TARGET;
     if(!event.stopPropagationFlag) {
-      invokeListeners(event);
+      invoke(event);
     }
     if(event.bubbles && !event.stopPropagationFlag) {
       eventPath.reverse();
       event.eventPhase = BUBBLING_PHASE;
       for(eventTarget in eventPath) {
-        if(event.stopPropagationFlag) break;
-        eventTarget.invokeListeners(event);
+        if(event.stopPropagationFlag)
+          break;
+        eventTarget.invoke(event);
       }
     }
     event.dispatchFlag = false;
@@ -74,7 +76,8 @@ class EventTarget implements thx.xml.dom.EventTarget {
     return list;
   }
 
-  function setTarget(event : thx.xml.Event) {
+  function setEventTarget(event : thx.xml.Event) {
+    // TODO add override
     event.target = this;
   }
 
@@ -83,10 +86,20 @@ class EventTarget implements thx.xml.dom.EventTarget {
     return [];
   }
 
-  function invokeListeners(event : thx.xml.Event) {
+  function invoke(event : thx.xml.Event) {
     var list = map.get(event.type);
     if(null == list) return;
-    for(item in list)
+    list = list.copy(); // should play nice with altering the original chain of listeners
+    event.currentTarget = this;
+    for(item in list) {
+      if(event.stopImmediatePropagationFlag)
+        break;
+      if(event.eventPhase == CAPTURING_PHASE && !item.capture ||
+         event.eventPhase == BUBBLING_PHASE && item.capture)
+        continue;
+      // Call listener's callback's handleEvent, with the event passed to this algorithm as the first argument and event's currentTarget attribute value as callback this value.
+      // TODO not sure how this works out in Haxe, possibly do nothing about it
       item.listener.handleEvent(event);
+    }
   }
 }

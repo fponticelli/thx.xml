@@ -3866,7 +3866,7 @@ thx_xml_EventTarget.prototype = {
 		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11);
 		event1.isTrusted = false;
 		event1.dispatchFlag = true;
-		this.setTarget(event1);
+		this.setEventTarget(event1);
 		var eventPath = this.getAncestors();
 		event1.eventPhase = 1;
 		var _g = 0;
@@ -3874,10 +3874,10 @@ thx_xml_EventTarget.prototype = {
 			var eventTarget = eventPath[_g];
 			++_g;
 			if(event1.stopPropagationFlag) break;
-			eventTarget.invokeListeners(event1);
+			eventTarget.invoke(event1);
 		}
 		event1.eventPhase = 2;
-		if(!event1.stopPropagationFlag) this.invokeListeners(event1);
+		if(!event1.stopPropagationFlag) this.invoke(event1);
 		if(event1.bubbles && !event1.stopPropagationFlag) {
 			eventPath.reverse();
 			event1.eventPhase = 3;
@@ -3886,7 +3886,7 @@ thx_xml_EventTarget.prototype = {
 				var eventTarget1 = eventPath[_g1];
 				++_g1;
 				if(event1.stopPropagationFlag) break;
-				eventTarget1.invokeListeners(event1);
+				eventTarget1.invoke(event1);
 			}
 		}
 		event1.dispatchFlag = false;
@@ -3911,19 +3911,23 @@ thx_xml_EventTarget.prototype = {
 		}
 		return list;
 	}
-	,setTarget: function(event) {
+	,setEventTarget: function(event) {
 		event.target = this;
 	}
 	,getAncestors: function() {
 		return [];
 	}
-	,invokeListeners: function(event) {
+	,invoke: function(event) {
 		var list = this.map.get(event.type);
 		if(null == list) return;
+		list = list.slice();
+		event.currentTarget = this;
 		var _g = 0;
 		while(_g < list.length) {
 			var item = list[_g];
 			++_g;
+			if(event.stopImmediatePropagationFlag) break;
+			if(event.eventPhase == 1 && !item.capture || event.eventPhase == 3 && item.capture) continue;
 			item.listener.handleEvent(event);
 		}
 	}
