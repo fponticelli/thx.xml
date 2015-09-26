@@ -351,7 +351,7 @@ StringTools.replace = function(s,sub,by) {
 var TestAll = function() { };
 TestAll.__name__ = ["TestAll"];
 TestAll.main = function() {
-	utest_UTest.run([new thx_xml_TestDOMException(),new thx_xml_TestEvent()]);
+	utest_UTest.run([new thx_xml_TestDOMException(),new thx_xml_TestEvent(),new thx_xml_TestNode()]);
 };
 var ValueType = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] };
 ValueType.TNull = ["TNull",0];
@@ -3712,6 +3712,283 @@ thx_error_ErrorWrapper.prototype = $extend(thx_Error.prototype,{
 	innerError: null
 	,__class__: thx_error_ErrorWrapper
 });
+var thx_xml_dom_EventTarget = function() { };
+thx_xml_dom_EventTarget.__name__ = ["thx","xml","dom","EventTarget"];
+thx_xml_dom_EventTarget.prototype = {
+	addEventListener: null
+	,removeEventListener: null
+	,dispatchEvent: null
+	,__class__: thx_xml_dom_EventTarget
+};
+var thx_xml_EventTarget = function() {
+	this.map = new haxe_ds_StringMap();
+};
+thx_xml_EventTarget.__name__ = ["thx","xml","EventTarget"];
+thx_xml_EventTarget.__interfaces__ = [thx_xml_dom_EventTarget];
+thx_xml_EventTarget.prototype = {
+	addEventListener: function(type,callback,capture) {
+		if(null == callback || this.existsListener(type,callback,capture)) return;
+		var list = this.ensureList(type);
+		list.push({ listener : callback, capture : null == capture?false:capture});
+	}
+	,removeEventListener: function(type,callback,capture) {
+		var list = this.ensureList(type);
+		thx_Arrays.extract(list,function(item) {
+			return item.listener.handleEvent == callback.handleEvent && item.capture == capture;
+		});
+	}
+	,dispatchEvent: function(event) {
+		var event1;
+		event1 = js_Boot.__cast(event , thx_xml_Event);
+		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11,null,null,{ fileName : "EventTarget.hx", lineNumber : 27, className : "thx.xml.EventTarget", methodName : "dispatchEvent"});
+		event1.isTrusted = false;
+		event1.dispatchFlag = true;
+		this.setEventTarget(event1);
+		var eventPath = this.getAncestors();
+		event1.eventPhase = 1;
+		var _g = 0;
+		while(_g < eventPath.length) {
+			var eventTarget = eventPath[_g];
+			++_g;
+			if(event1.stopPropagationFlag) break;
+			eventTarget.invoke(event1);
+		}
+		event1.eventPhase = 2;
+		if(!event1.stopPropagationFlag) this.invoke(event1);
+		if(event1.bubbles && !event1.stopPropagationFlag) {
+			eventPath.reverse();
+			event1.eventPhase = 3;
+			var _g1 = 0;
+			while(_g1 < eventPath.length) {
+				var eventTarget1 = eventPath[_g1];
+				++_g1;
+				if(event1.stopPropagationFlag) break;
+				eventTarget1.invoke(event1);
+			}
+		}
+		event1.dispatchFlag = false;
+		event1.eventPhase = 0;
+		event1.currentTarget = null;
+		return !event1.defaultPrevented;
+	}
+	,map: null
+	,fireEvent: function(type,bubbles,cancelable) {
+		if(cancelable == null) cancelable = false;
+		if(bubbles == null) bubbles = false;
+		var event = new thx_xml_Event(type,{ bubbles : bubbles, cancelable : cancelable});
+		this.dispatchEvent(event);
+	}
+	,existsListener: function(type,callback,capture) {
+		var list = this.ensureList(type);
+		var c;
+		if(null == capture) c = false; else c = capture;
+		return thx_Arrays.any(list,function(item) {
+			return item.listener.handleEvent == callback.handleEvent && item.capture == c;
+		});
+	}
+	,ensureList: function(type) {
+		var list = this.map.get(type);
+		if(null == list) {
+			list = [];
+			this.map.set(type,list);
+		}
+		return list;
+	}
+	,setEventTarget: function(event) {
+		event.target = this;
+	}
+	,getAncestors: function() {
+		return [];
+	}
+	,invoke: function(event) {
+		var list = this.map.get(event.type);
+		if(null == list) return;
+		list = list.slice();
+		event.currentTarget = this;
+		var _g = 0;
+		while(_g < list.length) {
+			var item = list[_g];
+			++_g;
+			if(event.stopImmediatePropagationFlag) break;
+			if(event.eventPhase == 1 && !item.capture || event.eventPhase == 3 && item.capture) continue;
+			item.listener.handleEvent(event);
+		}
+	}
+	,__class__: thx_xml_EventTarget
+};
+var thx_xml_dom_Node = function() { };
+thx_xml_dom_Node.__name__ = ["thx","xml","dom","Node"];
+thx_xml_dom_Node.__interfaces__ = [thx_xml_dom_EventTarget];
+thx_xml_dom_Node.prototype = {
+	nodeType: null
+	,nodeName: null
+	,baseURI: null
+	,ownerDocument: null
+	,parentNode: null
+	,parentElement: null
+	,hasChildNodes: null
+	,childNodes: null
+	,firstChild: null
+	,lastChild: null
+	,previousSibling: null
+	,nextSibling: null
+	,nodeValue: null
+	,textContent: null
+	,normalize: null
+	,cloneNode: null
+	,isEqualNode: null
+	,compareDocumentPosition: null
+	,contains: null
+	,lookupPrefix: null
+	,lookupNamespaceURI: null
+	,isDefaultNamespace: null
+	,insertBefore: null
+	,appendChild: null
+	,replaceChild: null
+	,removeChild: null
+	,__class__: thx_xml_dom_Node
+};
+var thx_xml_Node = function(nodeType,nodeName,baseURI,ownerDocument) {
+	this.nodeType = nodeType;
+	this.nodeName = nodeName;
+	this.baseURI = baseURI;
+	this.ownerDocument = ownerDocument;
+	thx_xml_EventTarget.call(this);
+};
+thx_xml_Node.__name__ = ["thx","xml","Node"];
+thx_xml_Node.__interfaces__ = [thx_xml_dom_Node];
+thx_xml_Node.__super__ = thx_xml_EventTarget;
+thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
+	nodeType: null
+	,nodeName: null
+	,baseURI: null
+	,ownerDocument: null
+	,parentNode: null
+	,parentElement: null
+	,hasChildNodes: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,childNodes: null
+	,firstChild: null
+	,lastChild: null
+	,previousSibling: null
+	,nextSibling: null
+	,nodeValue: null
+	,textContent: null
+	,normalize: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,cloneNode: function(deep) {
+		if(deep == null) deep = false;
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,isEqualNode: function(other) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,compareDocumentPosition: function(other) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,contains: function(other) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,lookupPrefix: function($namespace) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,lookupNamespaceURI: function(prefix) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,isDefaultNamespace: function($namespace) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,insertBefore: function(node,child) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,appendChild: function(node) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,replaceChild: function(node,child) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,removeChild: function(child) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,__class__: thx_xml_Node
+});
+var thx_xml_dom_ChildNode = function() { };
+thx_xml_dom_ChildNode.__name__ = ["thx","xml","dom","ChildNode"];
+thx_xml_dom_ChildNode.prototype = {
+	remove: null
+	,__class__: thx_xml_dom_ChildNode
+};
+var thx_xml_dom_NonDocumentTypeChildNode = function() { };
+thx_xml_dom_NonDocumentTypeChildNode.__name__ = ["thx","xml","dom","NonDocumentTypeChildNode"];
+thx_xml_dom_NonDocumentTypeChildNode.prototype = {
+	previousElementSibling: null
+	,nextElementSibling: null
+	,__class__: thx_xml_dom_NonDocumentTypeChildNode
+};
+var thx_xml_dom_CharacterData = function() { };
+thx_xml_dom_CharacterData.__name__ = ["thx","xml","dom","CharacterData"];
+thx_xml_dom_CharacterData.__interfaces__ = [thx_xml_dom_Node,thx_xml_dom_ChildNode,thx_xml_dom_NonDocumentTypeChildNode];
+thx_xml_dom_CharacterData.prototype = {
+	data: null
+	,length: null
+	,substringData: null
+	,appendData: null
+	,insertData: null
+	,deleteData: null
+	,replaceData: null
+	,__class__: thx_xml_dom_CharacterData
+};
+var thx_xml_CharacterData = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_CharacterData.__name__ = ["thx","xml","CharacterData"];
+thx_xml_CharacterData.__interfaces__ = [thx_xml_dom_CharacterData];
+thx_xml_CharacterData.__super__ = thx_xml_Node;
+thx_xml_CharacterData.prototype = $extend(thx_xml_Node.prototype,{
+	data: null
+	,length: null
+	,substringData: function(offset,count) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,appendData: function(data) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,insertData: function(offset,data) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,deleteData: function(offset,count) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,replaceData: function(offset,count,data) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,remove: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,nextElementSibling: null
+	,previousElementSibling: null
+	,__class__: thx_xml_CharacterData
+});
+var thx_xml_dom_Comment = function() { };
+thx_xml_dom_Comment.__name__ = ["thx","xml","dom","Comment"];
+thx_xml_dom_Comment.__interfaces__ = [thx_xml_dom_CharacterData];
+var thx_xml_Comment = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_CharacterData.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_Comment.__name__ = ["thx","xml","Comment"];
+thx_xml_Comment.__interfaces__ = [thx_xml_dom_Comment];
+thx_xml_Comment.__super__ = thx_xml_CharacterData;
+thx_xml_Comment.prototype = $extend(thx_xml_CharacterData.prototype,{
+	__class__: thx_xml_Comment
+});
 var thx_xml_dom_Event = function() { };
 thx_xml_dom_Event.__name__ = ["thx","xml","dom","Event"];
 thx_xml_dom_Event.prototype = {
@@ -3835,110 +4112,319 @@ thx_xml_DOMException.prototype = $extend(thx_Error.prototype,{
 	code: null
 	,__class__: thx_xml_DOMException
 });
-var thx_xml_dom_EventTarget = function() { };
-thx_xml_dom_EventTarget.__name__ = ["thx","xml","dom","EventTarget"];
-thx_xml_dom_EventTarget.prototype = {
-	addEventListener: null
-	,removeEventListener: null
-	,dispatchEvent: null
-	,__class__: thx_xml_dom_EventTarget
+var thx_xml_dom_DOMImplementation = function() { };
+thx_xml_dom_DOMImplementation.__name__ = ["thx","xml","dom","DOMImplementation"];
+thx_xml_dom_DOMImplementation.prototype = {
+	createDocumentType: null
+	,createDocument: null
+	,createHTMLDocument: null
+	,hasFeature: null
+	,__class__: thx_xml_dom_DOMImplementation
 };
-var thx_xml_EventTarget = function() {
-	this.map = new haxe_ds_StringMap();
+var thx_xml_DOMImplementation = function() { };
+thx_xml_DOMImplementation.__name__ = ["thx","xml","DOMImplementation"];
+thx_xml_DOMImplementation.__interfaces__ = [thx_xml_dom_DOMImplementation];
+thx_xml_DOMImplementation.prototype = {
+	createDocumentType: function(qualifiedName,publicId,systemId) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createDocument: function($namespace,qualifiedName,doctype) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createHTMLDocument: function(title) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,hasFeature: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,__class__: thx_xml_DOMImplementation
 };
-thx_xml_EventTarget.__name__ = ["thx","xml","EventTarget"];
-thx_xml_EventTarget.__interfaces__ = [thx_xml_dom_EventTarget];
-thx_xml_EventTarget.prototype = {
-	addEventListener: function(type,callback,capture) {
-		if(null == callback || this.existsListener(type,callback,capture)) return;
-		var list = this.ensureList(type);
-		list.push({ listener : callback, capture : null == capture?false:capture});
-	}
-	,removeEventListener: function(type,callback,capture) {
-		var list = this.ensureList(type);
-		thx_Arrays.extract(list,function(item) {
-			return item.listener.handleEvent == callback.handleEvent && item.capture == capture;
-		});
-	}
-	,dispatchEvent: function(event) {
-		var event1;
-		event1 = js_Boot.__cast(event , thx_xml_Event);
-		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11,null,null,{ fileName : "EventTarget.hx", lineNumber : 27, className : "thx.xml.EventTarget", methodName : "dispatchEvent"});
-		event1.isTrusted = false;
-		event1.dispatchFlag = true;
-		this.setEventTarget(event1);
-		var eventPath = this.getAncestors();
-		event1.eventPhase = 1;
-		var _g = 0;
-		while(_g < eventPath.length) {
-			var eventTarget = eventPath[_g];
-			++_g;
-			if(event1.stopPropagationFlag) break;
-			eventTarget.invoke(event1);
-		}
-		event1.eventPhase = 2;
-		if(!event1.stopPropagationFlag) this.invoke(event1);
-		if(event1.bubbles && !event1.stopPropagationFlag) {
-			eventPath.reverse();
-			event1.eventPhase = 3;
-			var _g1 = 0;
-			while(_g1 < eventPath.length) {
-				var eventTarget1 = eventPath[_g1];
-				++_g1;
-				if(event1.stopPropagationFlag) break;
-				eventTarget1.invoke(event1);
-			}
-		}
-		event1.dispatchFlag = false;
-		event1.eventPhase = 0;
-		event1.currentTarget = null;
-		return !event1.defaultPrevented;
-	}
-	,map: null
-	,fireEvent: function(type,bubbles,cancelable) {
-		if(cancelable == null) cancelable = false;
-		if(bubbles == null) bubbles = false;
-		var event = new thx_xml_Event(type,{ bubbles : bubbles, cancelable : cancelable});
-		this.dispatchEvent(event);
-	}
-	,existsListener: function(type,callback,capture) {
-		var list = this.ensureList(type);
-		var c;
-		if(null == capture) c = false; else c = capture;
-		return thx_Arrays.any(list,function(item) {
-			return item.listener.handleEvent == callback.handleEvent && item.capture == c;
-		});
-	}
-	,ensureList: function(type) {
-		var list = this.map.get(type);
-		if(null == list) {
-			list = [];
-			this.map.set(type,list);
-		}
-		return list;
-	}
-	,setEventTarget: function(event) {
-		event.target = this;
-	}
-	,getAncestors: function() {
-		return [];
-	}
-	,invoke: function(event) {
-		var list = this.map.get(event.type);
-		if(null == list) return;
-		list = list.slice();
-		event.currentTarget = this;
-		var _g = 0;
-		while(_g < list.length) {
-			var item = list[_g];
-			++_g;
-			if(event.stopImmediatePropagationFlag) break;
-			if(event.eventPhase == 1 && !item.capture || event.eventPhase == 3 && item.capture) continue;
-			item.listener.handleEvent(event);
-		}
-	}
-	,__class__: thx_xml_EventTarget
+var thx_xml_dom_NonElementParentNode = function() { };
+thx_xml_dom_NonElementParentNode.__name__ = ["thx","xml","dom","NonElementParentNode"];
+thx_xml_dom_NonElementParentNode.prototype = {
+	getElementById: null
+	,__class__: thx_xml_dom_NonElementParentNode
 };
+var thx_xml_dom_ParentNode = function() { };
+thx_xml_dom_ParentNode.__name__ = ["thx","xml","dom","ParentNode"];
+thx_xml_dom_ParentNode.prototype = {
+	children: null
+	,firstElementChild: null
+	,lastElementChild: null
+	,childElementCount: null
+	,querySelector: null
+	,querySelectorAll: null
+	,__class__: thx_xml_dom_ParentNode
+};
+var thx_xml_dom_Document = function() { };
+thx_xml_dom_Document.__name__ = ["thx","xml","dom","Document"];
+thx_xml_dom_Document.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
+thx_xml_dom_Document.prototype = {
+	implementation: null
+	,URL: null
+	,documentURI: null
+	,origin: null
+	,compatMode: null
+	,characterSet: null
+	,contentType: null
+	,doctype: null
+	,documentElement: null
+	,getElementsByTagName: null
+	,getElementsByTagNameNS: null
+	,getElementsByClassName: null
+	,createElement: null
+	,createElementNS: null
+	,createDocumentFragment: null
+	,createTextNode: null
+	,createComment: null
+	,createProcessingInstruction: null
+	,importNode: null
+	,adoptNode: null
+	,createEvent: null
+	,createRange: null
+	,createNodeIterator: null
+	,createTreeWalker: null
+	,__class__: thx_xml_dom_Document
+};
+var thx_xml_Document = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_Document.__name__ = ["thx","xml","Document"];
+thx_xml_Document.__interfaces__ = [thx_xml_dom_Document];
+thx_xml_Document.__super__ = thx_xml_Node;
+thx_xml_Document.prototype = $extend(thx_xml_Node.prototype,{
+	implementation: null
+	,URL: null
+	,documentURI: null
+	,origin: null
+	,compatMode: null
+	,characterSet: null
+	,contentType: null
+	,doctype: null
+	,documentElement: null
+	,getElementsByTagName: function(localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getElementsByTagNameNS: function($namespace,localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getElementsByClassName: function(classNames) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createElement: function(localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createElementNS: function($namespace,qualifiedName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createDocumentFragment: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createTextNode: function(data) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createComment: function(data) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createProcessingInstruction: function(target,data) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,importNode: function(node,deep) {
+		if(deep == null) deep = false;
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,adoptNode: function(node) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createEvent: function(interfaceName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createRange: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createNodeIterator: function(root,whatToShow,filter) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,createTreeWalker: function(root,whatToShow,filter) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getElementById: function(id) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,children: null
+	,firstElementChild: null
+	,lastElementChild: null
+	,childElementCount: null
+	,querySelector: function(selectors) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,querySelectorAll: function(selectors) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,__class__: thx_xml_Document
+});
+var thx_xml_dom_DocumentFragment = function() { };
+thx_xml_dom_DocumentFragment.__name__ = ["thx","xml","dom","DocumentFragment"];
+thx_xml_dom_DocumentFragment.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
+var thx_xml_DocumentFragment = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_DocumentFragment.__name__ = ["thx","xml","DocumentFragment"];
+thx_xml_DocumentFragment.__interfaces__ = [thx_xml_dom_DocumentFragment];
+thx_xml_DocumentFragment.__super__ = thx_xml_Node;
+thx_xml_DocumentFragment.prototype = $extend(thx_xml_Node.prototype,{
+	getElementById: function(id) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,children: null
+	,firstElementChild: null
+	,lastElementChild: null
+	,childElementCount: null
+	,querySelector: function(selectors) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,querySelectorAll: function(selectors) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,__class__: thx_xml_DocumentFragment
+});
+var thx_xml_dom_DocumentType = function() { };
+thx_xml_dom_DocumentType.__name__ = ["thx","xml","dom","DocumentType"];
+thx_xml_dom_DocumentType.__interfaces__ = [thx_xml_dom_ChildNode];
+thx_xml_dom_DocumentType.prototype = {
+	name: null
+	,publicId: null
+	,systemId: null
+	,__class__: thx_xml_dom_DocumentType
+};
+var thx_xml_DocumentType = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_DocumentType.__name__ = ["thx","xml","DocumentType"];
+thx_xml_DocumentType.__interfaces__ = [thx_xml_dom_DocumentType];
+thx_xml_DocumentType.__super__ = thx_xml_Node;
+thx_xml_DocumentType.prototype = $extend(thx_xml_Node.prototype,{
+	name: null
+	,publicId: null
+	,systemId: null
+	,remove: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,__class__: thx_xml_DocumentType
+});
+var thx_xml_dom_Element = function() { };
+thx_xml_dom_Element.__name__ = ["thx","xml","dom","Element"];
+thx_xml_dom_Element.__interfaces__ = [thx_xml_dom_ChildNode,thx_xml_dom_NonDocumentTypeChildNode,thx_xml_dom_ParentNode];
+thx_xml_dom_Element.prototype = {
+	namespaceURI: null
+	,prefix: null
+	,localName: null
+	,tagName: null
+	,id: null
+	,className: null
+	,classList: null
+	,attributes: null
+	,getAttribute: null
+	,getAttributeNS: null
+	,setAttribute: null
+	,setAttributeNS: null
+	,removeAttribute: null
+	,removeAttributeNS: null
+	,hasAttribute: null
+	,hasAttributeNS: null
+	,getElementsByTagName: null
+	,getElementsByTagNameNS: null
+	,getElementsByClassName: null
+	,__class__: thx_xml_dom_Element
+};
+var thx_xml_Element = function(elementName,baseURI,ownerDocument) {
+	thx_xml_Node.call(this,1,elementName,baseURI,ownerDocument);
+};
+thx_xml_Element.__name__ = ["thx","xml","Element"];
+thx_xml_Element.__interfaces__ = [thx_xml_dom_Element];
+thx_xml_Element.__super__ = thx_xml_Node;
+thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
+	namespaceURI: null
+	,prefix: null
+	,localName: null
+	,tagName: null
+	,id: null
+	,className: null
+	,classList: null
+	,attributes: null
+	,getAttribute: function(name) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getAttributeNS: function($namespace,localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,setAttribute: function(name,value) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,setAttributeNS: function($namespace,name,value) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,removeAttribute: function(name) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,removeAttributeNS: function($namespace,localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,hasAttribute: function(name) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,hasAttributeNS: function($namespace,localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getElementsByTagName: function(localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getElementsByTagNameNS: function($namespace,localName) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,getElementsByClassName: function(classNames) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,remove: function() {
+		throw new js__$Boot_HaxeError("not implemented");
+		return;
+	}
+	,nextElementSibling: null
+	,previousElementSibling: null
+	,children: null
+	,firstElementChild: null
+	,lastElementChild: null
+	,childElementCount: null
+	,querySelector: function(selectors) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,querySelectorAll: function(selectors) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,__class__: thx_xml_Element
+});
+var thx_xml_dom_ProcessingInstruction = function() { };
+thx_xml_dom_ProcessingInstruction.__name__ = ["thx","xml","dom","ProcessingInstruction"];
+thx_xml_dom_ProcessingInstruction.__interfaces__ = [thx_xml_dom_CharacterData];
+thx_xml_dom_ProcessingInstruction.prototype = {
+	target: null
+	,__class__: thx_xml_dom_ProcessingInstruction
+};
+var thx_xml_ProcessingInstruction = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_CharacterData.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_ProcessingInstruction.__name__ = ["thx","xml","ProcessingInstruction"];
+thx_xml_ProcessingInstruction.__interfaces__ = [thx_xml_dom_ProcessingInstruction];
+thx_xml_ProcessingInstruction.__super__ = thx_xml_CharacterData;
+thx_xml_ProcessingInstruction.prototype = $extend(thx_xml_CharacterData.prototype,{
+	target: null
+	,__class__: thx_xml_ProcessingInstruction
+});
 var thx_xml_TestDOMException = function() {
 };
 thx_xml_TestDOMException.__name__ = ["thx","xml","TestDOMException"];
@@ -3964,7 +4450,7 @@ thx_xml_TestEvent.prototype = {
 		utest_Assert.isFalse(event.cancelable,null,{ fileName : "TestEvent.hx", lineNumber : 15, className : "thx.xml.TestEvent", methodName : "testConstructor"});
 	}
 	,testEventTargetAddListener: function() {
-		var target = new thx_xml_EventTarget();
+		var target = new thx_xml_TestEventTarget();
 		var clicked = false;
 		target.addEventListener("click",{ handleEvent : function(_) {
 			clicked = !clicked;
@@ -3973,7 +4459,7 @@ thx_xml_TestEvent.prototype = {
 		utest_Assert.isTrue(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 23, className : "thx.xml.TestEvent", methodName : "testEventTargetAddListener"});
 	}
 	,testEventTargetRemoveListenerWithF: function() {
-		var target = new thx_xml_EventTarget();
+		var target = new thx_xml_TestEventTarget();
 		var clicked = false;
 		var f = function(_) {
 			clicked = !clicked;
@@ -3986,7 +4472,7 @@ thx_xml_TestEvent.prototype = {
 		utest_Assert.isFalse(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 35, className : "thx.xml.TestEvent", methodName : "testEventTargetRemoveListenerWithF"});
 	}
 	,testEventTargetRemoveListenerWithObject: function() {
-		var target = new thx_xml_EventTarget();
+		var target = new thx_xml_TestEventTarget();
 		var clicked = false;
 		var o = { handleEvent : function(_) {
 			clicked = !clicked;
@@ -4000,6 +4486,41 @@ thx_xml_TestEvent.prototype = {
 	}
 	,__class__: thx_xml_TestEvent
 };
+var thx_xml_TestEventTarget = function() {
+	thx_xml_EventTarget.call(this);
+};
+thx_xml_TestEventTarget.__name__ = ["thx","xml","TestEventTarget"];
+thx_xml_TestEventTarget.__super__ = thx_xml_EventTarget;
+thx_xml_TestEventTarget.prototype = $extend(thx_xml_EventTarget.prototype,{
+	__class__: thx_xml_TestEventTarget
+});
+var thx_xml_TestNode = function() {
+};
+thx_xml_TestNode.__name__ = ["thx","xml","TestNode"];
+thx_xml_TestNode.prototype = {
+	__class__: thx_xml_TestNode
+};
+var thx_xml_dom_Text = function() { };
+thx_xml_dom_Text.__name__ = ["thx","xml","dom","Text"];
+thx_xml_dom_Text.__interfaces__ = [thx_xml_dom_CharacterData];
+thx_xml_dom_Text.prototype = {
+	splitText: null
+	,wholeText: null
+	,__class__: thx_xml_dom_Text
+};
+var thx_xml_Text = function(nodeType,nodeName,baseURI,ownerDocument) {
+	thx_xml_CharacterData.call(this,nodeType,nodeName,baseURI,ownerDocument);
+};
+thx_xml_Text.__name__ = ["thx","xml","Text"];
+thx_xml_Text.__interfaces__ = [thx_xml_dom_Text];
+thx_xml_Text.__super__ = thx_xml_CharacterData;
+thx_xml_Text.prototype = $extend(thx_xml_CharacterData.prototype,{
+	splitText: function(offset) {
+		throw new js__$Boot_HaxeError("not implemented");
+	}
+	,wholeText: null
+	,__class__: thx_xml_Text
+});
 var thx_xml_dom_Attr = function() { };
 thx_xml_dom_Attr.__name__ = ["thx","xml","dom","Attr"];
 thx_xml_dom_Attr.prototype = {
@@ -4010,71 +4531,6 @@ thx_xml_dom_Attr.prototype = {
 	,prefix: null
 	,specified: null
 	,__class__: thx_xml_dom_Attr
-};
-var thx_xml_dom_Node = function() { };
-thx_xml_dom_Node.__name__ = ["thx","xml","dom","Node"];
-thx_xml_dom_Node.__interfaces__ = [thx_xml_dom_EventTarget];
-thx_xml_dom_Node.prototype = {
-	nodeType: null
-	,nodeName: null
-	,baseURI: null
-	,ownerDocument: null
-	,parentNode: null
-	,parentElement: null
-	,hasChildNodes: null
-	,childNodes: null
-	,firstChild: null
-	,lastChild: null
-	,previousSibling: null
-	,nextSibling: null
-	,nodeValue: null
-	,textContent: null
-	,normalize: null
-	,cloneNode: null
-	,isEqualNode: null
-	,compareDocumentPosition: null
-	,contains: null
-	,lookupPrefix: null
-	,lookupNamespaceURI: null
-	,isDefaultNamespace: null
-	,insertBefore: null
-	,appendChild: null
-	,replaceChild: null
-	,removeChild: null
-	,__class__: thx_xml_dom_Node
-};
-var thx_xml_dom_ChildNode = function() { };
-thx_xml_dom_ChildNode.__name__ = ["thx","xml","dom","ChildNode"];
-thx_xml_dom_ChildNode.prototype = {
-	remove: null
-	,__class__: thx_xml_dom_ChildNode
-};
-var thx_xml_dom_NonDocumentTypeChildNode = function() { };
-thx_xml_dom_NonDocumentTypeChildNode.__name__ = ["thx","xml","dom","NonDocumentTypeChildNode"];
-thx_xml_dom_NonDocumentTypeChildNode.prototype = {
-	previousElementSibling: null
-	,nextElementSibling: null
-	,__class__: thx_xml_dom_NonDocumentTypeChildNode
-};
-var thx_xml_dom_CharacterData = function() { };
-thx_xml_dom_CharacterData.__name__ = ["thx","xml","dom","CharacterData"];
-thx_xml_dom_CharacterData.__interfaces__ = [thx_xml_dom_Node,thx_xml_dom_ChildNode,thx_xml_dom_NonDocumentTypeChildNode];
-thx_xml_dom_CharacterData.prototype = {
-	data: null
-	,length: null
-	,substringData: null
-	,appendData: null
-	,insertData: null
-	,deleteData: null
-	,replaceData: null
-	,__class__: thx_xml_dom_CharacterData
-};
-var thx_xml_dom_Comment = function() { };
-thx_xml_dom_Comment.__name__ = ["thx","xml","dom","Comment"];
-thx_xml_dom_Comment.__interfaces__ = [thx_xml_dom_CharacterData];
-thx_xml_dom_Comment.prototype = {
-	target: null
-	,__class__: thx_xml_dom_Comment
 };
 var thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$ = {};
 thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.__name__ = ["thx","xml","dom","_CustomEvent","CustomEventInit_Impl_"];
@@ -4272,15 +4728,6 @@ thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getName = function(this1) {
 		return "Unknown error code " + this1;
 	}
 };
-var thx_xml_dom_DOMImplementation = function() { };
-thx_xml_dom_DOMImplementation.__name__ = ["thx","xml","dom","DOMImplementation"];
-thx_xml_dom_DOMImplementation.prototype = {
-	createDocumentType: null
-	,createDocument: null
-	,createHTMLDocument: null
-	,hasFeature: null
-	,__class__: thx_xml_dom_DOMImplementation
-};
 var thx_xml_dom_DOMTokenList = function() { };
 thx_xml_dom_DOMTokenList.__name__ = ["thx","xml","dom","DOMTokenList"];
 thx_xml_dom_DOMTokenList.prototype = {
@@ -4298,90 +4745,6 @@ thx_xml_dom_DOMSettableTokenList.__interfaces__ = [thx_xml_dom_DOMTokenList];
 thx_xml_dom_DOMSettableTokenList.prototype = {
 	value: null
 	,__class__: thx_xml_dom_DOMSettableTokenList
-};
-var thx_xml_dom_NonElementParentNode = function() { };
-thx_xml_dom_NonElementParentNode.__name__ = ["thx","xml","dom","NonElementParentNode"];
-thx_xml_dom_NonElementParentNode.prototype = {
-	getElementById: null
-	,__class__: thx_xml_dom_NonElementParentNode
-};
-var thx_xml_dom_ParentNode = function() { };
-thx_xml_dom_ParentNode.__name__ = ["thx","xml","dom","ParentNode"];
-thx_xml_dom_ParentNode.prototype = {
-	children: null
-	,firstElementChild: null
-	,lastElementChild: null
-	,childElementCount: null
-	,querySelector: null
-	,querySelectorAll: null
-	,__class__: thx_xml_dom_ParentNode
-};
-var thx_xml_dom_Document = function() { };
-thx_xml_dom_Document.__name__ = ["thx","xml","dom","Document"];
-thx_xml_dom_Document.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
-thx_xml_dom_Document.prototype = {
-	implementation: null
-	,URL: null
-	,documentURI: null
-	,origin: null
-	,compatMode: null
-	,characterSet: null
-	,contentType: null
-	,doctype: null
-	,documentElement: null
-	,getElementsByTagName: null
-	,getElementsByTagNameNS: null
-	,getElementsByClassName: null
-	,createElement: null
-	,createElementNS: null
-	,createDocumentFragment: null
-	,createTextNode: null
-	,createComment: null
-	,createProcessingInstruction: null
-	,importNode: null
-	,adoptNode: null
-	,createEvent: null
-	,createRange: null
-	,createNodeIterator: null
-	,createTreeWalker: null
-	,__class__: thx_xml_dom_Document
-};
-var thx_xml_dom_DocumentFragment = function() { };
-thx_xml_dom_DocumentFragment.__name__ = ["thx","xml","dom","DocumentFragment"];
-thx_xml_dom_DocumentFragment.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
-var thx_xml_dom_DocumentType = function() { };
-thx_xml_dom_DocumentType.__name__ = ["thx","xml","dom","DocumentType"];
-thx_xml_dom_DocumentType.__interfaces__ = [thx_xml_dom_ChildNode];
-thx_xml_dom_DocumentType.prototype = {
-	name: null
-	,publicId: null
-	,systemId: null
-	,__class__: thx_xml_dom_DocumentType
-};
-var thx_xml_dom_Element = function() { };
-thx_xml_dom_Element.__name__ = ["thx","xml","dom","Element"];
-thx_xml_dom_Element.__interfaces__ = [thx_xml_dom_ChildNode,thx_xml_dom_NonDocumentTypeChildNode,thx_xml_dom_ParentNode];
-thx_xml_dom_Element.prototype = {
-	namespaceURI: null
-	,prefix: null
-	,localName: null
-	,tagName: null
-	,id: null
-	,className: null
-	,classList: null
-	,attributes: null
-	,getAttribute: null
-	,getAttributeNS: null
-	,setAttribute: null
-	,setAttributeNS: null
-	,removeAttribute: null
-	,removeAttributeNS: null
-	,hasAttribute: null
-	,hasAttributeNS: null
-	,getElementsByTagName: null
-	,getElementsByTagNameNS: null
-	,getElementsByClassName: null
-	,__class__: thx_xml_dom_Element
 };
 var thx_xml_dom__$Event_EventInit_$Impl_$ = {};
 thx_xml_dom__$Event_EventInit_$Impl_$.__name__ = ["thx","xml","dom","_Event","EventInit_Impl_"];
@@ -4466,13 +4829,6 @@ thx_xml_dom_NodeListInt.prototype = {
 	,length: null
 	,__class__: thx_xml_dom_NodeListInt
 };
-var thx_xml_dom_ProcessingInstruction = function() { };
-thx_xml_dom_ProcessingInstruction.__name__ = ["thx","xml","dom","ProcessingInstruction"];
-thx_xml_dom_ProcessingInstruction.__interfaces__ = [thx_xml_dom_CharacterData];
-thx_xml_dom_ProcessingInstruction.prototype = {
-	target: null
-	,__class__: thx_xml_dom_ProcessingInstruction
-};
 var thx_xml_dom_Range = function() { };
 thx_xml_dom_Range.__name__ = ["thx","xml","dom","Range"];
 thx_xml_dom_Range.prototype = {
@@ -4503,14 +4859,6 @@ thx_xml_dom_Range.prototype = {
 	,comparePoint: null
 	,intersectsNode: null
 	,__class__: thx_xml_dom_Range
-};
-var thx_xml_dom_Text = function() { };
-thx_xml_dom_Text.__name__ = ["thx","xml","dom","Text"];
-thx_xml_dom_Text.__interfaces__ = [thx_xml_dom_CharacterData];
-thx_xml_dom_Text.prototype = {
-	splitText: null
-	,wholeText: null
-	,__class__: thx_xml_dom_Text
 };
 var thx_xml_dom_TreeWalker = function() { };
 thx_xml_dom_TreeWalker.__name__ = ["thx","xml","dom","TreeWalker"];

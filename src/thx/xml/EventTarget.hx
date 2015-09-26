@@ -57,7 +57,7 @@ class EventTarget implements thx.xml.dom.EventTarget {
   }
 
   var map : Map<String, Array<{ listener : EventListener, capture : Bool }>>;
-  public function new() {
+  function new() {
     map = new Map();
   }
 

@@ -16,7 +16,7 @@ class TestEvent {
   }
 
   public function testEventTargetAddListener() {
-    var target = new EventTarget(),
+    var target = new TestEventTarget(),
         clicked = false;
     target.addEventListener("click", function(_) clicked = !clicked);
     target.fireEvent("click");
@@ -24,7 +24,7 @@ class TestEvent {
   }
 
   public function testEventTargetRemoveListenerWithF() {
-    var target = new EventTarget(),
+    var target = new TestEventTarget(),
         clicked = false,
         f = function(_) clicked = !clicked;
     target.addEventListener("click", f);
@@ -36,7 +36,7 @@ class TestEvent {
   }
 
   public function testEventTargetRemoveListenerWithObject() {
-    var target = new EventTarget(),
+    var target = new TestEventTarget(),
         clicked = false,
         o = { handleEvent : function(_) clicked = !clicked };
     target.addEventListener("click", o);
@@ -66,4 +66,8 @@ class TestEvent {
   // TODO test cancelable field
   // TODO test defaultPrevented
   // TODO test isTrusted
+}
+
+class TestEventTarget extends EventTarget {
+  public function new() super();
 }
