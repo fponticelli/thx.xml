@@ -4,13 +4,13 @@ import thx.xml.dom.DOMString;
 import thx.xml.dom.DOMException.DOMExceptionCode;
 
 class DOMException extends thx.Error implements thx.xml.dom.DOMException {
-  public static function fromName(name : String, ?message : String) {
+  public static function fromName(name : String, ?message : String, ?pos : haxe.PosInfos) {
     var code = DOMExceptionCode.fromName(name);
-    return new DOMException(code, name, null == message ? code.getMessage() : message);
+    return new DOMException(code, name, null == message ? code.getMessage() : message, pos);
   }
 
-  public static function fromCode(code : DOMExceptionCode, ?name : String, ?message : String)
-    return new DOMException(code, null == name ? code.getName() : name, null == message ? code.getMessage() : message);
+  public static function fromCode(code : DOMExceptionCode, ?name : String, ?message : String, ?pos : haxe.PosInfos)
+    return new DOMException(code, null == name ? code.getName() : name, null == message ? code.getMessage() : message, pos);
 
 #if !js
   public var name : DOMString;
