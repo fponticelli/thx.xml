@@ -66,7 +66,7 @@ class Event implements thx.xml.dom.Event {
     this.stopPropagationFlag = false;
     this.stopImmediatePropagationFlag = false;
     this.defaultPrevented = false;
-    this.initializedFlag = false;
+    this.initializedFlag = true;
     this.dispatchFlag = false;
 
     this.isTrusted = false;

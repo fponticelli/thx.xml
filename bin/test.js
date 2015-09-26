@@ -3747,7 +3747,7 @@ var thx_xml_Event = function(type,eventInitDict) {
 	this.stopPropagationFlag = false;
 	this.stopImmediatePropagationFlag = false;
 	this.defaultPrevented = false;
-	this.initializedFlag = false;
+	this.initializedFlag = true;
 	this.dispatchFlag = false;
 	this.isTrusted = false;
 };
@@ -3823,12 +3823,12 @@ var thx_xml_DOMException = function(code,name,message,pos) {
 };
 thx_xml_DOMException.__name__ = ["thx","xml","DOMException"];
 thx_xml_DOMException.__interfaces__ = [thx_xml_dom_DOMException];
-thx_xml_DOMException.fromName = function(name,message) {
+thx_xml_DOMException.fromName = function(name,message,pos) {
 	var code = thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.fromName(name);
-	return new thx_xml_DOMException(code,name,null == message?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,{ fileName : "DOMException.hx", lineNumber : 9, className : "thx.xml.DOMException", methodName : "fromName"});
+	return new thx_xml_DOMException(code,name,null == message?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,pos);
 };
-thx_xml_DOMException.fromCode = function(code,name,message) {
-	return new thx_xml_DOMException(code,null == name?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getName(code):name,null == message?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,{ fileName : "DOMException.hx", lineNumber : 13, className : "thx.xml.DOMException", methodName : "fromCode"});
+thx_xml_DOMException.fromCode = function(code,name,message,pos) {
+	return new thx_xml_DOMException(code,null == name?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getName(code):name,null == message?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,pos);
 };
 thx_xml_DOMException.__super__ = thx_Error;
 thx_xml_DOMException.prototype = $extend(thx_Error.prototype,{
@@ -3863,7 +3863,7 @@ thx_xml_EventTarget.prototype = {
 	,dispatchEvent: function(event) {
 		var event1;
 		event1 = js_Boot.__cast(event , thx_xml_Event);
-		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11);
+		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11,null,null,{ fileName : "EventTarget.hx", lineNumber : 27, className : "thx.xml.EventTarget", methodName : "dispatchEvent"});
 		event1.isTrusted = false;
 		event1.dispatchFlag = true;
 		this.setEventTarget(event1);
@@ -3895,6 +3895,12 @@ thx_xml_EventTarget.prototype = {
 		return !event1.defaultPrevented;
 	}
 	,map: null
+	,fireEvent: function(type,bubbles,cancelable) {
+		if(cancelable == null) cancelable = false;
+		if(bubbles == null) bubbles = false;
+		var event = new thx_xml_Event(type,{ bubbles : bubbles, cancelable : cancelable});
+		this.dispatchEvent(event);
+	}
 	,existsListener: function(type,callback,capture) {
 		var list = this.ensureList(type);
 		var c;
@@ -3938,12 +3944,12 @@ var thx_xml_TestDOMException = function() {
 thx_xml_TestDOMException.__name__ = ["thx","xml","TestDOMException"];
 thx_xml_TestDOMException.prototype = {
 	testException: function() {
-		utest_Assert.equals("SyntaxError",thx_xml_DOMException.fromName("SyntaxError").name,null,{ fileName : "TestDOMException.hx", lineNumber : 10, className : "thx.xml.TestDOMException", methodName : "testException"});
-		utest_Assert.equals(12,thx_xml_DOMException.fromName("SyntaxError").code,null,{ fileName : "TestDOMException.hx", lineNumber : 11, className : "thx.xml.TestDOMException", methodName : "testException"});
-		utest_Assert.equals("The string did not match the expected pattern",thx_xml_DOMException.fromName("SyntaxError").message,null,{ fileName : "TestDOMException.hx", lineNumber : 12, className : "thx.xml.TestDOMException", methodName : "testException"});
-		utest_Assert.equals("SyntaxError",thx_xml_DOMException.fromCode(12).name,null,{ fileName : "TestDOMException.hx", lineNumber : 14, className : "thx.xml.TestDOMException", methodName : "testException"});
-		utest_Assert.equals(12,thx_xml_DOMException.fromCode(12).code,null,{ fileName : "TestDOMException.hx", lineNumber : 15, className : "thx.xml.TestDOMException", methodName : "testException"});
-		utest_Assert.equals("The string did not match the expected pattern",thx_xml_DOMException.fromCode(12).message,null,{ fileName : "TestDOMException.hx", lineNumber : 16, className : "thx.xml.TestDOMException", methodName : "testException"});
+		utest_Assert.equals("SyntaxError",thx_xml_DOMException.fromName("SyntaxError",null,{ fileName : "TestDOMException.hx", lineNumber : 10, className : "thx.xml.TestDOMException", methodName : "testException"}).name,null,{ fileName : "TestDOMException.hx", lineNumber : 10, className : "thx.xml.TestDOMException", methodName : "testException"});
+		utest_Assert.equals(12,thx_xml_DOMException.fromName("SyntaxError",null,{ fileName : "TestDOMException.hx", lineNumber : 11, className : "thx.xml.TestDOMException", methodName : "testException"}).code,null,{ fileName : "TestDOMException.hx", lineNumber : 11, className : "thx.xml.TestDOMException", methodName : "testException"});
+		utest_Assert.equals("The string did not match the expected pattern",thx_xml_DOMException.fromName("SyntaxError",null,{ fileName : "TestDOMException.hx", lineNumber : 12, className : "thx.xml.TestDOMException", methodName : "testException"}).message,null,{ fileName : "TestDOMException.hx", lineNumber : 12, className : "thx.xml.TestDOMException", methodName : "testException"});
+		utest_Assert.equals("SyntaxError",thx_xml_DOMException.fromCode(12,null,null,{ fileName : "TestDOMException.hx", lineNumber : 14, className : "thx.xml.TestDOMException", methodName : "testException"}).name,null,{ fileName : "TestDOMException.hx", lineNumber : 14, className : "thx.xml.TestDOMException", methodName : "testException"});
+		utest_Assert.equals(12,thx_xml_DOMException.fromCode(12,null,null,{ fileName : "TestDOMException.hx", lineNumber : 15, className : "thx.xml.TestDOMException", methodName : "testException"}).code,null,{ fileName : "TestDOMException.hx", lineNumber : 15, className : "thx.xml.TestDOMException", methodName : "testException"});
+		utest_Assert.equals("The string did not match the expected pattern",thx_xml_DOMException.fromCode(12,null,null,{ fileName : "TestDOMException.hx", lineNumber : 16, className : "thx.xml.TestDOMException", methodName : "testException"}).message,null,{ fileName : "TestDOMException.hx", lineNumber : 16, className : "thx.xml.TestDOMException", methodName : "testException"});
 	}
 	,__class__: thx_xml_TestDOMException
 };
@@ -3957,8 +3963,40 @@ thx_xml_TestEvent.prototype = {
 		utest_Assert.isFalse(event.bubbles,null,{ fileName : "TestEvent.hx", lineNumber : 14, className : "thx.xml.TestEvent", methodName : "testConstructor"});
 		utest_Assert.isFalse(event.cancelable,null,{ fileName : "TestEvent.hx", lineNumber : 15, className : "thx.xml.TestEvent", methodName : "testConstructor"});
 	}
-	,testEventTarget: function() {
+	,testEventTargetAddListener: function() {
 		var target = new thx_xml_EventTarget();
+		var clicked = false;
+		target.addEventListener("click",{ handleEvent : function(_) {
+			clicked = !clicked;
+		}});
+		target.fireEvent("click");
+		utest_Assert.isTrue(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 23, className : "thx.xml.TestEvent", methodName : "testEventTargetAddListener"});
+	}
+	,testEventTargetRemoveListenerWithF: function() {
+		var target = new thx_xml_EventTarget();
+		var clicked = false;
+		var f = function(_) {
+			clicked = !clicked;
+		};
+		target.addEventListener("click",{ handleEvent : f});
+		target.fireEvent("click");
+		utest_Assert.isTrue(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 32, className : "thx.xml.TestEvent", methodName : "testEventTargetRemoveListenerWithF"});
+		target.removeEventListener("click",{ handleEvent : f});
+		target.fireEvent("click");
+		utest_Assert.isFalse(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 35, className : "thx.xml.TestEvent", methodName : "testEventTargetRemoveListenerWithF"});
+	}
+	,testEventTargetRemoveListenerWithObject: function() {
+		var target = new thx_xml_EventTarget();
+		var clicked = false;
+		var o = { handleEvent : function(_) {
+			clicked = !clicked;
+		}};
+		target.addEventListener("click",o);
+		target.fireEvent("click");
+		utest_Assert.isTrue(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 44, className : "thx.xml.TestEvent", methodName : "testEventTargetRemoveListenerWithObject"});
+		target.removeEventListener("click",o);
+		target.fireEvent("click");
+		utest_Assert.isFalse(clicked,null,{ fileName : "TestEvent.hx", lineNumber : 47, className : "thx.xml.TestEvent", methodName : "testEventTargetRemoveListenerWithObject"});
 	}
 	,__class__: thx_xml_TestEvent
 };
