@@ -2,6 +2,7 @@ package thx.xml;
 
 import utest.Assert;
 import thx.xml.Event;
+import thx.xml.CustomEvent;
 
 class TestEvent {
   public function new() {}

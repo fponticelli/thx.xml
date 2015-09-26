@@ -1466,6 +1466,104 @@ thx_error_ErrorWrapper.prototype = $extend(thx_Error.prototype,{
 	innerError: null
 	,__class__: thx_error_ErrorWrapper
 });
+var thx_xml_dom_Event = function() { };
+thx_xml_dom_Event.__name__ = ["thx","xml","dom","Event"];
+thx_xml_dom_Event.prototype = {
+	type: null
+	,target: null
+	,currentTarget: null
+	,eventPhase: null
+	,stopPropagation: null
+	,stopImmediatePropagation: null
+	,bubbles: null
+	,cancelable: null
+	,preventDefault: null
+	,defaultPrevented: null
+	,isTrusted: null
+	,timeStamp: null
+	,initEvent: null
+	,__class__: thx_xml_dom_Event
+};
+var thx_xml_Event = function(type,eventInitDict) {
+	eventInitDict = thx_xml_dom__$Event_EventInit_$Impl_$.ensure(eventInitDict);
+	if(null == type) this.type = ""; else this.type = type;
+	if(null == eventInitDict.bubbles) this.bubbles = false; else this.bubbles = eventInitDict.bubbles;
+	if(null == eventInitDict.cancelable) this.cancelable = false; else this.cancelable = eventInitDict.cancelable;
+	this.timeStamp = (function($this) {
+		var $r;
+		var d = new Date();
+		$r = d.getTime();
+		return $r;
+	}(this));
+	this.target = null;
+	this.currentTarget = null;
+	this.eventPhase = 0;
+	this.stopPropagationFlag = false;
+	this.stopImmediatePropagationFlag = false;
+	this.defaultPrevented = false;
+	this.initializedFlag = false;
+	this.dispatchFlag = false;
+	this.isTrusted = false;
+};
+thx_xml_Event.__name__ = ["thx","xml","Event"];
+thx_xml_Event.__interfaces__ = [thx_xml_dom_Event];
+thx_xml_Event.prototype = {
+	type: null
+	,target: null
+	,currentTarget: null
+	,eventPhase: null
+	,stopPropagationFlag: null
+	,stopImmediatePropagationFlag: null
+	,initializedFlag: null
+	,dispatchFlag: null
+	,stopPropagation: function() {
+		this.stopPropagationFlag = true;
+	}
+	,stopImmediatePropagation: function() {
+		this.stopPropagationFlag = true;
+		this.stopImmediatePropagationFlag = true;
+	}
+	,bubbles: null
+	,cancelable: null
+	,preventDefault: function() {
+		if(this.cancelable) this.defaultPrevented = true;
+	}
+	,defaultPrevented: null
+	,isTrusted: null
+	,timeStamp: null
+	,initEvent: function(type,bubbles,cancelable) {
+		this.initializedFlag = true;
+		if(this.dispatchFlag) return;
+		this.stopPropagationFlag = false;
+		this.stopImmediatePropagationFlag = false;
+		this.defaultPrevented = false;
+		this.isTrusted = false;
+		this.target = null;
+		if(null == type) this.type = ""; else this.type = type;
+		this.bubbles = bubbles;
+		this.cancelable = cancelable;
+	}
+	,__class__: thx_xml_Event
+};
+var thx_xml_dom_CustomEvent = function() { };
+thx_xml_dom_CustomEvent.__name__ = ["thx","xml","dom","CustomEvent"];
+thx_xml_dom_CustomEvent.__interfaces__ = [thx_xml_dom_Event];
+thx_xml_dom_CustomEvent.prototype = {
+	detail: null
+	,__class__: thx_xml_dom_CustomEvent
+};
+var thx_xml_CustomEvent = function(type,eventInitDict) {
+	eventInitDict = thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.ensure(eventInitDict);
+	thx_xml_Event.call(this,type,eventInitDict);
+	if(null == eventInitDict.detail) this.detail = false; else this.detail = eventInitDict.detail;
+};
+thx_xml_CustomEvent.__name__ = ["thx","xml","CustomEvent"];
+thx_xml_CustomEvent.__interfaces__ = [thx_xml_dom_CustomEvent];
+thx_xml_CustomEvent.__super__ = thx_xml_Event;
+thx_xml_CustomEvent.prototype = $extend(thx_xml_Event.prototype,{
+	detail: null
+	,__class__: thx_xml_CustomEvent
+});
 var thx_xml_dom_DOMException = function() { };
 thx_xml_dom_DOMException.__name__ = ["thx","xml","dom","DOMException"];
 thx_xml_dom_DOMException.prototype = {
@@ -1491,58 +1589,6 @@ thx_xml_DOMException.prototype = $extend(thx_Error.prototype,{
 	code: null
 	,__class__: thx_xml_DOMException
 });
-var thx_xml_dom_Event = function() { };
-thx_xml_dom_Event.__name__ = ["thx","xml","dom","Event"];
-thx_xml_dom_Event.prototype = {
-	type: null
-	,target: null
-	,currentTarget: null
-	,eventPhase: null
-	,stopPropagation: null
-	,stopImmediatePropagation: null
-	,bubbles: null
-	,cancelable: null
-	,preventDefault: null
-	,defaultPrevented: null
-	,isTrusted: null
-	,timeStamp: null
-	,initEvent: null
-	,__class__: thx_xml_dom_Event
-};
-var thx_xml_Event = function(type,eventInitDict) {
-	eventInitDict = thx_xml_dom__$Event_EventInit_$Impl_$.ensure(eventInitDict);
-	this.type = type;
-	if(null == eventInitDict.bubbles) this.bubbles = false; else this.bubbles = eventInitDict.bubbles;
-	if(null == eventInitDict.cancelable) this.cancelable = false; else this.cancelable = eventInitDict.cancelable;
-	this.timeStamp = (function($this) {
-		var $r;
-		var d = new Date();
-		$r = d.getTime();
-		return $r;
-	}(this));
-};
-thx_xml_Event.__name__ = ["thx","xml","Event"];
-thx_xml_Event.__interfaces__ = [thx_xml_dom_Event];
-thx_xml_Event.prototype = {
-	type: null
-	,target: null
-	,currentTarget: null
-	,eventPhase: null
-	,stopPropagation: function() {
-	}
-	,stopImmediatePropagation: function() {
-	}
-	,bubbles: null
-	,cancelable: null
-	,preventDefault: function() {
-	}
-	,defaultPrevented: null
-	,isTrusted: null
-	,timeStamp: null
-	,initEvent: function(type,bubbles,cancelable) {
-	}
-	,__class__: thx_xml_Event
-};
 var thx_xml_TestDOMException = function() {
 };
 thx_xml_TestDOMException.__name__ = ["thx","xml","TestDOMException"];
@@ -1563,9 +1609,9 @@ thx_xml_TestEvent.__name__ = ["thx","xml","TestEvent"];
 thx_xml_TestEvent.prototype = {
 	testConstructor: function() {
 		var event = new thx_xml_Event("click");
-		utest_Assert.equals("click",event.type,null,{ fileName : "TestEvent.hx", lineNumber : 11, className : "thx.xml.TestEvent", methodName : "testConstructor"});
-		utest_Assert.isFalse(event.bubbles,null,{ fileName : "TestEvent.hx", lineNumber : 12, className : "thx.xml.TestEvent", methodName : "testConstructor"});
-		utest_Assert.isFalse(event.cancelable,null,{ fileName : "TestEvent.hx", lineNumber : 13, className : "thx.xml.TestEvent", methodName : "testConstructor"});
+		utest_Assert.equals("click",event.type,null,{ fileName : "TestEvent.hx", lineNumber : 12, className : "thx.xml.TestEvent", methodName : "testConstructor"});
+		utest_Assert.isFalse(event.bubbles,null,{ fileName : "TestEvent.hx", lineNumber : 13, className : "thx.xml.TestEvent", methodName : "testConstructor"});
+		utest_Assert.isFalse(event.cancelable,null,{ fileName : "TestEvent.hx", lineNumber : 14, className : "thx.xml.TestEvent", methodName : "testConstructor"});
 	}
 	,__class__: thx_xml_TestEvent
 };
@@ -1653,15 +1699,11 @@ thx_xml_dom_Comment.prototype = {
 	target: null
 	,__class__: thx_xml_dom_Comment
 };
-var thx_xml_dom_CustomEvent = function() { };
-thx_xml_dom_CustomEvent.__name__ = ["thx","xml","dom","CustomEvent"];
-thx_xml_dom_CustomEvent.__interfaces__ = [thx_xml_dom_Event];
-thx_xml_dom_CustomEvent.prototype = {
-	detail: null
-	,__class__: thx_xml_dom_CustomEvent
-};
 var thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$ = {};
 thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.__name__ = ["thx","xml","dom","_CustomEvent","CustomEventInit_Impl_"];
+thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.ensure = function(init) {
+	if(null == init) return { }; else return init;
+};
 thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.get_bubbles = function(this1) {
 	if(null == this1.bubbles) return false; else return this1.bubbles;
 };
@@ -1679,6 +1721,9 @@ thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.get_detail = function(this1) {
 };
 thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.set_detail = function(this1,v) {
 	return this1.detail = v;
+};
+thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.toObject = function(this1) {
+	return this1;
 };
 var thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$ = {};
 thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.__name__ = ["thx","xml","dom","_DOMException","DOMExceptionCode_Impl_"];
