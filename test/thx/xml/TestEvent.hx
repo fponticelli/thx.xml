@@ -1,8 +1,9 @@
 package thx.xml;
 
 import utest.Assert;
-import thx.xml.Event;
 import thx.xml.CustomEvent;
+import thx.xml.Event;
+import thx.xml.EventTarget;
 
 class TestEvent {
   public function new() {}
@@ -12,5 +13,10 @@ class TestEvent {
     Assert.equals("click", event.type);
     Assert.isFalse(event.bubbles);
     Assert.isFalse(event.cancelable);
+  }
+
+  public function testEventTarget() {
+    var target = new EventTarget();
+    
   }
 }
