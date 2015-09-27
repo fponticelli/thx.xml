@@ -45,6 +45,7 @@ thx.xml.Comment
 thx.xml.CustomEvent
 thx.xml.Document
 
+thx.xml.Attr
 thx.xml.DocumentFragment
 thx.xml.DocumentType
 thx.xml.DOMImplementation

@@ -9,73 +9,74 @@ import thx.xml.dom.HTMLCollection as DOMHTMLCollection;
 import thx.xml.dom.NodeList as DOMNodeList;
 
 class Element extends Node implements DOMElement {
-    public var namespaceURI(default, null) : Null<DOMString>;
-    public var prefix(default, null) : Null<DOMString>;
-    public var localName(default, null) : DOMString;
-    public var tagName(default, null) : DOMString;
+  public var namespaceURI(default, null) : Null<DOMString>;
+  public var prefix(default, null) : Null<DOMString>;
+  public var localName(default, null) : DOMString;
+  public var tagName(default, null) : DOMString;
 
-    public var id : DOMString;
-    public var className : DOMString;
-    // [SameObject]
-    public var classList(default, null) : DOMTokenList;
+  public var id : DOMString;
+  public var className : DOMString;
+  // [SameObject]
+  public var classList(default, null) : DOMTokenList;
 
-    // [SameObject]
-    public var attributes(default, null) : Array<Attr>;
-    public function getAttribute(name : DOMString) : Null<DOMString> {
-      return throw 'not implemented';
-    }
-    public function getAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Null<DOMString> {
-      return throw 'not implemented';
-    }
-    public function setAttribute(name : DOMString, value : DOMString) : Void {
-      return throw 'not implemented';
-    }
-    public function setAttributeNS(namespace : Null<DOMString>, name : DOMString, value : DOMString) : Void {
-      return throw 'not implemented';
-    }
-    public function removeAttribute(name : DOMString) : Void {
-      return throw 'not implemented';
-    }
-    public function removeAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Void {
-      return throw 'not implemented';
-    }
-    public function hasAttribute(name : DOMString) : Bool {
-      return throw 'not implemented';
-    }
-    public function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool {
-      return throw 'not implemented';
-    }
+  // [SameObject]
+  public var attributes(default, null) : Array<Attr>;
+  public function getAttribute(name : DOMString) : Null<DOMString> {
+    return throw 'not implemented';
+  }
+  public function getAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Null<DOMString> {
+    return throw 'not implemented';
+  }
+  public function setAttribute(name : DOMString, value : DOMString) : Void {
+    return throw 'not implemented';
+  }
+  public function setAttributeNS(namespace : Null<DOMString>, name : DOMString, value : DOMString) : Void {
+    return throw 'not implemented';
+  }
+  public function removeAttribute(name : DOMString) : Void {
+    return throw 'not implemented';
+  }
+  public function removeAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Void {
+    return throw 'not implemented';
+  }
+  public function hasAttribute(name : DOMString) : Bool {
+    return throw 'not implemented';
+  }
+  public function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool {
+    return throw 'not implemented';
+  }
 
-    public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
-      return throw 'not implemented';
-    }
-    public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
-      return throw 'not implemented';
-    }
-    public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
-      return throw 'not implemented';
-    }
+  public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
+    return throw 'not implemented';
+  }
+  public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
+    return throw 'not implemented';
+  }
+  public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
+    return throw 'not implemented';
+  }
 
-    function new(elementName : DOMString, baseURI : DOMString, ownerDocument : Document) {
-      super(NodeType.ELEMENT_NODE, elementName, baseURI, ownerDocument);
-    }
+  function new(tagName : DOMString, baseURI : DOMString, ownerDocument : Document) {
+    this.tagName = tagName;
+    super(ELEMENT_NODE, tagName, baseURI, ownerDocument);
+  }
 
 
-    public function remove() : Void {
-      return throw "not implemented";
-    }
-    public var nextElementSibling : Null<DOMElement>;
-    public var previousElementSibling : Null<DOMElement>;
+  public function remove() : Void {
+    return throw "not implemented";
+  }
+  public var nextElementSibling : Null<DOMElement>;
+  public var previousElementSibling : Null<DOMElement>;
 
-    public var children(default, null) : DOMHTMLCollection;
-    public var firstElementChild(default, null) : Null<DOMElement>;
-    public var lastElementChild(default, null) : Null<DOMElement>;
-    public var childElementCount(default, null) : Int;
+  public var children(default, null) : DOMHTMLCollection;
+  public var firstElementChild(default, null) : Null<DOMElement>;
+  public var lastElementChild(default, null) : Null<DOMElement>;
+  public var childElementCount(default, null) : Int;
 
-    public function querySelector(selectors : DOMString) : Null<DOMElement> {
-      return throw "not implemented";
-    }
-    public function querySelectorAll(selectors : DOMString) : DOMNodeList {
-      return throw "not implemented";
-    }
+  public function querySelector(selectors : DOMString) : Null<DOMElement> {
+    return throw "not implemented";
+  }
+  public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+    return throw "not implemented";
+  }
 }

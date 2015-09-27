@@ -3712,6 +3712,36 @@ thx_error_ErrorWrapper.prototype = $extend(thx_Error.prototype,{
 	innerError: null
 	,__class__: thx_error_ErrorWrapper
 });
+var thx_xml_dom_Attr = function() { };
+thx_xml_dom_Attr.__name__ = ["thx","xml","dom","Attr"];
+thx_xml_dom_Attr.prototype = {
+	localName: null
+	,value: null
+	,name: null
+	,namespaceURI: null
+	,prefix: null
+	,specified: null
+	,__class__: thx_xml_dom_Attr
+};
+var thx_xml_Attr = function(localName,value,name,namespaceURI,prefix) {
+	this.localName = localName;
+	this.value = value;
+	this.name = name;
+	this.namespaceURI = namespaceURI;
+	this.prefix = prefix;
+	this.specified = true;
+};
+thx_xml_Attr.__name__ = ["thx","xml","Attr"];
+thx_xml_Attr.__interfaces__ = [thx_xml_dom_Attr];
+thx_xml_Attr.prototype = {
+	localName: null
+	,value: null
+	,name: null
+	,namespaceURI: null
+	,prefix: null
+	,specified: null
+	,__class__: thx_xml_Attr
+};
 var thx_xml_dom_EventTarget = function() { };
 thx_xml_dom_EventTarget.__name__ = ["thx","xml","dom","EventTarget"];
 thx_xml_dom_EventTarget.prototype = {
@@ -3980,8 +4010,8 @@ thx_xml_CharacterData.prototype = $extend(thx_xml_Node.prototype,{
 var thx_xml_dom_Comment = function() { };
 thx_xml_dom_Comment.__name__ = ["thx","xml","dom","Comment"];
 thx_xml_dom_Comment.__interfaces__ = [thx_xml_dom_CharacterData];
-var thx_xml_Comment = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_CharacterData.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_Comment = function(baseURI,ownerDocument) {
+	thx_xml_CharacterData.call(this,8,"#comment",baseURI,ownerDocument);
 };
 thx_xml_Comment.__name__ = ["thx","xml","Comment"];
 thx_xml_Comment.__interfaces__ = [thx_xml_dom_Comment];
@@ -4186,8 +4216,8 @@ thx_xml_dom_Document.prototype = {
 	,createTreeWalker: null
 	,__class__: thx_xml_dom_Document
 };
-var thx_xml_Document = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_Document = function(baseURI) {
+	thx_xml_Node.call(this,9,"#document",baseURI,this);
 };
 thx_xml_Document.__name__ = ["thx","xml","Document"];
 thx_xml_Document.__interfaces__ = [thx_xml_dom_Document];
@@ -4266,8 +4296,8 @@ thx_xml_Document.prototype = $extend(thx_xml_Node.prototype,{
 var thx_xml_dom_DocumentFragment = function() { };
 thx_xml_dom_DocumentFragment.__name__ = ["thx","xml","dom","DocumentFragment"];
 thx_xml_dom_DocumentFragment.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
-var thx_xml_DocumentFragment = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_DocumentFragment = function(baseURI,ownerDocument) {
+	thx_xml_Node.call(this,11,"#document-fragment",baseURI,ownerDocument);
 };
 thx_xml_DocumentFragment.__name__ = ["thx","xml","DocumentFragment"];
 thx_xml_DocumentFragment.__interfaces__ = [thx_xml_dom_DocumentFragment];
@@ -4297,8 +4327,11 @@ thx_xml_dom_DocumentType.prototype = {
 	,systemId: null
 	,__class__: thx_xml_dom_DocumentType
 };
-var thx_xml_DocumentType = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_DocumentType = function(name,publicId,systemId,baseURI,ownerDocument) {
+	this.name = name;
+	this.publicId = publicId;
+	this.systemId = systemId;
+	thx_xml_Node.call(this,10,name,baseURI,ownerDocument);
 };
 thx_xml_DocumentType.__name__ = ["thx","xml","DocumentType"];
 thx_xml_DocumentType.__interfaces__ = [thx_xml_dom_DocumentType];
@@ -4338,8 +4371,9 @@ thx_xml_dom_Element.prototype = {
 	,getElementsByClassName: null
 	,__class__: thx_xml_dom_Element
 };
-var thx_xml_Element = function(elementName,baseURI,ownerDocument) {
-	thx_xml_Node.call(this,1,elementName,baseURI,ownerDocument);
+var thx_xml_Element = function(tagName,baseURI,ownerDocument) {
+	this.tagName = tagName;
+	thx_xml_Node.call(this,1,tagName,baseURI,ownerDocument);
 };
 thx_xml_Element.__name__ = ["thx","xml","Element"];
 thx_xml_Element.__interfaces__ = [thx_xml_dom_Element];
@@ -4470,8 +4504,9 @@ thx_xml_dom_ProcessingInstruction.prototype = {
 	target: null
 	,__class__: thx_xml_dom_ProcessingInstruction
 };
-var thx_xml_ProcessingInstruction = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_CharacterData.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_ProcessingInstruction = function(target,ownerDocument) {
+	this.target = target;
+	thx_xml_CharacterData.call(this,7,target,this.baseURI,ownerDocument);
 };
 thx_xml_ProcessingInstruction.__name__ = ["thx","xml","ProcessingInstruction"];
 thx_xml_ProcessingInstruction.__interfaces__ = [thx_xml_dom_ProcessingInstruction];
@@ -4576,17 +4611,6 @@ thx_xml_Text.prototype = $extend(thx_xml_CharacterData.prototype,{
 	,wholeText: null
 	,__class__: thx_xml_Text
 });
-var thx_xml_dom_Attr = function() { };
-thx_xml_dom_Attr.__name__ = ["thx","xml","dom","Attr"];
-thx_xml_dom_Attr.prototype = {
-	localName: null
-	,value: null
-	,name: null
-	,namespaceURI: null
-	,prefix: null
-	,specified: null
-	,__class__: thx_xml_dom_Attr
-};
 var thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$ = {};
 thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.__name__ = ["thx","xml","dom","_CustomEvent","CustomEventInit_Impl_"];
 thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.ensure = function(init) {

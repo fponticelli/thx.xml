@@ -3,9 +3,9 @@ package thx.xml.dom;
 import thx.xml.dom.NodeFilter;
 
 interface Document
-  extends ParentNode
-  extends Node
-  extends NonElementParentNode {
+    extends ParentNode
+    extends Node
+    extends NonElementParentNode {
   // [SameObject]
   var implementation(default, null) : DOMImplementation;
   var URL(default, null) : DOMString;

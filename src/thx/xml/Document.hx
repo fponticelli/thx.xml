@@ -95,4 +95,9 @@ class Document extends Node implements DOMDocument {
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
     return throw "not implemented";
   }
+
+  function new(baseURI : DOMString) {
+    // TODO is ownerDocument this or null?
+    super(DOCUMENT_NODE, "#document", baseURI, this);
+  }
 }

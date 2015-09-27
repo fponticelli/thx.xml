@@ -22,4 +22,9 @@ class DocumentFragment extends Node implements DOMDocumentFragment {
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
     return throw "not implemented";
   }
+
+  function new(baseURI : DOMString, ownerDocument : Document) {
+    // TODO owner document?
+    super(DOCUMENT_FRAGMENT_NODE, "#document-fragment", baseURI, ownerDocument);
+  }
 }
