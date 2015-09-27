@@ -4408,6 +4408,61 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	}
 	,__class__: thx_xml_Element
 });
+var thx_xml_dom_HTMLCollectionImp = function() { };
+thx_xml_dom_HTMLCollectionImp.__name__ = ["thx","xml","dom","HTMLCollectionImp"];
+thx_xml_dom_HTMLCollectionImp.prototype = {
+	length: null
+	,item: null
+	,namedItem: null
+	,__class__: thx_xml_dom_HTMLCollectionImp
+};
+var thx_xml_HTMLCollectionImp = function() {
+	this.items = [];
+	this.length = this.items.length;
+};
+thx_xml_HTMLCollectionImp.__name__ = ["thx","xml","HTMLCollectionImp"];
+thx_xml_HTMLCollectionImp.__interfaces__ = [thx_xml_dom_HTMLCollectionImp];
+thx_xml_HTMLCollectionImp.prototype = {
+	namedItem: function(name) {
+		var _g = 0;
+		var _g1 = this.items;
+		while(_g < _g1.length) {
+			var item = _g1[_g];
+			++_g;
+			if(item.getAttribute("id") == name || item.namespaceURI == thx_xml_Namespaces.html && item.getAttribute("name") == name) return item;
+		}
+		return null;
+	}
+	,item: function(index) {
+		return this.items[index];
+	}
+	,length: null
+	,items: null
+	,__class__: thx_xml_HTMLCollectionImp
+};
+var thx_xml_Namespaces = function() { };
+thx_xml_Namespaces.__name__ = ["thx","xml","Namespaces"];
+var thx_xml_dom_NodeListImp = function() { };
+thx_xml_dom_NodeListImp.__name__ = ["thx","xml","dom","NodeListImp"];
+thx_xml_dom_NodeListImp.prototype = {
+	item: null
+	,length: null
+	,__class__: thx_xml_dom_NodeListImp
+};
+var thx_xml_NodeListImp = function() {
+	this.items = [];
+	this.length = this.items.length;
+};
+thx_xml_NodeListImp.__name__ = ["thx","xml","NodeListImp"];
+thx_xml_NodeListImp.__interfaces__ = [thx_xml_dom_NodeListImp];
+thx_xml_NodeListImp.prototype = {
+	item: function(index) {
+		return this.items[index];
+	}
+	,length: null
+	,items: null
+	,__class__: thx_xml_NodeListImp
+};
 var thx_xml_dom_ProcessingInstruction = function() { };
 thx_xml_dom_ProcessingInstruction.__name__ = ["thx","xml","dom","ProcessingInstruction"];
 thx_xml_dom_ProcessingInstruction.__interfaces__ = [thx_xml_dom_CharacterData];
@@ -4768,13 +4823,13 @@ thx_xml_dom__$EventTarget_EventListener_$Impl_$.__name__ = ["thx","xml","dom","_
 thx_xml_dom__$EventTarget_EventListener_$Impl_$.fromFunction = function(f) {
 	return { handleEvent : f};
 };
-var thx_xml_dom_HTMLCollection = function() { };
-thx_xml_dom_HTMLCollection.__name__ = ["thx","xml","dom","HTMLCollection"];
-thx_xml_dom_HTMLCollection.prototype = {
-	length: null
-	,item: null
-	,namedItem: null
-	,__class__: thx_xml_dom_HTMLCollection
+var thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$ = {};
+thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$.__name__ = ["thx","xml","dom","_HTMLCollection","HTMLCollection_Impl_"];
+thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$.namedItem = function(this1,name) {
+	return this1.namedItem(name);
+};
+thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$.item = function(this1,index) {
+	return this1.item(index);
 };
 var thx_xml_dom_MutationObserver = function() { };
 thx_xml_dom_MutationObserver.__name__ = ["thx","xml","dom","MutationObserver"];
@@ -4821,13 +4876,6 @@ var thx_xml_dom__$NodeList_NodeList_$Impl_$ = {};
 thx_xml_dom__$NodeList_NodeList_$Impl_$.__name__ = ["thx","xml","dom","_NodeList","NodeList_Impl_"];
 thx_xml_dom__$NodeList_NodeList_$Impl_$.item = function(this1,index) {
 	return this1.item(index);
-};
-var thx_xml_dom_NodeListInt = function() { };
-thx_xml_dom_NodeListInt.__name__ = ["thx","xml","dom","NodeListInt"];
-thx_xml_dom_NodeListInt.prototype = {
-	item: null
-	,length: null
-	,__class__: thx_xml_dom_NodeListInt
 };
 var thx_xml_dom_Range = function() { };
 thx_xml_dom_Range.__name__ = ["thx","xml","dom","Range"];
@@ -6839,6 +6887,9 @@ thx_Strings.STRIPTAGS = new EReg("</?[a-z]+[^>]*>","gi");
 thx_Strings.WSG = new EReg("[ \t\r\n]+","g");
 thx_Strings.SPLIT_LINES = new EReg("\r\n|\n\r|\n|\r","g");
 thx_Strings.CANONICALIZE_LINES = new EReg("\r\n|\n\r|\r","g");
+thx_xml_Namespaces.html = "http://www.w3.org/1999/xhtml";
+thx_xml_Namespaces.xml = "http://www.w3.org/XML/1998/namespace";
+thx_xml_Namespaces.xmlns = "http://www.w3.org/2000/xmlns/";
 thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NOT_DEFINED = 0;
 thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INDEX_SIZE_ERR = 1;
 thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.DOMSTRING_SIZE_ERR = 2;

@@ -51,7 +51,9 @@ thx.xml.DOMImplementation
 thx.xml.Element
 thx.xml.Event
 thx.xml.EventTarget
+thx.xml.HTMLCollection
 thx.xml.Node
+thx.xml.NodeList
 thx.xml.ProcessingInstruction
 thx.xml.Text
 
