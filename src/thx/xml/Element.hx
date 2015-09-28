@@ -94,4 +94,19 @@ class Element extends Node implements DOMElement {
     else
       return pel.locateNamespacePrefix(namespace);
   }
+
+  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+    if(!super.isEqualNode(other))
+      return false;
+    var otherElement : DOMElement = cast other;
+    if(namespaceURI != otherElement.namespaceURI || prefix != otherElement.prefix || localName != otherElement.localName || attributes.length != otherElement.attributes.length)
+      return false;
+    // TODO check attributes equality
+    if(childNodes.length != otherElement.childNodes.length)
+      return false;
+    for(i in 0...childNodes.length)
+      if(!childNodes[i].isEqualNode(otherElement.childNodes[i]))
+        return false;
+    return true;
+  }
 }

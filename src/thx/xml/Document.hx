@@ -107,4 +107,16 @@ class Document extends Node implements DOMDocument {
   function new(baseURI : DOMString) {
     super(DOCUMENT_NODE, "#document", baseURI, null);
   }
+
+  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+    if(!super.isEqualNode(other))
+      return false;
+    var otherDocument : DOMDocument = cast other;
+    if(childNodes.length != otherDocument.childNodes.length)
+      return false;
+    for(i in 0...childNodes.length)
+      if(!childNodes[i].isEqualNode(otherDocument.childNodes[i]))
+        return false;
+    return true;
+  }
 }

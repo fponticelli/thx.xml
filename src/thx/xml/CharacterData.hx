@@ -33,4 +33,11 @@ class CharacterData extends Node implements DOMCharacterData {
   function new(nodeType : NodeType, nodeName : DOMString, baseURI : DOMString, ownerDocument : Document) {
     super(nodeType, nodeName, baseURI, ownerDocument);
   }
+
+  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+    if(!super.isEqualNode(other))
+      return false;
+    var otherCD : CharacterData = cast other;
+    return data == otherCD.data;
+  }
 }

@@ -34,8 +34,9 @@ class Node extends EventTarget implements DOMNode {
   public function cloneNode(?deep : Bool = false) : DOMNode {
     return throw "not implemented";
   }
+  // requires subclasses to call super.isEqualNode() first
   public function isEqualNode(?other : DOMNode) : Bool {
-    return throw "not implemented";
+    return null != other && nodeType == other.nodeType;
   }
 
   public function compareDocumentPosition(other : DOMNode) : DocumentPosition {

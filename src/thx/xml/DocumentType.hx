@@ -19,4 +19,11 @@ class DocumentType extends Node implements DOMDocumentType {
     this.systemId = systemId;
     super(DOCUMENT_TYPE_NODE, name, baseURI, ownerDocument);
   }
+
+  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+    if(!super.isEqualNode(other))
+      return false;
+    var otherDocType : DOMDocumentType = cast other;
+    return name == otherDocType.name && publicId == otherDocType.publicId && systemId == otherDocType.systemId;
+  }
 }

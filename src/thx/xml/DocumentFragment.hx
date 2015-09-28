@@ -27,4 +27,16 @@ class DocumentFragment extends Node implements DOMDocumentFragment {
     // TODO owner document?
     super(DOCUMENT_FRAGMENT_NODE, "#document-fragment", baseURI, ownerDocument);
   }
+
+  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+    if(!super.isEqualNode(other))
+      return false;
+    var otherDocumentFragment : DOMDocumentFragment = cast other;
+    if(childNodes.length != otherDocumentFragment.childNodes.length)
+      return false;
+    for(i in 0...childNodes.length)
+      if(!childNodes[i].isEqualNode(otherDocumentFragment.childNodes[i]))
+        return false;
+    return true;
+  }
 }

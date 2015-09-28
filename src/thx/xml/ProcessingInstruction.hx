@@ -12,4 +12,11 @@ class ProcessingInstruction
     this.target = target;
     super(PROCESSING_INSTRUCTION_NODE, target, baseURI, ownerDocument);
   }
+
+  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+    if(!super.isEqualNode(other))
+      return false;
+    var otherPI : DOMProcessingInstruction = cast other;
+    return target == otherPI.target;
+  }
 }
