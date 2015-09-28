@@ -60,15 +60,26 @@ class Node extends EventTarget implements DOMNode {
     ensurePreInsertionValidity(this, node, child);
 
     // Let reference child be child
+    var referenceChild = child;
 
     // If reference child is node, set it to node’s next sibling
+    if(referenceChild == node)
+      referenceChild = node.nextSibling;
 
     // Adopt node into parent’s node document
+    adopt(ownerDocument, node);
 
     // Insert node into parent before reference child
+    childNodesImpl.insertBefore(node, child);
 
     // Return node
-    return throw "not implemented";
+    return node;
+  }
+
+  static function adopt(doc : Document, node : DOMNode) {
+    if(null != node.parentNode)
+      node.parentNode.removeChild(node);
+    doc.adoptNode(node);
   }
 
   static function ensurePreInsertionValidity(parent : DOMNode, node : DOMNode, ?child : DOMNode) {
@@ -176,11 +187,14 @@ class Node extends EventTarget implements DOMNode {
     return throw "not implemented";
   }
 
+  var childNodesImpl : thx.xml.NodeList.NodeListImp;
   function new(nodeType : NodeType, nodeName : DOMString, baseURI : DOMString, ownerDocument : Document) {
     this.nodeType = nodeType;
     this.nodeName = nodeName;
     this.baseURI = baseURI;
     this.ownerDocument = ownerDocument;
+    this.childNodesImpl = new thx.xml.NodeList.NodeListImp();
+    this.childNodes = this.childNodesImpl;
     super();
   }
 }

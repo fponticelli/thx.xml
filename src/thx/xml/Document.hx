@@ -60,7 +60,15 @@ class Document extends Node implements DOMDocument {
     return throw "not implemented";
   }
   public function adoptNode(node : DOMNode) : DOMNode {
-    return throw "not implemented";
+    if(node.nodeType == DOCUMENT_NODE)
+      throw DOMException.fromCode(NOT_SUPPORTED_ERR);
+    // TODO shadow root
+
+    node.ownerDocument = this;
+    for(node in childNodesImpl) {
+      adoptNode(node);
+    }
+    return node;
   }
 
   public function createEvent(interfaceName : DOMString) : Event {
