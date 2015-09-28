@@ -6,4 +6,7 @@ import thx.xml.Node;
 class TestNode {
   public function new() {}
 
+  public function testInsertBefore() {
+
+  }
 }

@@ -83,4 +83,15 @@ class Element extends Node implements DOMElement {
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
     return throw "not implemented";
   }
+
+  function locateNamespacePrefix(namespace : DOMString) : Null<DOMString> {
+    if(namespaceURI == namespace && prefix != null)
+      return prefix;
+    // TODO step 2 requires getAttributeObject(): https://dom.spec.whatwg.org/#locate-a-namespace-prefix
+    var pel = Std.instance(parentElement, Element);
+    if(null == pel)
+      return null;
+    else
+      return pel.locateNamespacePrefix(namespace);
+  }
 }

@@ -45,14 +45,66 @@ class Node extends EventTarget implements DOMNode {
     return throw "not implemented";
   }
 
+  @:access(thx.xml.Element.locateNamespacePrefix)
   public function lookupPrefix(namespace : Null<DOMString>) : Null<DOMString> {
-    return throw "not implemented";
+    if(namespace == null || namespace == "")
+      return null;
+    // TODO move this to subclass
+    return switch nodeType {
+      case ELEMENT_NODE:
+        var el : thx.xml.Element = cast this;
+        el.locateNamespacePrefix(namespace);
+      case DOCUMENT_NODE:
+        var doc : Document = cast this,
+            el : thx.xml.Element = Std.instance(doc.documentElement, thx.xml.Element);
+        if(null == el)
+          null;
+        else
+          el.locateNamespacePrefix(namespace);
+      case DOCUMENT_TYPE_NODE, DOCUMENT_FRAGMENT_NODE:
+        null;
+      case _ if(parentElement == null):
+        null;
+      case _:
+        var el : thx.xml.Element = Std.instance(parentElement, thx.xml.Element);
+        el.locateNamespacePrefix(namespace);
+    };
   }
+
   public function lookupNamespaceURI(prefix : Null<DOMString>) : Null<DOMString> {
-    return throw "not implemented";
+    // TODO move this to subclass
+    if("" == prefix) prefix = null;
+    return switch nodeType {
+      case ELEMENT_NODE:
+        var el : Element = cast this;
+        if(el.namespaceURI != null && el.prefix == prefix)
+          el.namespaceURI;
+        // TODO add more cases from step 2: https://dom.spec.whatwg.org/#locate-a-namespace
+        if(el.hasAttributeNS(Namespaces.xmlns, prefix))
+          el.getAttributeNS(Namespaces.xmlns, prefix);
+        if(parentNode == null)
+          null;
+        parentNode.lookupNamespaceURI(prefix);
+      case DOCUMENT_NODE:
+        var doc : Document = cast this;
+        if(doc.documentElement == null)
+          null;
+        else
+          doc.documentElement.lookupNamespaceURI(prefix);
+      case DOCUMENT_TYPE_NODE, DOCUMENT_FRAGMENT_NODE:
+        null;
+      case _ if(parentNode == null):
+        null;
+      case _:
+        parentNode.lookupNamespaceURI(prefix);
+    };
   }
+
   public function isDefaultNamespace(namespace : Null<DOMString>) : Bool {
-    return throw "not implemented";
+    if(null == namespace)
+      namespace = "";
+    var defaultNamespace = lookupNamespaceURI(null);
+    return defaultNamespace == namespace;
   }
 
   public function insertBefore(node : DOMNode, ?child : Null<DOMNode>) : DOMNode {
@@ -83,6 +135,7 @@ class Node extends EventTarget implements DOMNode {
   }
 
   static function ensurePreInsertionValidity(parent : DOMNode, node : DOMNode, ?child : DOMNode) {
+    // TODO move this to subclass
     if(parent.nodeType != DOCUMENT_NODE &&
        parent.nodeType != DOCUMENT_FRAGMENT_NODE &&
        parent.nodeType != ELEMENT_NODE)
@@ -177,14 +230,30 @@ class Node extends EventTarget implements DOMNode {
   override function getAncestors() : Array<EventTarget>
     return cast getNodeAncestors(this);
 
-  public function appendChild(node : DOMNode) : DOMNode {
-    return throw "not implemented";
-  }
+  public function appendChild(node : DOMNode) : DOMNode
+    return insertBefore(node, null);
+
   public function replaceChild(node : DOMNode, child : DOMNode) : DOMNode {
     return throw "not implemented";
   }
   public function removeChild(child : DOMNode) : DOMNode {
-    return throw "not implemented";
+    if(child.parentNode != this)
+      throw DOMException.fromCode(NOT_FOUND_ERR);
+    parentRemoveChild(child);
+    return child;
+  }
+
+  function parentRemoveChild(node : DOMNode, ?suppressObservers = false) {
+    var index = childNodesImpl.indexOf(node);
+    // TODO operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove
+
+    // TODO change NodeIteratos (step 6): https://dom.spec.whatwg.org/#concept-node-remove
+
+    var oldPreviousSibling = node.previousSibling;
+    childNodesImpl.removeChild(node);
+    // TODO 9?
+
+    // TODO suppress observers (step 10, 11): https://dom.spec.whatwg.org/#concept-node-remove
   }
 
   var childNodesImpl : thx.xml.NodeList.NodeListImp;

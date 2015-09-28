@@ -1,6 +1,7 @@
 package thx.xml.dom;
 
 interface Element
+    extends Node
     extends ParentNode
     extends NonDocumentTypeChildNode
     extends ChildNode {

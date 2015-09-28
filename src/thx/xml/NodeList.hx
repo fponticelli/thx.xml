@@ -28,6 +28,14 @@ class NodeListImp implements thx.xml.dom.NodeList.NodeListImp {
     length++;
   }
 
+  public function removeChild(node : DOMNode) {
+    if(items.remove(node))
+      length--;
+  }
+
+  public function indexOf(node : DOMNode)
+    return items.indexOf(node);
+
   public function iterator()
     return items.iterator();
 }
