@@ -20,12 +20,15 @@ class Element extends Node implements DOMElement {
   public var classList(default, null) : DOMTokenList;
 
   // [SameObject]
+  // TODO cannot really use Array here or it can be modified without using setAttribute
   public var attributes(default, null) : Array<Attr>;
-  public function getAttribute(name : DOMString) : Null<DOMString> {
-    return throw 'not implemented';
-  }
+  public function getAttribute(name : DOMString) : Null<DOMString>
+    return getAttributeNS(null, name);
   public function getAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Null<DOMString> {
-    return throw 'not implemented';
+    for(attr in attributes)
+      if(attr.localName == localName && attr.namespaceURI == namespace)
+        return attr.value;
+    return null;
   }
   public function setAttribute(name : DOMString, value : DOMString) : Void {
     return throw 'not implemented';
@@ -57,6 +60,7 @@ class Element extends Node implements DOMElement {
   }
 
   function new(tagName : DOMString, baseURI : DOMString, ownerDocument : Document) {
+    this.attributes = [];
     this.tagName = tagName;
     super(ELEMENT_NODE, tagName, baseURI, ownerDocument);
   }
