@@ -17,9 +17,8 @@ class Node extends EventTarget implements DOMNode {
   public var ownerDocument(default, null) : Null<Document>;
   public var parentNode(default, null) : Null<DOMNode>;
   public var parentElement(default, null) : Null<Element>;
-  public function hasChildNodes() : Bool {
-    return throw "not implemented";
-  }
+  public function hasChildNodes() : Bool
+    return null != firstChild;
   public var childNodes(default, null) : NodeList;
   public var firstChild(default, null) : Null<DOMNode>;
   public var lastChild(default, null) : Null<DOMNode>;
