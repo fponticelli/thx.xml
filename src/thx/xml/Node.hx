@@ -58,6 +58,53 @@ class Node extends EventTarget implements DOMNode {
   public function insertBefore(node : DOMNode, ?child : Null<DOMNode>) : DOMNode {
     return throw "not implemented";
   }
+
+  static function getRoot(node : DOMNode) : DOMNode {
+    while(null != node.parentNode)
+      node = node.parentNode;
+    return node;
+  }
+
+  static function isAncestor(subject : DOMNode, node : DOMNode) {
+    while(node.parentNode != null) {
+      if(node.parentNode == subject)
+        return true;
+      node = node.parentNode;
+    }
+    return false;
+  }
+
+  static function isHostIncludingInclusiveAncestor(subject : DOMNode, node : DOMNode) {
+    return isInclusiveAncestor(subject, node) || true; // TODO needs to implement the
+    // second part of https://dom.spec.whatwg.org/#concept-tree-host-including-inclusive-ancestor
+  }
+
+  static function isInclusiveAncestor(subject : DOMNode, node : DOMNode)
+    return subject == node || isAncestor(subject, node);
+
+  static function isSibling(subject : DOMNode, node : DOMNode) {
+    if(subject.parentNode == null || node.parentNode == null)
+      return false;
+    return subject.parentNode == node.parentNode;
+  }
+
+  static function isInclusiveSibling(subject : DOMNode, node : DOMNode)
+    return subject == node || isSibling(subject, node);
+
+  static function getNodeAncestors(node : DOMNode) : Array<DOMNode> {
+    var arr : Array<DOMNode> = [];
+    node = node.parentNode;
+    while(null != node) {
+      arr.insert(0, node);
+      node = node.parentNode;
+    }
+    return arr;
+  }
+
+  // TODO a little disgusting unsafe cast
+  override function getAncestors() : Array<EventTarget>
+    return cast getNodeAncestors(this);
+
   public function appendChild(node : DOMNode) : DOMNode {
     return throw "not implemented";
   }
