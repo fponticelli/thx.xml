@@ -56,7 +56,7 @@ class Node extends EventTarget implements DOMNode {
     return throw "not implemented";
   }
 
-  public function insertBefore(node : DOMNode, child : Null<DOMNode>) : DOMNode {
+  public function insertBefore(node : DOMNode, ?child : Null<DOMNode>) : DOMNode {
     return throw "not implemented";
   }
   public function appendChild(node : DOMNode) : DOMNode {

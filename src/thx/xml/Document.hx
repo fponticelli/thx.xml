@@ -97,7 +97,6 @@ class Document extends Node implements DOMDocument {
   }
 
   function new(baseURI : DOMString) {
-    // TODO is ownerDocument this or null?
-    super(DOCUMENT_NODE, "#document", baseURI, this);
+    super(DOCUMENT_NODE, "#document", baseURI, null);
   }
 }

@@ -30,7 +30,7 @@ interface Node extends EventTarget {
   function lookupNamespaceURI(prefix : Null<DOMString>) : Null<DOMString>;
   function isDefaultNamespace(namespace : Null<DOMString>) : Bool;
 
-  function insertBefore(node : Node, child : Null<Node>) : Node;
+  function insertBefore(node : Node, ?child : Null<Node>) : Node;
   function appendChild(node : Node) : Node;
   function replaceChild(node : Node, child : Node) : Node;
   function removeChild(child : Node) : Node;
