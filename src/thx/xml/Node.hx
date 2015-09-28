@@ -42,7 +42,9 @@ class Node extends EventTarget implements DOMNode {
     return throw "not implemented";
   }
   public function contains(?other : DOMNode) : Bool {
-    return throw "not implemented";
+    if(null == other)
+      return false;
+    return isInclusiveDescendant(this, other);
   }
 
   @:access(thx.xml.Element.locateNamespacePrefix)
@@ -206,6 +208,19 @@ class Node extends EventTarget implements DOMNode {
 
   static function isInclusiveAncestor(subject : DOMNode, node : DOMNode)
     return subject == node || isAncestor(subject, node);
+
+  static function isDescendant(ancestor : DOMNode, node : DOMNode) {
+    node = node.parentNode;
+    while(node != null) {
+      if(node == ancestor)
+        return true;
+      node = node.parentNode;
+    }
+    return false;
+  }
+
+  static function isInclusiveDescendant(ancestor : DOMNode, node : DOMNode)
+    return ancestor == node || isDescendant(ancestor, node);
 
   static function isSibling(subject : DOMNode, node : DOMNode) {
     if(subject.parentNode == null || node.parentNode == null)
