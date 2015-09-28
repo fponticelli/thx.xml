@@ -56,7 +56,68 @@ class Node extends EventTarget implements DOMNode {
   }
 
   public function insertBefore(node : DOMNode, ?child : Null<DOMNode>) : DOMNode {
+    // ensure pre-insertion validity
+    ensurePreInsertionValidity(this, node, child);
+
+    // Let reference child be child
+
+    // If reference child is node, set it to node’s next sibling
+
+    // Adopt node into parent’s node document
+
+    // Insert node into parent before reference child
+
+    // Return node
     return throw "not implemented";
+  }
+
+  static function ensurePreInsertionValidity(parent : DOMNode, node : DOMNode, ?child : DOMNode) {
+    if(parent.nodeType != DOCUMENT_NODE &&
+       parent.nodeType != DOCUMENT_FRAGMENT_NODE &&
+       parent.nodeType != ELEMENT_NODE)
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+    if(isHostIncludingInclusiveAncestor(node, parent))
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+    if(null != child && child.parentNode != parent)
+      throw DOMException.fromCode(NOT_FOUND_ERR);
+    if(node.nodeType != DOCUMENT_FRAGMENT_NODE &&
+       node.nodeType != DOCUMENT_TYPE_NODE &&
+       node.nodeType != ELEMENT_NODE &&
+       node.nodeType != TEXT_NODE &&
+       node.nodeType != PROCESSING_INSTRUCTION_NODE &&
+       node.nodeType != COMMENT_NODE)
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+    if((node.nodeType == TEXT_NODE && parent.nodeType == DOCUMENT_NODE) ||
+       (node.nodeType == DOCUMENT_TYPE_NODE && parent.nodeType != DOCUMENT_NODE))
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+    if(parent.nodeType == DOCUMENT_NODE) {
+      var doc : Document = cast parent;
+      if(node.nodeType == DOCUMENT_FRAGMENT_NODE) {
+        var frag : DocumentFragment = cast node;
+        if(frag.childElementCount > 1 || frag.textContent != null) // TODO, or != ""? or it is not enough?
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+        if(frag.childElementCount == 1) {
+          if(doc.documentElement != null || (null != child && child.nodeType == DOCUMENT_TYPE_NODE) // ||
+          // TODO child is not null and a doctype is following child
+        )
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+        }
+      } else if(node.nodeType == ELEMENT_NODE) {
+        if(doc.documentElement != null ||
+          (null != child && child.nodeType == DOCUMENT_TYPE_NODE) //||
+          //(null != child && )
+          // TODO child is not null and a doctype is following child
+        )
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+      } else if(node.nodeType == DOCUMENT_TYPE_NODE) {
+        if(doc.doctype != null)
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+        else if(child.previousSibling != null && child.previousSibling.nodeType == ELEMENT_NODE)
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+        else if(null == child && doc.documentElement != null)
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+      }
+    }
   }
 
   static function getRoot(node : DOMNode) : DOMNode {
