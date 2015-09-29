@@ -8,9 +8,9 @@ class ProcessingInstruction
     implements DOMProcessingInstruction {
   public var target(default, null) : DOMString;
 
-  function new(target : DOMString, ownerDocument : Document) {
+  function new(target : DOMString, data : DOMString, baseURI : String, ownerDocument : Document) {
     this.target = target;
-    super(PROCESSING_INSTRUCTION_NODE, target, baseURI, ownerDocument);
+    super(PROCESSING_INSTRUCTION_NODE, target, data, baseURI, ownerDocument);
   }
 
   override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {

@@ -30,7 +30,8 @@ class CharacterData extends Node implements DOMCharacterData {
   public var nextElementSibling : Null<DOMElement>;
   public var previousElementSibling : Null<DOMElement>;
 
-  function new(nodeType : NodeType, nodeName : DOMString, baseURI : DOMString, ownerDocument : Document) {
+  function new(nodeType : NodeType, nodeName : DOMString, data : DOMString, baseURI : DOMString, ownerDocument : Document) {
+    this.data = data;
     super(nodeType, nodeName, baseURI, ownerDocument);
   }
 

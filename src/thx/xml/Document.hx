@@ -55,17 +55,28 @@ class Document extends Node implements DOMDocument {
     // TODO check if ownerDocument is applied this way
     return new Element(o.localName, o.prefix, o.namespace, null, this);
   }
+  @:access(thx.xml.DocumentFragment.new)
   public function createDocumentFragment() : DOMDocumentFragment {
-    return throw "not implemented";
+    // TODO baseURI
+    return new DocumentFragment(null, this);
   }
+  @:access(thx.xml.Text.new)
   public function createTextNode(data : DOMString) : DOMText {
-    return throw "not implemented";
+    // TODO baseURI
+    return new Text(data, null, this);
   }
+  @:access(thx.xml.Comment.new)
   public function createComment(data : DOMString) : Comment {
-    return throw "not implemented";
+    // TODO baseURI
+    return new Comment(data, null, this);
   }
+  @:access(thx.xml.ProcessingInstruction.new)
   public function createProcessingInstruction(target : DOMString, data : DOMString) : DOMProcessingInstruction {
-    return throw "not implemented";
+    validateName(target);
+    if(data.contains("?>"))
+      throw DOMException.fromCode(INVALID_CHARACTER_ERR);
+    // TODO baseURI
+    return new ProcessingInstruction(target, data, null, this);
   }
 
   public function importNode(node : DOMNode, ?deep : Bool = false) : DOMNode {

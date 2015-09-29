@@ -11,7 +11,7 @@ class Text
   }
   public var wholeText(default, null) : DOMString;
 
-  function new(baseURI : DOMString, ownerDocument : Document) {
-    super(TEXT_NODE, "#text", baseURI, ownerDocument);
+  function new(data : DOMString, baseURI : DOMString, ownerDocument : Document) {
+    super(TEXT_NODE, "#text", data, baseURI, ownerDocument);
   }
 }
