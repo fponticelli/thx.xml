@@ -30,15 +30,15 @@ class Document extends Node implements DOMDocument {
   public var doctype(default, null) : DocumentType;
   public var documentElement(default, null) : Null<DOMElement>;
   public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
-    // TODO
+    // TODO getElementsByTagName
     return throw "not implemented";
   }
   public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
-    // TODO
+    // TODO getElementsByTagNameNS
     return throw "not implemented";
   }
   public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
-    // TODO
+    // TODO getElementsByClassName
     return throw "not implemented";
   }
 
@@ -53,24 +53,24 @@ class Document extends Node implements DOMDocument {
   @:access(thx.xml.Element.new)
   public function createElementNS(namespace : Null<DOMString>, qualifiedName : DOMString) : DOMElement {
     var o = validateAndExtract(namespace, qualifiedName);
-    // TODO rethrow? not needed but nice to have
-    // TODO baseURI
-    // TODO check if ownerDocument is applied this way
+    // TODO createElementNS rethrow? not needed but nice to have
+    // TODO createElementNS baseURI
+    // TODO createElementNS check if ownerDocument is applied this way
     return new Element(o.localName, o.prefix, o.namespace, null, this);
   }
   @:access(thx.xml.DocumentFragment.new)
   public function createDocumentFragment() : DOMDocumentFragment {
-    // TODO baseURI
+    // TODO createDocumentFragment baseURI
     return new DocumentFragment(null, this);
   }
   @:access(thx.xml.Text.new)
   public function createTextNode(data : DOMString) : DOMText {
-    // TODO baseURI
+    // TODO createTextNode baseURI
     return new Text(data, null, this);
   }
   @:access(thx.xml.Comment.new)
   public function createComment(data : DOMString) : Comment {
-    // TODO baseURI
+    // TODO createComment baseURI
     return new Comment(data, null, this);
   }
   @:access(thx.xml.ProcessingInstruction.new)
@@ -83,13 +83,13 @@ class Document extends Node implements DOMDocument {
   }
 
   public function importNode(node : DOMNode, ?deep : Bool = false) : DOMNode {
-    // TODO
+    // TODO importNode
     return throw "not implemented";
   }
   public function adoptNode(node : DOMNode) : DOMNode {
     if(node.nodeType == DOCUMENT_NODE)
       throw DOMException.fromCode(NOT_SUPPORTED_ERR);
-    // TODO shadow root
+    // TODO adoptNode shadow root
 
     node.ownerDocument = this;
     for(node in childNodesImpl) {
@@ -99,28 +99,28 @@ class Document extends Node implements DOMDocument {
   }
 
   public function createEvent(interfaceName : DOMString) : Event {
-    // TODO
+    // TODO createEvent
     return throw "not implemented";
   }
 
   public function createRange() : DOMRange {
-    // TODO
+    // TODO createRange
     return throw "not implemented";
   }
 
   // NodeFilter.SHOW_ALL = 0xFFFFFFFF
   public function createNodeIterator(root : DOMNode, ?whatToShow : WhatToShow, ?filter : NodeFilter) : DOMNodeIterator {
-    // TODO
+    // TODO createNodeIterator
     return throw "not implemented";
   }
   public function createTreeWalker(root : DOMNode, ?whatToShow : WhatToShow, ?filter : NodeFilter) : DOMTreeWalker {
-    // TODO
+    // TODO createTreeWalker
     return throw "not implemented";
   }
 
 
   public function getElementById(id : String) : Null<DOMElement> {
-    // TODO
+    // TODO getElementById
     return throw "not implemented";
   }
 
@@ -130,11 +130,11 @@ class Document extends Node implements DOMDocument {
   public var childElementCount(default, null) : Int;
 
   public function querySelector(selectors : DOMString) : Null<DOMElement> {
-    // TODO
+    // TODO querySelector
     return throw "not implemented";
   }
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
-    // TODO
+    // TODO querySelectorAll
     return throw "not implemented";
   }
 
@@ -157,13 +157,13 @@ class Document extends Node implements DOMDocument {
   static function validateName(localName : String) {
     // If qualifiedName does not match the Name production, throw an InvalidCharacterError exception.
     // http://www.w3.org/TR/xml/#NT-Name
-    // TODO
+    // TODO validateName
   }
 
   static function validateQName(qualifiedNamespace : String) {
     // If qualifiedName does not match the QName production, throw a NamespaceError exception.
     // http://www.w3.org/TR/xml-names/#NT-QName
-    // TODO
+    // TODO validateQName
   }
 
   static function validateQualifiedName(qualifiedNamespace : DOMString) {

@@ -22,7 +22,7 @@ class HTMLCollectionImp implements thx.xml.dom.HTMLCollection.HTMLCollectionImp 
   var items : Array<Element>;
   function new() {
     items = [];
-    // TODO feed here
+    // TODO new HTMLCollectionImp, feed here
     length = items.length;
   }
 }

@@ -28,12 +28,12 @@ class Node extends EventTarget implements DOMNode {
   public var nodeValue : Null<DOMString>;
   public var textContent : Null<DOMString>;
   public function normalize() : Void {
-    // TODO
+    // TODO normalize
     return throw "not implemented";
   }
 
   public function cloneNode(?deep : Bool = false) : DOMNode {
-    // TODO
+    // TODO cloneNode
     return throw "not implemented";
   }
   // requires subclasses to call super.isEqualNode() first
@@ -42,7 +42,7 @@ class Node extends EventTarget implements DOMNode {
   }
 
   public function compareDocumentPosition(other : DOMNode) : DocumentPosition {
-    // TODO
+    // TODO compareDocumentPosition
     return throw "not implemented";
   }
   public function contains(?other : DOMNode) : Bool {
@@ -55,7 +55,7 @@ class Node extends EventTarget implements DOMNode {
   public function lookupPrefix(namespace : Null<DOMString>) : Null<DOMString> {
     if(namespace == null || namespace == "")
       return null;
-    // TODO move this to subclass
+    // TODO lookupPrefix, move this to subclass
     return switch nodeType {
       case ELEMENT_NODE:
         var el : thx.xml.Element = cast this;
@@ -78,14 +78,14 @@ class Node extends EventTarget implements DOMNode {
   }
 
   public function lookupNamespaceURI(prefix : Null<DOMString>) : Null<DOMString> {
-    // TODO move this to subclass
+    // TODO lookupNamespaceURI, move this to subclass
     if("" == prefix) prefix = null;
     return switch nodeType {
       case ELEMENT_NODE:
         var el : Element = cast this;
         if(el.namespaceURI != null && el.prefix == prefix)
           el.namespaceURI;
-        // TODO add more cases from step 2: https://dom.spec.whatwg.org/#locate-a-namespace
+        // TODO lookupNamespaceURI, add more cases from step 2: https://dom.spec.whatwg.org/#locate-a-namespace
         if(el.hasAttributeNS(Namespaces.xmlns, prefix))
           el.getAttributeNS(Namespaces.xmlns, prefix);
         if(parentNode == null)
@@ -141,7 +141,7 @@ class Node extends EventTarget implements DOMNode {
   }
 
   static function ensurePreInsertionValidity(parent : DOMNode, node : DOMNode, ?child : DOMNode) {
-    // TODO move this to subclass
+    // TODO ensurePreInsertionValidity, move this to subclass
     if(parent.nodeType != DOCUMENT_NODE &&
        parent.nodeType != DOCUMENT_FRAGMENT_NODE &&
        parent.nodeType != ELEMENT_NODE)
@@ -168,7 +168,7 @@ class Node extends EventTarget implements DOMNode {
           throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
         if(frag.childElementCount == 1) {
           if(doc.documentElement != null || (null != child && child.nodeType == DOCUMENT_TYPE_NODE) // ||
-          // TODO child is not null and a doctype is following child
+          // TODO ensurePreInsertionValidity, child is not null and a doctype is following child
         )
           throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
         }
@@ -176,7 +176,7 @@ class Node extends EventTarget implements DOMNode {
         if(doc.documentElement != null ||
           (null != child && child.nodeType == DOCUMENT_TYPE_NODE) //||
           //(null != child && )
-          // TODO child is not null and a doctype is following child
+          // TODO ensurePreInsertionValidity, child is not null and a doctype is following child
         )
           throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
       } else if(node.nodeType == DOCUMENT_TYPE_NODE) {
@@ -206,7 +206,7 @@ class Node extends EventTarget implements DOMNode {
   }
 
   static function isHostIncludingInclusiveAncestor(subject : DOMNode, node : DOMNode) {
-    return isInclusiveAncestor(subject, node) || true; // TODO needs to implement the
+    return isInclusiveAncestor(subject, node) || true; // TODO isHostIncludingInclusiveAncestor, needs to implement the
     // second part of https://dom.spec.whatwg.org/#concept-tree-host-including-inclusive-ancestor
   }
 
@@ -245,7 +245,7 @@ class Node extends EventTarget implements DOMNode {
     return arr;
   }
 
-  // TODO a little disgusting unsafe cast
+  // TODO getAncestors, a little disgusting unsafe cast
   override function getAncestors() : Array<EventTarget>
     return cast getNodeAncestors(this);
 
@@ -253,7 +253,7 @@ class Node extends EventTarget implements DOMNode {
     return insertBefore(node, null);
 
   public function replaceChild(node : DOMNode, child : DOMNode) : DOMNode {
-    // TODO
+    // TODO replaceChild
     return throw "not implemented";
   }
   public function removeChild(child : DOMNode) : DOMNode {
@@ -265,15 +265,15 @@ class Node extends EventTarget implements DOMNode {
 
   function parentRemoveChild(node : DOMNode, ?suppressObservers = false) {
     var index = childNodesImpl.indexOf(node);
-    // TODO operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove
+    // TODO parentRemoveChild, operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove
 
-    // TODO change NodeIteratos (step 6): https://dom.spec.whatwg.org/#concept-node-remove
+    // TODO parentRemoveChild, change NodeIteratos (step 6): https://dom.spec.whatwg.org/#concept-node-remove
 
     var oldPreviousSibling = node.previousSibling;
     childNodesImpl.removeChild(node);
-    // TODO 9?
+    // TODO parentRemoveChild, 9?
 
-    // TODO suppress observers (step 10, 11): https://dom.spec.whatwg.org/#concept-node-remove
+    // TODO parentRemoveChild, suppress observers (step 10, 11): https://dom.spec.whatwg.org/#concept-node-remove
   }
 
   var childNodesImpl : thx.xml.NodeList.NodeListImp;

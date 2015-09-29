@@ -82,11 +82,11 @@ class EventTarget implements thx.xml.dom.EventTarget {
   }
 
   function setEventTarget(event : thx.xml.Event) {
-    // TODO add override
+    // TODOsetEventTarget,  add override
     event.target = this;
   }
 
-  // TODO for types with `parent`
+  // TODO getAncestors, for types with `parent`
   function getAncestors() : Array<EventTarget> {
     return [];
   }
@@ -103,7 +103,7 @@ class EventTarget implements thx.xml.dom.EventTarget {
          event.eventPhase == BUBBLING_PHASE && item.capture)
         continue;
       // Call listener's callback's handleEvent, with the event passed to this algorithm as the first argument and event's currentTarget attribute value as callback this value.
-      // TODO not sure how this works out in Haxe, possibly do nothing about it
+      // TODO invoke, not sure how this works out in Haxe, possibly do nothing about it
       item.listener.handleEvent(event);
     }
   }

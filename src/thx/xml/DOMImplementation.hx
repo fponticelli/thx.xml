@@ -6,21 +6,21 @@ import thx.xml.dom.XMLDocument;
 
 class DOMImplementation implements thx.xml.dom.DOMImplementation {
   public function createDocumentType(qualifiedName : DOMString, publicId : DOMString, systemId : DOMString) : DocumentType {
-    // TODO
+    // TODO createDocumentType
     return throw "not implemented";
   }
   public function createDocument(namespace : Null<DOMString>, /*[TreatNullAs=EmptyString]*/ ?qualifiedName : DOMString, ?doctype : DocumentType) : XMLDocument {
-    // TODO
+    // TODO createDocument
     return throw "not implemented";
   }
   public function createHTMLDocument(?title : DOMString) : Document {
-    // TODO
+    // TODO createHTMLDocument
     return throw "not implemented";
   }
 
   // useless; always returns true
   public function hasFeature() : Bool {
-    // TODO
+    // TODO hasFeature
     return throw "not implemented";
   }
 }

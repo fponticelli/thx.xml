@@ -20,7 +20,7 @@ class Element extends Node implements DOMElement {
   public var classList(default, null) : DOMTokenList;
 
   // [SameObject]
-  // TODO cannot really use Array here or it can be modified without using setAttribute
+  // TODO attributes, cannot really use Array here or it can be modified without using setAttribute
   public var attributes(default, null) : Array<Attr>;
   public function getAttribute(name : DOMString) : Null<DOMString>
     return getAttributeNS(null, name);
@@ -30,31 +30,40 @@ class Element extends Node implements DOMElement {
         return attr.value;
     return null;
   }
+  // TODO setAttribute
   public function setAttribute(name : DOMString, value : DOMString) : Void {
     return throw 'not implemented';
   }
+  // TODO setAttributeNS
   public function setAttributeNS(namespace : Null<DOMString>, name : DOMString, value : DOMString) : Void {
     return throw 'not implemented';
   }
+  // TODO removeAttribute
   public function removeAttribute(name : DOMString) : Void {
     return throw 'not implemented';
   }
+  // TODO removeAttributeNS
   public function removeAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Void {
     return throw 'not implemented';
   }
+  // TODO hasAttribute
   public function hasAttribute(name : DOMString) : Bool {
     return throw 'not implemented';
   }
+  // TODO hasAttributeNS
   public function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool {
     return throw 'not implemented';
   }
 
+  // TODO getElementsByTagName
   public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
     return throw 'not implemented';
   }
+  // TODO getElementsByTagNameNS
   public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
     return throw 'not implemented';
   }
+  // TODO getElementsByClassName
   public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
     return throw 'not implemented';
   }
@@ -74,7 +83,7 @@ class Element extends Node implements DOMElement {
   }
 
   public function remove() : Void {
-    // TODO
+    // TODO remove
     return throw "not implemented";
   }
   public var nextElementSibling : Null<DOMElement>;
@@ -86,18 +95,18 @@ class Element extends Node implements DOMElement {
   public var childElementCount(default, null) : Int;
 
   public function querySelector(selectors : DOMString) : Null<DOMElement> {
-    // TODO
+    // TODO querySelector
     return throw "not implemented";
   }
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
-    // TODO
+    // TODO querySelectorAll
     return throw "not implemented";
   }
 
   function locateNamespacePrefix(namespace : DOMString) : Null<DOMString> {
     if(namespaceURI == namespace && prefix != null)
       return prefix;
-    // TODO step 2 requires getAttributeObject(): https://dom.spec.whatwg.org/#locate-a-namespace-prefix
+    // TODO locateNamespacePrefix, step 2 requires getAttributeObject(): https://dom.spec.whatwg.org/#locate-a-namespace-prefix
     var pel = Std.instance(parentElement, Element);
     if(null == pel)
       return null;
@@ -111,7 +120,7 @@ class Element extends Node implements DOMElement {
     var otherElement : DOMElement = cast other;
     if(namespaceURI != otherElement.namespaceURI || prefix != otherElement.prefix || localName != otherElement.localName || attributes.length != otherElement.attributes.length)
       return false;
-    // TODO check attributes equality
+    // TODO isEqualNode, check attributes equality
     if(childNodes.length != otherElement.childNodes.length)
       return false;
     for(i in 0...childNodes.length)
