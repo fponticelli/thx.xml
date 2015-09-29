@@ -59,12 +59,19 @@ class Element extends Node implements DOMElement {
     return throw 'not implemented';
   }
 
-  function new(tagName : DOMString, baseURI : DOMString, ownerDocument : Document) {
+  function new(localName : DOMString, prefix : Null<DOMString>, namespaceURI : Null<DOMString>,  baseURI : DOMString, ownerDocument : Document) {
     this.attributes = [];
-    this.tagName = tagName;
+    var tagName;
+    if(prefix == null) {
+      tagName = localName;
+    } else {
+      tagName = '$prefix:$localName';
+    }
+    this.localName = localName;
+    this.prefix = prefix;
+    this.namespaceURI = namespaceURI;
     super(ELEMENT_NODE, tagName, baseURI, ownerDocument);
   }
-
 
   public function remove() : Void {
     return throw "not implemented";

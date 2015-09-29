@@ -15,6 +15,8 @@ import thx.xml.dom.NodeList as DOMNodeList;
 import thx.xml.dom.NodeIterator as DOMNodeIterator;
 import thx.xml.dom.TreeWalker as DOMTreeWalker;
 
+using thx.Strings;
+
 class Document extends Node implements DOMDocument {
   // [SameObject]
   public var implementation(default, null) : thx.xml.dom.DOMImplementation;
@@ -38,10 +40,20 @@ class Document extends Node implements DOMDocument {
   }
 
   public function createElement(localName : DOMString) : DOMElement {
-    return throw "not implemented";
+    validateName(localName);
+    // If the context object is an HTML document, let localName be converted to ASCII lowercase.
+    // https://dom.spec.whatwg.org/#html-document
+    // TODO
+    return new Element(localName, null, Namespaces.html, null, this);
   }
+
+  @:access(thx.xml.Element.new)
   public function createElementNS(namespace : Null<DOMString>, qualifiedName : DOMString) : DOMElement {
-    return throw "not implemented";
+    var o = validateAndExtract(namespace, qualifiedName);
+    // TODO rethrow? not needed but nice to have
+    // TODO baseURI
+    // TODO check if ownerDocument is applied this way
+    return new Element(o.localName, o.prefix, o.namespace, null, this);
   }
   public function createDocumentFragment() : DOMDocumentFragment {
     return throw "not implemented";
@@ -118,5 +130,65 @@ class Document extends Node implements DOMDocument {
       if(!childNodes[i].isEqualNode(otherDocument.childNodes[i]))
         return false;
     return true;
+  }
+
+  static function validateName(localName : String) {
+    // If qualifiedName does not match the Name production, throw an InvalidCharacterError exception.
+    // http://www.w3.org/TR/xml/#NT-Name
+    // TODO
+  }
+
+  static function validateQName(qualifiedNamespace : String) {
+    // If qualifiedName does not match the QName production, throw a NamespaceError exception.
+    // http://www.w3.org/TR/xml-names/#NT-QName
+    // TODO
+  }
+
+  static function validateQualifiedName(qualifiedNamespace : DOMString) {
+    validateName(qualifiedNamespace);
+    validateQName(qualifiedNamespace);
+  }
+
+  static function validateAndExtract(namespace : DOMString, qualifiedName : DOMString) {
+    if(namespace == "") namespace = null;
+    // Validate qualifiedName. Rethrow any exceptions.
+    validateQualifiedName(qualifiedName);
+
+    // Let prefix be null.
+    var prefix = null;
+
+    // Let localName be qualifiedName.
+    var localName = qualifiedName;
+
+    // If qualifiedName contains a ":" (U+003E), then split the string on it and set prefix to the part before and localName to the part after.
+    var parts = qualifiedName.splitOnce(":");
+    if(parts.length > 1) {
+      prefix = parts[0];
+      localName = parts[1];
+    }
+
+    // If prefix is non-null and namespace is null, throw a NamespaceError exception.
+    if(null != prefix && null == namespace)
+      throw DOMException.fromCode(NAMESPACE_ERR);
+
+    // If prefix is "xml" and namespace is not the XML namespace, throw a NamespaceError exception.
+    if("xml" == prefix && Namespaces.xml != namespace)
+      throw DOMException.fromCode(NAMESPACE_ERR);
+
+    // If either qualifiedName or prefix is "xmlns" and namespace is not the XMLNS namespace, throw a NamespaceError exception.
+    if(("xmlns" == qualifiedName || "xmlns" == prefix) && namespace != Namespaces.xmlns)
+      throw DOMException.fromCode(NAMESPACE_ERR);
+
+    // If namespace is the XMLNS namespace and neither qualifiedName nor prefix is "xmlns", throw a NamespaceError exception.
+    if(Namespaces.xmlns == namespace && qualifiedName != "xmlns" && prefix != "xmlns")
+      throw DOMException.fromCode(NAMESPACE_ERR);
+
+    // Return namespace, prefix, localName, and qualifiedName.
+    return {
+      namespace : namespace,
+      prefix : prefix,
+      localName : localName,
+      qualifiedName : qualifiedName
+    };
   }
 }
