@@ -19,4 +19,12 @@ class Attr implements DOMAttr {
     this.prefix = prefix;
     this.specified = true;
   }
+
+  public function equals(that : Attr) {
+    return localName == that.localName &&
+      value == that.value &&
+      name == that.name &&
+      namespaceURI == that.namespaceURI &&
+      prefix == that.prefix;
+  }
 }
