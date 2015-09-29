@@ -10,6 +10,7 @@ class DocumentType extends Node implements DOMDocumentType {
 
 
   public function remove() : Void {
+    // TODO
     return throw "not implemented";
   }
 

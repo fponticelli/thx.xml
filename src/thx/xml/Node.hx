@@ -28,10 +28,12 @@ class Node extends EventTarget implements DOMNode {
   public var nodeValue : Null<DOMString>;
   public var textContent : Null<DOMString>;
   public function normalize() : Void {
+    // TODO
     return throw "not implemented";
   }
 
   public function cloneNode(?deep : Bool = false) : DOMNode {
+    // TODO
     return throw "not implemented";
   }
   // requires subclasses to call super.isEqualNode() first
@@ -40,6 +42,7 @@ class Node extends EventTarget implements DOMNode {
   }
 
   public function compareDocumentPosition(other : DOMNode) : DocumentPosition {
+    // TODO
     return throw "not implemented";
   }
   public function contains(?other : DOMNode) : Bool {
@@ -250,6 +253,7 @@ class Node extends EventTarget implements DOMNode {
     return insertBefore(node, null);
 
   public function replaceChild(node : DOMNode, child : DOMNode) : DOMNode {
+    // TODO
     return throw "not implemented";
   }
   public function removeChild(child : DOMNode) : DOMNode {

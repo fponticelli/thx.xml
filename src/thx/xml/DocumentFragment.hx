@@ -8,6 +8,7 @@ import thx.xml.dom.NodeList as DOMNodeList;
 
 class DocumentFragment extends Node implements DOMDocumentFragment {
   public function getElementById(id : String) : Null<DOMElement> {
+    // TODO
     return throw "not implemented";
   }
 
@@ -17,9 +18,11 @@ class DocumentFragment extends Node implements DOMDocumentFragment {
   public var childElementCount(default, null) : Int;
 
   public function querySelector(selectors : DOMString) : Null<DOMElement> {
+    // TODO
     return throw "not implemented";
   }
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+    // TODO
     return throw "not implemented";
   }
 

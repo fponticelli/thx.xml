@@ -7,6 +7,7 @@ class Text
     extends CharacterData
     implements DOMText {
   public function splitText(offset : Int) : DOMText {
+    // TODO
     return throw "not implemented";
   }
   public var wholeText(default, null) : DOMString;

@@ -10,21 +10,27 @@ class CharacterData extends Node implements DOMCharacterData {
   public var data : DOMString;
   public var length(default, null) : Int;
   public function substringData(offset : Int, count : Int) : DOMString {
+    // TODO
     return throw "not implemented";
   }
   public function appendData(data : DOMString) : Void {
+    // TODO
     return throw "not implemented";
   }
   public function insertData(offset : Int, data : DOMString) : Void {
+    // TODO
     return throw "not implemented";
   }
   public function deleteData(offset : Int, count : Int) : Void {
+    // TODO
     return throw "not implemented";
   }
   public function replaceData(offset : Int, count : Int, data : DOMString) : Void {
+    // TODO
     return throw "not implemented";
   }
   public function remove() : Void {
+    // TODO
     return throw "not implemented";
   }
   public var nextElementSibling : Null<DOMElement>;

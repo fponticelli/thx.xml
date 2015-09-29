@@ -30,12 +30,15 @@ class Document extends Node implements DOMDocument {
   public var doctype(default, null) : DocumentType;
   public var documentElement(default, null) : Null<DOMElement>;
   public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
+    // TODO
     return throw "not implemented";
   }
   public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
+    // TODO
     return throw "not implemented";
   }
   public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
+    // TODO
     return throw "not implemented";
   }
 
@@ -80,6 +83,7 @@ class Document extends Node implements DOMDocument {
   }
 
   public function importNode(node : DOMNode, ?deep : Bool = false) : DOMNode {
+    // TODO
     return throw "not implemented";
   }
   public function adoptNode(node : DOMNode) : DOMNode {
@@ -95,23 +99,28 @@ class Document extends Node implements DOMDocument {
   }
 
   public function createEvent(interfaceName : DOMString) : Event {
+    // TODO
     return throw "not implemented";
   }
 
   public function createRange() : DOMRange {
+    // TODO
     return throw "not implemented";
   }
 
   // NodeFilter.SHOW_ALL = 0xFFFFFFFF
   public function createNodeIterator(root : DOMNode, ?whatToShow : WhatToShow, ?filter : NodeFilter) : DOMNodeIterator {
+    // TODO
     return throw "not implemented";
   }
   public function createTreeWalker(root : DOMNode, ?whatToShow : WhatToShow, ?filter : NodeFilter) : DOMTreeWalker {
+    // TODO
     return throw "not implemented";
   }
 
 
   public function getElementById(id : String) : Null<DOMElement> {
+    // TODO
     return throw "not implemented";
   }
 
@@ -121,9 +130,11 @@ class Document extends Node implements DOMDocument {
   public var childElementCount(default, null) : Int;
 
   public function querySelector(selectors : DOMString) : Null<DOMElement> {
+    // TODO
     return throw "not implemented";
   }
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+    // TODO
     return throw "not implemented";
   }
 

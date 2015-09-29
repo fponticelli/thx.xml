@@ -74,6 +74,7 @@ class Element extends Node implements DOMElement {
   }
 
   public function remove() : Void {
+    // TODO
     return throw "not implemented";
   }
   public var nextElementSibling : Null<DOMElement>;
@@ -85,9 +86,11 @@ class Element extends Node implements DOMElement {
   public var childElementCount(default, null) : Int;
 
   public function querySelector(selectors : DOMString) : Null<DOMElement> {
+    // TODO
     return throw "not implemented";
   }
   public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+    // TODO
     return throw "not implemented";
   }
 
