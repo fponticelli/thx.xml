@@ -36,10 +36,10 @@ class CharacterData extends Node implements DOMCharacterData {
   public var nextElementSibling : Null<DOMElement>;
   public var previousElementSibling : Null<DOMElement>;
 
-  function new(nodeType : NodeType, nodeName : DOMString, data : DOMString, baseURI : DOMString, ownerDocument : thx.xml.dom.Document) {
+  function new(nodeType : NodeType, nodeName : DOMString, data : DOMString, ownerDocument : thx.xml.dom.Document) {
     this.data = null == data ? "" : data;
     this.length = this.data.length;
-    super(nodeType, nodeName, baseURI, ownerDocument);
+    super(nodeType, nodeName, ownerDocument);
   }
 
   override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {

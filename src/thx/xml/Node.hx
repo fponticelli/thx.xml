@@ -12,7 +12,7 @@ class Node extends EventTarget implements DOMNode {
   public var nodeType(default, null) : NodeType;
   public var nodeName(default, null) : DOMString;
 
-  public var baseURI(default, null) : Null<DOMString>;
+  public var baseURI(get, null) : Null<DOMString>;
 
   public var ownerDocument(default, null) : Null<Document>;
   public var parentNode(default, null) : Null<DOMNode>;
@@ -277,13 +277,15 @@ class Node extends EventTarget implements DOMNode {
   }
 
   var childNodesImpl : thx.xml.NodeList.NodeListImp;
-  function new(nodeType : NodeType, nodeName : DOMString, baseURI : DOMString, ownerDocument : Document) {
+  function new(nodeType : NodeType, nodeName : DOMString, ownerDocument : Document) {
     this.nodeType = nodeType;
     this.nodeName = nodeName;
-    this.baseURI = baseURI;
     this.ownerDocument = ownerDocument;
     this.childNodesImpl = new thx.xml.NodeList.NodeListImp();
     this.childNodes = this.childNodesImpl;
     super();
   }
+
+  function get_baseURI()
+    return ownerDocument.baseURI;
 }

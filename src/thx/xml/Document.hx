@@ -46,8 +46,8 @@ class Document extends Node implements DOMDocument {
     validateName(localName);
     // If the context object is an HTML document, let localName be converted to ASCII lowercase.
     // https://dom.spec.whatwg.org/#html-document
-    // TODO
-    return new Element(localName, null, Namespaces.html, null, this);
+    // TODO createElement
+    return new Element(localName, null, Namespaces.html, this);
   }
 
   @:access(thx.xml.Element.new)
@@ -56,22 +56,22 @@ class Document extends Node implements DOMDocument {
     // TODO createElementNS rethrow? not needed but nice to have
     // TODO createElementNS baseURI
     // TODO createElementNS check if ownerDocument is applied this way
-    return new Element(o.localName, o.prefix, o.namespace, null, this);
+    return new Element(o.localName, o.prefix, o.namespace, this);
   }
   @:access(thx.xml.DocumentFragment.new)
   public function createDocumentFragment() : DOMDocumentFragment {
     // TODO createDocumentFragment baseURI
-    return new DocumentFragment(null, this);
+    return new DocumentFragment(this);
   }
   @:access(thx.xml.Text.new)
   public function createTextNode(data : DOMString) : DOMText {
     // TODO createTextNode baseURI
-    return new Text(data, null, this);
+    return new Text(data, this);
   }
   @:access(thx.xml.Comment.new)
   public function createComment(data : DOMString) : Comment {
     // TODO createComment baseURI
-    return new Comment(data, null, this);
+    return new Comment(data, this);
   }
   @:access(thx.xml.ProcessingInstruction.new)
   public function createProcessingInstruction(target : DOMString, data : DOMString) : DOMProcessingInstruction {
@@ -79,7 +79,7 @@ class Document extends Node implements DOMDocument {
     if(data.contains("?>"))
       throw DOMException.fromCode(INVALID_CHARACTER_ERR);
     // TODO baseURI
-    return new ProcessingInstruction(target, data, null, this);
+    return new ProcessingInstruction(target, data, this);
   }
 
   public function importNode(node : DOMNode, ?deep : Bool = false) : DOMNode {
@@ -138,8 +138,10 @@ class Document extends Node implements DOMDocument {
     return throw "not implemented";
   }
 
+  var _baseURI : DOMString;
   function new(baseURI : DOMString) {
-    super(DOCUMENT_NODE, "#document", baseURI, null);
+    _baseURI = baseURI;
+    super(DOCUMENT_NODE, "#document", null);
   }
 
   override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
@@ -153,6 +155,9 @@ class Document extends Node implements DOMDocument {
         return false;
     return true;
   }
+
+  override function get_baseURI()
+    return _baseURI;
 
   static function validateName(localName : String) {
     // If qualifiedName does not match the Name production, throw an InvalidCharacterError exception.

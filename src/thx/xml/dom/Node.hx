@@ -4,7 +4,7 @@ interface Node extends EventTarget {
   var nodeType(default, null) : NodeType;
   var nodeName(default, null) : DOMString;
 
-  var baseURI(default, null) : Null<DOMString>;
+  var baseURI(get, null) : Null<DOMString>;
 
   var ownerDocument(default, null) : Null<Document>;
   var parentNode(default, null) : Null<Node>;

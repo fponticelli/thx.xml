@@ -11,7 +11,7 @@ class Text
       throw DOMException.fromCode(INDEX_SIZE_ERR);
     var count = length - offset,
         newdata = data.substring(offset, offset + count),
-        newnode = new Text(newdata, baseURI, ownerDocument);
+        newnode = new Text(newdata, ownerDocument);
     if(null != parentNode) {
       // TODO splitText, step 7
       // https://dom.spec.whatwg.org/#concept-Text-split
@@ -26,8 +26,8 @@ class Text
   }
   public var wholeText(get, null) : DOMString;
 
-  function new(data : DOMString, baseURI : DOMString, ownerDocument : thx.xml.dom.Document) {
-    super(TEXT_NODE, "#text", data, baseURI, ownerDocument);
+  function new(data : DOMString, ownerDocument : thx.xml.dom.Document) {
+    super(TEXT_NODE, "#text", data, ownerDocument);
   }
 
   function get_wholeText() : DOMString

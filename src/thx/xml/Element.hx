@@ -68,7 +68,7 @@ class Element extends Node implements DOMElement {
     return throw 'not implemented';
   }
 
-  function new(localName : DOMString, prefix : Null<DOMString>, namespaceURI : Null<DOMString>,  baseURI : DOMString, ownerDocument : Document) {
+  function new(localName : DOMString, prefix : Null<DOMString>, namespaceURI : Null<DOMString>,  ownerDocument : Document) {
     this.attributes = [];
     var tagName;
     if(prefix == null) {
@@ -79,7 +79,7 @@ class Element extends Node implements DOMElement {
     this.localName = localName;
     this.prefix = prefix;
     this.namespaceURI = namespaceURI;
-    super(ELEMENT_NODE, tagName, baseURI, ownerDocument);
+    super(ELEMENT_NODE, tagName, ownerDocument);
   }
 
   public function remove() : Void {

@@ -26,9 +26,9 @@ class DocumentFragment extends Node implements DOMDocumentFragment {
     return throw "not implemented";
   }
 
-  function new(baseURI : DOMString, ownerDocument : Document) {
+  function new(ownerDocument : Document) {
     // TODO new, owner document?
-    super(DOCUMENT_FRAGMENT_NODE, "#document-fragment", baseURI, ownerDocument);
+    super(DOCUMENT_FRAGMENT_NODE, "#document-fragment", ownerDocument);
   }
 
   override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
