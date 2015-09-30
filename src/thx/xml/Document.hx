@@ -54,23 +54,19 @@ class Document extends Node implements DOMDocument {
   public function createElementNS(namespace : Null<DOMString>, qualifiedName : DOMString) : DOMElement {
     var o = validateAndExtract(namespace, qualifiedName);
     // TODO createElementNS rethrow? not needed but nice to have
-    // TODO createElementNS baseURI
     // TODO createElementNS check if ownerDocument is applied this way
     return new Element(o.localName, o.prefix, o.namespace, this);
   }
   @:access(thx.xml.DocumentFragment.new)
   public function createDocumentFragment() : DOMDocumentFragment {
-    // TODO createDocumentFragment baseURI
     return new DocumentFragment(this);
   }
   @:access(thx.xml.Text.new)
   public function createTextNode(data : DOMString) : DOMText {
-    // TODO createTextNode baseURI
     return new Text(data, this);
   }
   @:access(thx.xml.Comment.new)
   public function createComment(data : DOMString) : Comment {
-    // TODO createComment baseURI
     return new Comment(data, this);
   }
   @:access(thx.xml.ProcessingInstruction.new)
@@ -78,7 +74,6 @@ class Document extends Node implements DOMDocument {
     validateName(target);
     if(data.contains("?>"))
       throw DOMException.fromCode(INVALID_CHARACTER_ERR);
-    // TODO baseURI
     return new ProcessingInstruction(target, data, this);
   }
 
