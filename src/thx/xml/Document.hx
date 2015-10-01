@@ -140,6 +140,7 @@ class Document extends Node {
   override function get_baseURI()
     return _baseURI;
 
+  // NON-STANDARD
   static function validateName(localName : String) {
     // If qualifiedName does not match the Name production, throw an InvalidCharacterError exception.
     // http://www.w3.org/TR/xml/#NT-Name

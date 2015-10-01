@@ -3726,6 +3726,9 @@ var thx_xml_Attr = function(localName,value,name,namespaceURI,prefix) {
 	this.specified = true;
 };
 thx_xml_Attr.__name__ = ["thx","xml","Attr"];
+thx_xml_Attr.equals = function(self,that) {
+	return self.localName == that.localName && self.value == that.value && self.name == that.name && self.namespaceURI == that.namespaceURI && self.prefix == that.prefix;
+};
 thx_xml_Attr.prototype = {
 	localName: null
 	,value: null
@@ -3733,9 +3736,6 @@ thx_xml_Attr.prototype = {
 	,namespaceURI: null
 	,prefix: null
 	,specified: null
-	,equals: function(that) {
-		return this.localName == that.localName && this.value == that.value && this.name == that.name && this.namespaceURI == that.namespaceURI && this.prefix == that.prefix;
-	}
 	,__class__: thx_xml_Attr
 };
 var thx_xml_EventTarget = function() {
@@ -3837,7 +3837,7 @@ var thx_xml_Node = function(nodeType,nodeName,ownerDocument) {
 	this.nodeType = nodeType;
 	this.nodeName = nodeName;
 	this.ownerDocument = ownerDocument;
-	this.childNodesImpl = new thx_xml_NodeListImp();
+	this.childNodesImpl = new thx_xml_NodeListImpl();
 	this.childNodes = this.childNodesImpl;
 	thx_xml_EventTarget.call(this);
 };
@@ -3847,23 +3847,23 @@ thx_xml_Node.adopt = function(doc,node) {
 	doc.adoptNode(node);
 };
 thx_xml_Node.ensurePreInsertionValidity = function(parent,node,child) {
-	if(parent.nodeType != 9 && parent.nodeType != 11 && parent.nodeType != 1) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 140, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
-	if(thx_xml_Node.isHostIncludingInclusiveAncestor(node,parent)) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 142, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
-	if(null != child && child.parentNode != parent) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 144, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
-	if(node.nodeType != 11 && node.nodeType != 10 && node.nodeType != 1 && node.nodeType != 3 && node.nodeType != 7 && node.nodeType != 8) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 151, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
-	if(node.nodeType == 3 && parent.nodeType == 9 || node.nodeType == 10 && parent.nodeType != 9) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 154, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(parent.nodeType != 9 && parent.nodeType != 11 && parent.nodeType != 1) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 142, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(thx_xml_Node.isHostIncludingInclusiveAncestor(node,parent)) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 144, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(null != child && child.parentNode != parent) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 146, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(node.nodeType != 11 && node.nodeType != 10 && node.nodeType != 1 && node.nodeType != 3 && node.nodeType != 7 && node.nodeType != 8) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 153, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(node.nodeType == 3 && parent.nodeType == 9 || node.nodeType == 10 && parent.nodeType != 9) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 156, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 	if(parent.nodeType == 9) {
 		var doc = parent;
 		if(node.nodeType == 11) {
 			var frag = node;
-			if(frag.childElementCount > 1 || frag.textContent != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 160, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+			if(frag.childElementCount > 1 || frag.textContent != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 162, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 			if(frag.childElementCount == 1) {
-				if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 165, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+				if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 167, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 			}
 		} else if(node.nodeType == 1) {
-			if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 173, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+			if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 175, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 		} else if(node.nodeType == 10) {
-			if(doc.doctype != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 176, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"}); else if(child.previousSibling != null && child.previousSibling.nodeType == 1) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 178, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"}); else if(null == child && doc.documentElement != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 180, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+			if(doc.doctype != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 178, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"}); else if(child.previousSibling != null && child.previousSibling.nodeType == 1) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 180, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"}); else if(null == child && doc.documentElement != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 182, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 		}
 	}
 };
@@ -4011,7 +4011,7 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,removeChild: function(child) {
-		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 253, className : "thx.xml.Node", methodName : "removeChild"});
+		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 255, className : "thx.xml.Node", methodName : "removeChild"});
 		this.parentRemoveChild(child);
 		return child;
 	}
@@ -4427,10 +4427,10 @@ thx_xml_Document.validateAndExtract = function($namespace,qualifiedName) {
 		prefix = parts[0];
 		localName = parts[1];
 	}
-	if(null != prefix && null == $namespace) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 180, className : "thx.xml.Document", methodName : "validateAndExtract"});
-	if("xml" == prefix && thx_xml_Namespaces.xml != $namespace) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 184, className : "thx.xml.Document", methodName : "validateAndExtract"});
-	if(("xmlns" == qualifiedName || "xmlns" == prefix) && $namespace != thx_xml_Namespaces.xmlns) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 188, className : "thx.xml.Document", methodName : "validateAndExtract"});
-	if(thx_xml_Namespaces.xmlns == $namespace && qualifiedName != "xmlns" && prefix != "xmlns") throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 192, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if(null != prefix && null == $namespace) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 181, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if("xml" == prefix && thx_xml_Namespaces.xml != $namespace) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 185, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if(("xmlns" == qualifiedName || "xmlns" == prefix) && $namespace != thx_xml_Namespaces.xmlns) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 189, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if(thx_xml_Namespaces.xmlns == $namespace && qualifiedName != "xmlns" && prefix != "xmlns") throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 193, className : "thx.xml.Document", methodName : "validateAndExtract"});
 	return { 'namespace' : $namespace, prefix : prefix, localName : localName, qualifiedName : qualifiedName};
 };
 thx_xml_Document.__super__ = thx_xml_Node;
@@ -4730,12 +4730,12 @@ thx_xml__$EventTarget_EventListener_$Impl_$.__name__ = ["thx","xml","_EventTarge
 thx_xml__$EventTarget_EventListener_$Impl_$.fromFunction = function(f) {
 	return { handleEvent : f};
 };
-var thx_xml_HTMLCollectionImp = function() {
+var thx_xml_HTMLCollectionImpl = function() {
 	this.items = [];
 	this.length = this.items.length;
 };
-thx_xml_HTMLCollectionImp.__name__ = ["thx","xml","HTMLCollectionImp"];
-thx_xml_HTMLCollectionImp.prototype = {
+thx_xml_HTMLCollectionImpl.__name__ = ["thx","xml","HTMLCollectionImpl"];
+thx_xml_HTMLCollectionImpl.prototype = {
 	namedItem: function(name) {
 		var _g = 0;
 		var _g1 = this.items;
@@ -4751,7 +4751,7 @@ thx_xml_HTMLCollectionImp.prototype = {
 	}
 	,length: null
 	,items: null
-	,__class__: thx_xml_HTMLCollectionImp
+	,__class__: thx_xml_HTMLCollectionImpl
 };
 var thx_xml__$HTMLCollection_HTMLCollection_$Impl_$ = {};
 thx_xml__$HTMLCollection_HTMLCollection_$Impl_$.__name__ = ["thx","xml","_HTMLCollection","HTMLCollection_Impl_"];
@@ -4782,12 +4782,17 @@ thx_xml_NodeIterator.prototype = {
 	,detach: null
 	,__class__: thx_xml_NodeIterator
 };
-var thx_xml_NodeListImp = function() {
+var thx_xml__$NodeList_NodeList_$Impl_$ = {};
+thx_xml__$NodeList_NodeList_$Impl_$.__name__ = ["thx","xml","_NodeList","NodeList_Impl_"];
+thx_xml__$NodeList_NodeList_$Impl_$.item = function(this1,index) {
+	return this1.item(index);
+};
+var thx_xml_NodeListImpl = function() {
 	this.items = [];
 	this.length = 0;
 };
-thx_xml_NodeListImp.__name__ = ["thx","xml","NodeListImp"];
-thx_xml_NodeListImp.prototype = {
+thx_xml_NodeListImpl.__name__ = ["thx","xml","NodeListImpl"];
+thx_xml_NodeListImpl.prototype = {
 	item: function(index) {
 		return this.items[index];
 	}
@@ -4810,12 +4815,7 @@ thx_xml_NodeListImp.prototype = {
 	,iterator: function() {
 		return HxOverrides.iter(this.items);
 	}
-	,__class__: thx_xml_NodeListImp
-};
-var thx_xml__$NodeList_NodeList_$Impl_$ = {};
-thx_xml__$NodeList_NodeList_$Impl_$.__name__ = ["thx","xml","_NodeList","NodeList_Impl_"];
-thx_xml__$NodeList_NodeList_$Impl_$.item = function(this1,index) {
-	return this1.item(index);
+	,__class__: thx_xml_NodeListImpl
 };
 var thx_xml_ProcessingInstruction = function(target,data,ownerDocument) {
 	this.target = target;

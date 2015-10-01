@@ -17,11 +17,12 @@ class Attr {
     this.specified = true;
   }
 
-  public function equals(that : Attr) {
-    return localName == that.localName &&
-      value == that.value &&
-      name == that.name &&
-      namespaceURI == that.namespaceURI &&
-      prefix == that.prefix;
+  // NON-STANDARD
+  static public function equals(self : Attr, that : Attr) {
+    return self.localName == that.localName &&
+      self.value == that.value &&
+      self.name == that.name &&
+      self.namespaceURI == that.namespaceURI &&
+      self.prefix == that.prefix;
   }
 }

@@ -58,6 +58,7 @@ class EventTarget {
     map = new Map();
   }
 
+  // NON-STANDARD
   public function fireEvent(type : DOMString, ?bubbles = false, ?cancelable = false) {
     var event = new thx.xml.Event(type, { bubbles : bubbles, cancelable : cancelable });
     dispatchEvent(event);

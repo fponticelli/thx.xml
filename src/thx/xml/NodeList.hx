@@ -1,6 +1,13 @@
 package thx.xml;
 
-class NodeListImp {
+@:forward(length)
+abstract NodeList(NodeListImpl) from NodeListImpl to NodeListImpl {
+  @:arrayAccess
+  inline public function item(index : Int) : Null<Node>
+    return this.item(index);
+}
+
+class NodeListImpl {
   public function item(index : Int) : Null<Node>
     return items[index];
   public var length(default, null) : Int;
@@ -33,11 +40,4 @@ class NodeListImp {
 
   public function iterator()
     return items.iterator();
-}
-
-@:forward(length)
-abstract NodeList(NodeListImp) from NodeListImp to NodeListImp {
-  @:arrayAccess
-  inline public function item(index : Int) : Null<Node>
-    return this.item(index);
 }

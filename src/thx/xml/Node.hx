@@ -1,5 +1,7 @@
 package thx.xml;
 
+import thx.xml.NodeList;
+
 class Node extends EventTarget {
   public var nodeType(default, null) : NodeType;
   public var nodeName(default, null) : DOMString;
@@ -255,6 +257,7 @@ class Node extends EventTarget {
     return child;
   }
 
+  // NON-STANDARD
   function parentRemoveChild(node : Node, ?suppressObservers = false) {
     var index = childNodesImpl.indexOf(node);
     // TODO parentRemoveChild, operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove
@@ -268,12 +271,12 @@ class Node extends EventTarget {
     // TODO parentRemoveChild, suppress observers (step 10, 11): https://dom.spec.whatwg.org/#concept-node-remove
   }
 
-  var childNodesImpl : thx.xml.NodeList.NodeListImp;
+  var childNodesImpl : NodeListImpl;
   function new(nodeType : NodeType, nodeName : DOMString, ownerDocument : Document) {
     this.nodeType = nodeType;
     this.nodeName = nodeName;
     this.ownerDocument = ownerDocument;
-    this.childNodesImpl = new thx.xml.NodeList.NodeListImp();
+    this.childNodesImpl = new NodeListImpl();
     this.childNodes = this.childNodesImpl;
     super();
   }
