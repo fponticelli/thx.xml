@@ -1,4 +1,4 @@
-package thx.xml.dom;
+package thx.xml;
 
 interface NonElementParentNode {
   function getElementById(elementId : DOMString) : Null<Element>;

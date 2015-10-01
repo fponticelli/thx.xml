@@ -1,12 +1,6 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.Element;
-import thx.xml.dom.HTMLCollection;
-
-typedef HTMLCollection = thx.xml.dom.HTMLCollection;
-
-class HTMLCollectionImp implements thx.xml.dom.HTMLCollection.HTMLCollectionImp {
+class HTMLCollectionImp {
   public function namedItem(name : DOMString) : Null<Element> {
     for(item in items)
       if(item.getAttribute("id") == name ||
@@ -25,4 +19,14 @@ class HTMLCollectionImp implements thx.xml.dom.HTMLCollection.HTMLCollectionImp 
     // TODO new HTMLCollectionImp, feed here
     length = items.length;
   }
+}
+
+@:forward(length)
+abstract HTMLCollection(HTMLCollectionImp) from HTMLCollectionImp to HTMLCollectionImp {
+  @:arrayAccess
+  inline public function namedItem(name : DOMString) : Null<Element>
+    return this.namedItem(name);
+  @:arrayAccess
+  inline public function item(index : Int) : Null<Element>
+    return this.item(index);
 }

@@ -1,12 +1,6 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.DOMTimeStamp;
-import thx.xml.dom.EventTarget;
-import thx.xml.dom.Event.EventPhase;
-import thx.xml.dom.Event.EventInit;
-
-class Event implements thx.xml.dom.Event {
+class Event {
   public var type(default, null) : DOMString;
   public var target(default, null) : EventTarget;
   public var currentTarget(default, null) : EventTarget;
@@ -71,4 +65,30 @@ class Event implements thx.xml.dom.Event {
 
     this.isTrusted = false;
   }
+}
+
+@:enum
+abstract EventPhase(Int) to Int {
+  var NONE = 0;
+  var CAPTURING_PHASE = 1;
+  var AT_TARGET = 2;
+  var BUBBLING_PHASE = 3;
+}
+
+abstract EventInit(EventInitImpl) from EventInitImpl {
+  public static function ensure(?init : EventInit) : EventInit
+    return null == init ? {} : init;
+
+  public var bubbles(get, set) : Bool;
+  public var cancelable(get, set) : Bool;
+
+  inline function get_bubbles() return null == this.bubbles ? false : this.bubbles;
+  inline function set_bubbles(v : Null<Bool>) return this.bubbles = v;
+  inline function get_cancelable() return null == this.cancelable ? false : this.cancelable;
+  inline function set_cancelable(v : Null<Bool>) return this.cancelable = v;
+}
+
+typedef EventInitImpl = {
+  ?bubbles : Bool, // false
+  ?cancelable : Bool // false
 }

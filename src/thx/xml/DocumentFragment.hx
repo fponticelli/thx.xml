@@ -1,27 +1,24 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.DocumentFragment as DOMDocumentFragment;
-import thx.xml.dom.Element as DOMElement;
-import thx.xml.dom.HTMLCollection as DOMHTMLCollection;
-import thx.xml.dom.NodeList as DOMNodeList;
-
-class DocumentFragment extends Node implements DOMDocumentFragment {
-  public function getElementById(id : String) : Null<DOMElement> {
+class DocumentFragment
+  extends Node
+  implements ParentNode
+  implements NonElementParentNode {
+  public function getElementById(id : String) : Null<Element> {
     // TODO getElementById
     return throw "not implemented";
   }
 
-  public var children(default, null) : DOMHTMLCollection;
-  public var firstElementChild(default, null) : Null<DOMElement>;
-  public var lastElementChild(default, null) : Null<DOMElement>;
+  public var children(default, null) : HTMLCollection;
+  public var firstElementChild(default, null) : Null<Element>;
+  public var lastElementChild(default, null) : Null<Element>;
   public var childElementCount(default, null) : Int;
 
-  public function querySelector(selectors : DOMString) : Null<DOMElement> {
+  public function querySelector(selectors : DOMString) : Null<Element> {
     // TODO querySelector
     return throw "not implemented";
   }
-  public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+  public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
     return throw "not implemented";
   }
@@ -31,10 +28,10 @@ class DocumentFragment extends Node implements DOMDocumentFragment {
     super(DOCUMENT_FRAGMENT_NODE, "#document-fragment", ownerDocument);
   }
 
-  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+  override public function isEqualNode(?other : thx.xml.Node) : Bool {
     if(!super.isEqualNode(other))
       return false;
-    var otherDocumentFragment : DOMDocumentFragment = cast other;
+    var otherDocumentFragment : DocumentFragment = cast other;
     if(childNodes.length != otherDocumentFragment.childNodes.length)
       return false;
     for(i in 0...childNodes.length)

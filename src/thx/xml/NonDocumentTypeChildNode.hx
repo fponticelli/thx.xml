@@ -1,4 +1,4 @@
-package thx.xml.dom;
+package thx.xml;
 
 interface NonDocumentTypeChildNode {
   var previousElementSibling : Null<Element>;

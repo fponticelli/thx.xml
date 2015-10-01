@@ -1,4 +1,4 @@
-package thx.xml.dom;
+package thx.xml;
 
 interface Range {
   var startContainer(default, null) : Node;

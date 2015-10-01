@@ -1,29 +1,21 @@
 package thx.xml;
 
-import thx.xml.dom.Document;
-import thx.xml.dom.DOMString;
-import thx.xml.dom.Element;
-import thx.xml.dom.NodeList;
-import thx.xml.dom.Node.NodeType;
-import thx.xml.dom.Node.DocumentPosition;
-import thx.xml.dom.Node as DOMNode;
-
-class Node extends EventTarget implements DOMNode {
+class Node extends EventTarget {
   public var nodeType(default, null) : NodeType;
   public var nodeName(default, null) : DOMString;
 
   public var baseURI(get, null) : Null<DOMString>;
 
   public var ownerDocument(default, null) : Null<Document>;
-  public var parentNode(default, null) : Null<DOMNode>;
+  public var parentNode(default, null) : Null<Node>;
   public var parentElement(default, null) : Null<Element>;
   public function hasChildNodes() : Bool
     return null != firstChild;
   public var childNodes(default, null) : NodeList;
-  public var firstChild(default, null) : Null<DOMNode>;
-  public var lastChild(default, null) : Null<DOMNode>;
-  public var previousSibling(default, null) : Null<DOMNode>;
-  public var nextSibling(default, null) : Null<DOMNode>;
+  public var firstChild(default, null) : Null<Node>;
+  public var lastChild(default, null) : Null<Node>;
+  public var previousSibling(default, null) : Null<Node>;
+  public var nextSibling(default, null) : Null<Node>;
 
   public var nodeValue : Null<DOMString>;
   public var textContent : Null<DOMString>;
@@ -32,20 +24,20 @@ class Node extends EventTarget implements DOMNode {
     return throw "not implemented";
   }
 
-  public function cloneNode(?deep : Bool = false) : DOMNode {
+  public function cloneNode(?deep : Bool = false) : Node {
     // TODO cloneNode
     return throw "not implemented";
   }
   // requires subclasses to call super.isEqualNode() first
-  public function isEqualNode(?other : DOMNode) : Bool {
+  public function isEqualNode(?other : Node) : Bool {
     return null != other && nodeType == other.nodeType;
   }
 
-  public function compareDocumentPosition(other : DOMNode) : DocumentPosition {
+  public function compareDocumentPosition(other : Node) : DocumentPosition {
     // TODO compareDocumentPosition
     return throw "not implemented";
   }
-  public function contains(?other : DOMNode) : Bool {
+  public function contains(?other : Node) : Bool {
     if(null == other)
       return false;
     return isInclusiveDescendant(this, other);
@@ -113,7 +105,7 @@ class Node extends EventTarget implements DOMNode {
     return defaultNamespace == namespace;
   }
 
-  public function insertBefore(node : DOMNode, ?child : Null<DOMNode>) : DOMNode {
+  public function insertBefore(node : Node, ?child : Null<Node>) : Node {
     // ensure pre-insertion validity
     ensurePreInsertionValidity(this, node, child);
 
@@ -134,13 +126,13 @@ class Node extends EventTarget implements DOMNode {
     return node;
   }
 
-  static function adopt(doc : Document, node : DOMNode) {
+  static function adopt(doc : Document, node : Node) {
     if(null != node.parentNode)
       node.parentNode.removeChild(node);
     doc.adoptNode(node);
   }
 
-  static function ensurePreInsertionValidity(parent : DOMNode, node : DOMNode, ?child : DOMNode) {
+  static function ensurePreInsertionValidity(parent : Node, node : Node, ?child : Node) {
     // TODO ensurePreInsertionValidity, move this to subclass
     if(parent.nodeType != DOCUMENT_NODE &&
        parent.nodeType != DOCUMENT_FRAGMENT_NODE &&
@@ -190,13 +182,13 @@ class Node extends EventTarget implements DOMNode {
     }
   }
 
-  static function getRoot(node : DOMNode) : DOMNode {
+  static function getRoot(node : Node) : Node {
     while(null != node.parentNode)
       node = node.parentNode;
     return node;
   }
 
-  static function isAncestor(subject : DOMNode, node : DOMNode) {
+  static function isAncestor(subject : Node, node : Node) {
     while(node.parentNode != null) {
       if(node.parentNode == subject)
         return true;
@@ -205,15 +197,15 @@ class Node extends EventTarget implements DOMNode {
     return false;
   }
 
-  static function isHostIncludingInclusiveAncestor(subject : DOMNode, node : DOMNode) {
+  static function isHostIncludingInclusiveAncestor(subject : Node, node : Node) {
     return isInclusiveAncestor(subject, node) || true; // TODO isHostIncludingInclusiveAncestor, needs to implement the
     // second part of https://dom.spec.whatwg.org/#concept-tree-host-including-inclusive-ancestor
   }
 
-  static function isInclusiveAncestor(subject : DOMNode, node : DOMNode)
+  static function isInclusiveAncestor(subject : Node, node : Node)
     return subject == node || isAncestor(subject, node);
 
-  static function isDescendant(ancestor : DOMNode, node : DOMNode) {
+  static function isDescendant(ancestor : Node, node : Node) {
     node = node.parentNode;
     while(node != null) {
       if(node == ancestor)
@@ -223,20 +215,20 @@ class Node extends EventTarget implements DOMNode {
     return false;
   }
 
-  static function isInclusiveDescendant(ancestor : DOMNode, node : DOMNode)
+  static function isInclusiveDescendant(ancestor : Node, node : Node)
     return ancestor == node || isDescendant(ancestor, node);
 
-  static function isSibling(subject : DOMNode, node : DOMNode) {
+  static function isSibling(subject : Node, node : Node) {
     if(subject.parentNode == null || node.parentNode == null)
       return false;
     return subject.parentNode == node.parentNode;
   }
 
-  static function isInclusiveSibling(subject : DOMNode, node : DOMNode)
+  static function isInclusiveSibling(subject : Node, node : Node)
     return subject == node || isSibling(subject, node);
 
-  static function getNodeAncestors(node : DOMNode) : Array<DOMNode> {
-    var arr : Array<DOMNode> = [];
+  static function getNodeAncestors(node : Node) : Array<Node> {
+    var arr : Array<Node> = [];
     node = node.parentNode;
     while(null != node) {
       arr.insert(0, node);
@@ -249,21 +241,21 @@ class Node extends EventTarget implements DOMNode {
   override function getAncestors() : Array<EventTarget>
     return cast getNodeAncestors(this);
 
-  public function appendChild(node : DOMNode) : DOMNode
+  public function appendChild(node : Node) : Node
     return insertBefore(node, null);
 
-  public function replaceChild(node : DOMNode, child : DOMNode) : DOMNode {
+  public function replaceChild(node : Node, child : Node) : Node {
     // TODO replaceChild
     return throw "not implemented";
   }
-  public function removeChild(child : DOMNode) : DOMNode {
+  public function removeChild(child : Node) : Node {
     if(child.parentNode != this)
       throw DOMException.fromCode(NOT_FOUND_ERR);
     parentRemoveChild(child);
     return child;
   }
 
-  function parentRemoveChild(node : DOMNode, ?suppressObservers = false) {
+  function parentRemoveChild(node : Node, ?suppressObservers = false) {
     var index = childNodesImpl.indexOf(node);
     // TODO parentRemoveChild, operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove
 
@@ -288,4 +280,30 @@ class Node extends EventTarget implements DOMNode {
 
   function get_baseURI()
     return ownerDocument.baseURI;
+}
+
+@:enum
+abstract NodeType(Int) to Int {
+  var ELEMENT_NODE : NodeType = 1;
+  var ATTRIBUTE_NODE : NodeType = 2; // historical
+  var TEXT_NODE : NodeType = 3;
+  var CDATA_SECTION_NODE : NodeType = 4; // historical
+  var ENTITY_REFERENCE_NODE : NodeType = 5; // historical
+  var ENTITY_NODE : NodeType = 6; // historical
+  var PROCESSING_INSTRUCTION_NODE : NodeType = 7;
+  var COMMENT_NODE : NodeType = 8;
+  var DOCUMENT_NODE : NodeType = 9;
+  var DOCUMENT_TYPE_NODE : NodeType = 10;
+  var DOCUMENT_FRAGMENT_NODE : NodeType = 11;
+  var NOTATION_NODE : NodeType = 12; // historical
+}
+
+@:enum
+abstract DocumentPosition(Int) to Int {
+  var DOCUMENT_POSITION_DISCONNECTED : DocumentPosition = 0x01;
+  var DOCUMENT_POSITION_PRECEDING : DocumentPosition = 0x02;
+  var DOCUMENT_POSITION_FOLLOWING : DocumentPosition = 0x04;
+  var DOCUMENT_POSITION_CONTAINS : DocumentPosition = 0x08;
+  var DOCUMENT_POSITION_CONTAINED_BY : DocumentPosition = 0x10;
+  var DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC : DocumentPosition = 0x20;
 }

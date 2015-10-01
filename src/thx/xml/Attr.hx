@@ -1,7 +1,5 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-
 class Attr {
   public var localName(default, null) : DOMString;
   public var value : DOMString;

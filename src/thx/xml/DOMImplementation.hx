@@ -1,10 +1,6 @@
 package thx.xml;
 
-import thx.xml.dom.DocumentType;
-import thx.xml.dom.DOMString;
-import thx.xml.dom.XMLDocument;
-
-class DOMImplementation implements thx.xml.dom.DOMImplementation {
+class DOMImplementation {
   public function createDocumentType(qualifiedName : DOMString, publicId : DOMString, systemId : DOMString) : DocumentType {
     // TODO createDocumentType
     return throw "not implemented";

@@ -1,9 +1,8 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.DocumentType as DOMDocumentType;
-
-class DocumentType extends Node implements DOMDocumentType {
+class DocumentType
+    extends Node
+    implements ChildNode {
   public var name(default, null) : DOMString;
   public var publicId(default, null) : DOMString;
   public var systemId(default, null) : DOMString;
@@ -21,10 +20,10 @@ class DocumentType extends Node implements DOMDocumentType {
     super(DOCUMENT_TYPE_NODE, name, ownerDocument);
   }
 
-  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+  override public function isEqualNode(?other : thx.xml.Node) : Bool {
     if(!super.isEqualNode(other))
       return false;
-    var otherDocType : DOMDocumentType = cast other;
+    var otherDocType : DocumentType = cast other;
     return name == otherDocType.name && publicId == otherDocType.publicId && systemId == otherDocType.systemId;
   }
 }

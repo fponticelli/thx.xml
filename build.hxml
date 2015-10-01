@@ -6,23 +6,4 @@
 
 -main TestAll
 
-thx.xml.DOMException
-thx.xml.CharacterData
-thx.xml.Comment
-thx.xml.CustomEvent
-thx.xml.Document
-
-thx.xml.Attr
-thx.xml.DocumentFragment
-thx.xml.DocumentType
-thx.xml.DOMImplementation
-thx.xml.Element
-thx.xml.Event
-thx.xml.EventTarget
-thx.xml.HTMLCollection
-thx.xml.Node
-thx.xml.NodeList
-thx.xml.ProcessingInstruction
-thx.xml.Text
-
 -cmd node bin/test.js

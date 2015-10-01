@@ -1,3 +1,3 @@
-package thx.xml.dom;
+package thx.xml;
 
 typedef DOMString = String;

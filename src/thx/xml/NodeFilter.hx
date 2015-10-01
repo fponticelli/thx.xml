@@ -1,4 +1,4 @@
-package thx.xml.dom;
+package thx.xml;
 
 interface NodeFilter {
   function acceptNode(node : Node) : NodeFilterAccept;

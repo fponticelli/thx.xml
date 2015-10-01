@@ -1,4 +1,4 @@
-package thx.xml.dom;
+package thx.xml;
 
 interface MutationRecord {
   var type(default, null) : DOMString;

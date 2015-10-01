@@ -3153,6 +3153,11 @@ thx_Strings.reverse = function(s) {
 thx_Strings.quote = function(s) {
 	if(s.indexOf("\"") < 0) return "\"" + s + "\""; else if(s.indexOf("'") < 0) return "'" + s + "'"; else return "\"" + StringTools.replace(s,"\"","\\\"") + "\"";
 };
+thx_Strings.splitOnce = function(s,separator) {
+	var pos = s.indexOf(separator);
+	if(pos < 0) return [s];
+	return [s.substring(0,pos),s.substring(pos + separator.length)];
+};
 thx_Strings.startsWithAny = function(s,values) {
 	return thx_Iterables.any(values,function(start) {
 		return StringTools.startsWith(s,start);
@@ -3712,17 +3717,6 @@ thx_error_ErrorWrapper.prototype = $extend(thx_Error.prototype,{
 	innerError: null
 	,__class__: thx_error_ErrorWrapper
 });
-var thx_xml_dom_Attr = function() { };
-thx_xml_dom_Attr.__name__ = ["thx","xml","dom","Attr"];
-thx_xml_dom_Attr.prototype = {
-	localName: null
-	,value: null
-	,name: null
-	,namespaceURI: null
-	,prefix: null
-	,specified: null
-	,__class__: thx_xml_dom_Attr
-};
 var thx_xml_Attr = function(localName,value,name,namespaceURI,prefix) {
 	this.localName = localName;
 	this.value = value;
@@ -3732,7 +3726,6 @@ var thx_xml_Attr = function(localName,value,name,namespaceURI,prefix) {
 	this.specified = true;
 };
 thx_xml_Attr.__name__ = ["thx","xml","Attr"];
-thx_xml_Attr.__interfaces__ = [thx_xml_dom_Attr];
 thx_xml_Attr.prototype = {
 	localName: null
 	,value: null
@@ -3740,21 +3733,15 @@ thx_xml_Attr.prototype = {
 	,namespaceURI: null
 	,prefix: null
 	,specified: null
+	,equals: function(that) {
+		return this.localName == that.localName && this.value == that.value && this.name == that.name && this.namespaceURI == that.namespaceURI && this.prefix == that.prefix;
+	}
 	,__class__: thx_xml_Attr
-};
-var thx_xml_dom_EventTarget = function() { };
-thx_xml_dom_EventTarget.__name__ = ["thx","xml","dom","EventTarget"];
-thx_xml_dom_EventTarget.prototype = {
-	addEventListener: null
-	,removeEventListener: null
-	,dispatchEvent: null
-	,__class__: thx_xml_dom_EventTarget
 };
 var thx_xml_EventTarget = function() {
 	this.map = new haxe_ds_StringMap();
 };
 thx_xml_EventTarget.__name__ = ["thx","xml","EventTarget"];
-thx_xml_EventTarget.__interfaces__ = [thx_xml_dom_EventTarget];
 thx_xml_EventTarget.prototype = {
 	addEventListener: function(type,callback,capture) {
 		if(null == callback || this.existsListener(type,callback,capture)) return;
@@ -3770,7 +3757,7 @@ thx_xml_EventTarget.prototype = {
 	,dispatchEvent: function(event) {
 		var event1;
 		event1 = js_Boot.__cast(event , thx_xml_Event);
-		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11,null,null,{ fileName : "EventTarget.hx", lineNumber : 27, className : "thx.xml.EventTarget", methodName : "dispatchEvent"});
+		if(event1.dispatchFlag || !event1.initializedFlag) throw thx_xml_DOMException.fromCode(11,null,null,{ fileName : "EventTarget.hx", lineNumber : 24, className : "thx.xml.EventTarget", methodName : "dispatchEvent"});
 		event1.isTrusted = false;
 		event1.dispatchFlag = true;
 		this.setEventTarget(event1);
@@ -3846,47 +3833,84 @@ thx_xml_EventTarget.prototype = {
 	}
 	,__class__: thx_xml_EventTarget
 };
-var thx_xml_dom_Node = function() { };
-thx_xml_dom_Node.__name__ = ["thx","xml","dom","Node"];
-thx_xml_dom_Node.__interfaces__ = [thx_xml_dom_EventTarget];
-thx_xml_dom_Node.prototype = {
-	nodeType: null
-	,nodeName: null
-	,baseURI: null
-	,ownerDocument: null
-	,parentNode: null
-	,parentElement: null
-	,hasChildNodes: null
-	,childNodes: null
-	,firstChild: null
-	,lastChild: null
-	,previousSibling: null
-	,nextSibling: null
-	,nodeValue: null
-	,textContent: null
-	,normalize: null
-	,cloneNode: null
-	,isEqualNode: null
-	,compareDocumentPosition: null
-	,contains: null
-	,lookupPrefix: null
-	,lookupNamespaceURI: null
-	,isDefaultNamespace: null
-	,insertBefore: null
-	,appendChild: null
-	,replaceChild: null
-	,removeChild: null
-	,__class__: thx_xml_dom_Node
-};
-var thx_xml_Node = function(nodeType,nodeName,baseURI,ownerDocument) {
+var thx_xml_Node = function(nodeType,nodeName,ownerDocument) {
 	this.nodeType = nodeType;
 	this.nodeName = nodeName;
-	this.baseURI = baseURI;
 	this.ownerDocument = ownerDocument;
+	this.childNodesImpl = new thx_xml_NodeListImp();
+	this.childNodes = this.childNodesImpl;
 	thx_xml_EventTarget.call(this);
 };
 thx_xml_Node.__name__ = ["thx","xml","Node"];
-thx_xml_Node.__interfaces__ = [thx_xml_dom_Node];
+thx_xml_Node.adopt = function(doc,node) {
+	if(null != node.parentNode) node.parentNode.removeChild(node);
+	doc.adoptNode(node);
+};
+thx_xml_Node.ensurePreInsertionValidity = function(parent,node,child) {
+	if(parent.nodeType != 9 && parent.nodeType != 11 && parent.nodeType != 1) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 140, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(thx_xml_Node.isHostIncludingInclusiveAncestor(node,parent)) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 142, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(null != child && child.parentNode != parent) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 144, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(node.nodeType != 11 && node.nodeType != 10 && node.nodeType != 1 && node.nodeType != 3 && node.nodeType != 7 && node.nodeType != 8) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 151, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(node.nodeType == 3 && parent.nodeType == 9 || node.nodeType == 10 && parent.nodeType != 9) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 154, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+	if(parent.nodeType == 9) {
+		var doc = parent;
+		if(node.nodeType == 11) {
+			var frag = node;
+			if(frag.childElementCount > 1 || frag.textContent != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 160, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+			if(frag.childElementCount == 1) {
+				if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 165, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+			}
+		} else if(node.nodeType == 1) {
+			if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 173, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+		} else if(node.nodeType == 10) {
+			if(doc.doctype != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 176, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"}); else if(child.previousSibling != null && child.previousSibling.nodeType == 1) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 178, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"}); else if(null == child && doc.documentElement != null) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 180, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+		}
+	}
+};
+thx_xml_Node.getRoot = function(node) {
+	while(null != node.parentNode) node = node.parentNode;
+	return node;
+};
+thx_xml_Node.isAncestor = function(subject,node) {
+	while(node.parentNode != null) {
+		if(node.parentNode == subject) return true;
+		node = node.parentNode;
+	}
+	return false;
+};
+thx_xml_Node.isHostIncludingInclusiveAncestor = function(subject,node) {
+	return thx_xml_Node.isInclusiveAncestor(subject,node) || true;
+};
+thx_xml_Node.isInclusiveAncestor = function(subject,node) {
+	return subject == node || thx_xml_Node.isAncestor(subject,node);
+};
+thx_xml_Node.isDescendant = function(ancestor,node) {
+	node = node.parentNode;
+	while(node != null) {
+		if(node == ancestor) return true;
+		node = node.parentNode;
+	}
+	return false;
+};
+thx_xml_Node.isInclusiveDescendant = function(ancestor,node) {
+	return ancestor == node || thx_xml_Node.isDescendant(ancestor,node);
+};
+thx_xml_Node.isSibling = function(subject,node) {
+	if(subject.parentNode == null || node.parentNode == null) return false;
+	return subject.parentNode == node.parentNode;
+};
+thx_xml_Node.isInclusiveSibling = function(subject,node) {
+	return subject == node || thx_xml_Node.isSibling(subject,node);
+};
+thx_xml_Node.getNodeAncestors = function(node) {
+	var arr = [];
+	node = node.parentNode;
+	while(null != node) {
+		arr.splice(0,0,node);
+		node = node.parentNode;
+	}
+	return arr;
+};
 thx_xml_Node.__super__ = thx_xml_EventTarget;
 thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 	nodeType: null
@@ -3896,7 +3920,7 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 	,parentNode: null
 	,parentElement: null
 	,hasChildNodes: function() {
-		throw new js__$Boot_HaxeError("not implemented");
+		return null != this.firstChild;
 	}
 	,childNodes: null
 	,firstChild: null
@@ -3914,68 +3938,115 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,isEqualNode: function(other) {
-		throw new js__$Boot_HaxeError("not implemented");
+		return null != other && this.nodeType == other.nodeType;
 	}
 	,compareDocumentPosition: function(other) {
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,contains: function(other) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if(null == other) return false;
+		return thx_xml_Node.isInclusiveDescendant(this,other);
 	}
 	,lookupPrefix: function($namespace) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if($namespace == null || $namespace == "") return null;
+		var _g = this.nodeType;
+		switch(_g) {
+		case 1:
+			var el = this;
+			return el.locateNamespacePrefix($namespace);
+		case 9:
+			var doc = this;
+			var el1 = Std.instance(doc.documentElement,thx_xml_Element);
+			if(null == el1) return null; else return el1.locateNamespacePrefix($namespace);
+			break;
+		case 10:case 11:
+			return null;
+		default:
+			if(this.parentElement == null) return null; else {
+				var el2 = Std.instance(this.parentElement,thx_xml_Element);
+				return el2.locateNamespacePrefix($namespace);
+			}
+		}
 	}
 	,lookupNamespaceURI: function(prefix) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if("" == prefix) prefix = null;
+		var _g = this.nodeType;
+		switch(_g) {
+		case 1:
+			var el = this;
+			if(el.namespaceURI != null && el.prefix == prefix) el.namespaceURI;
+			if(el.hasAttributeNS(thx_xml_Namespaces.xmlns,prefix)) el.getAttributeNS(thx_xml_Namespaces.xmlns,prefix);
+			if(this.parentNode == null) null;
+			return this.parentNode.lookupNamespaceURI(prefix);
+		case 9:
+			var doc = this;
+			if(doc.documentElement == null) return null; else return doc.documentElement.lookupNamespaceURI(prefix);
+			break;
+		case 10:case 11:
+			return null;
+		default:
+			if(this.parentNode == null) return null; else return this.parentNode.lookupNamespaceURI(prefix);
+		}
 	}
 	,isDefaultNamespace: function($namespace) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if(null == $namespace) $namespace = "";
+		var defaultNamespace = this.lookupNamespaceURI(null);
+		return defaultNamespace == $namespace;
 	}
 	,insertBefore: function(node,child) {
-		throw new js__$Boot_HaxeError("not implemented");
+		thx_xml_Node.ensurePreInsertionValidity(this,node,child);
+		var referenceChild = child;
+		if(referenceChild == node) referenceChild = node.nextSibling;
+		thx_xml_Node.adopt(this.ownerDocument,node);
+		this.childNodesImpl.insertBefore(node,child);
+		return node;
+	}
+	,getAncestors: function() {
+		return thx_xml_Node.getNodeAncestors(this);
 	}
 	,appendChild: function(node) {
-		throw new js__$Boot_HaxeError("not implemented");
+		return this.insertBefore(node,null);
 	}
 	,replaceChild: function(node,child) {
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,removeChild: function(child) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 253, className : "thx.xml.Node", methodName : "removeChild"});
+		this.parentRemoveChild(child);
+		return child;
+	}
+	,parentRemoveChild: function(node,suppressObservers) {
+		if(suppressObservers == null) suppressObservers = false;
+		var index = this.childNodesImpl.indexOf(node);
+		var oldPreviousSibling = node.previousSibling;
+		this.childNodesImpl.removeChild(node);
+	}
+	,childNodesImpl: null
+	,get_baseURI: function() {
+		return this.ownerDocument.get_baseURI();
 	}
 	,__class__: thx_xml_Node
 });
-var thx_xml_dom_ChildNode = function() { };
-thx_xml_dom_ChildNode.__name__ = ["thx","xml","dom","ChildNode"];
-thx_xml_dom_ChildNode.prototype = {
+var thx_xml_ChildNode = function() { };
+thx_xml_ChildNode.__name__ = ["thx","xml","ChildNode"];
+thx_xml_ChildNode.prototype = {
 	remove: null
-	,__class__: thx_xml_dom_ChildNode
+	,__class__: thx_xml_ChildNode
 };
-var thx_xml_dom_NonDocumentTypeChildNode = function() { };
-thx_xml_dom_NonDocumentTypeChildNode.__name__ = ["thx","xml","dom","NonDocumentTypeChildNode"];
-thx_xml_dom_NonDocumentTypeChildNode.prototype = {
+var thx_xml_NonDocumentTypeChildNode = function() { };
+thx_xml_NonDocumentTypeChildNode.__name__ = ["thx","xml","NonDocumentTypeChildNode"];
+thx_xml_NonDocumentTypeChildNode.prototype = {
 	previousElementSibling: null
 	,nextElementSibling: null
-	,__class__: thx_xml_dom_NonDocumentTypeChildNode
+	,__class__: thx_xml_NonDocumentTypeChildNode
 };
-var thx_xml_dom_CharacterData = function() { };
-thx_xml_dom_CharacterData.__name__ = ["thx","xml","dom","CharacterData"];
-thx_xml_dom_CharacterData.__interfaces__ = [thx_xml_dom_Node,thx_xml_dom_ChildNode,thx_xml_dom_NonDocumentTypeChildNode];
-thx_xml_dom_CharacterData.prototype = {
-	data: null
-	,length: null
-	,substringData: null
-	,appendData: null
-	,insertData: null
-	,deleteData: null
-	,replaceData: null
-	,__class__: thx_xml_dom_CharacterData
-};
-var thx_xml_CharacterData = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_Node.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_CharacterData = function(nodeType,nodeName,data,ownerDocument) {
+	if(null == data) this.data = ""; else this.data = data;
+	this.length = this.data.length;
+	thx_xml_Node.call(this,nodeType,nodeName,ownerDocument);
 };
 thx_xml_CharacterData.__name__ = ["thx","xml","CharacterData"];
-thx_xml_CharacterData.__interfaces__ = [thx_xml_dom_CharacterData];
+thx_xml_CharacterData.__interfaces__ = [thx_xml_ChildNode,thx_xml_NonDocumentTypeChildNode];
 thx_xml_CharacterData.__super__ = thx_xml_Node;
 thx_xml_CharacterData.prototype = $extend(thx_xml_Node.prototype,{
 	data: null
@@ -4005,40 +4076,23 @@ thx_xml_CharacterData.prototype = $extend(thx_xml_Node.prototype,{
 	}
 	,nextElementSibling: null
 	,previousElementSibling: null
+	,isEqualNode: function(other) {
+		if(!thx_xml_Node.prototype.isEqualNode.call(this,other)) return false;
+		var otherCD = other;
+		return this.data == otherCD.data;
+	}
 	,__class__: thx_xml_CharacterData
 });
-var thx_xml_dom_Comment = function() { };
-thx_xml_dom_Comment.__name__ = ["thx","xml","dom","Comment"];
-thx_xml_dom_Comment.__interfaces__ = [thx_xml_dom_CharacterData];
-var thx_xml_Comment = function(baseURI,ownerDocument) {
-	thx_xml_CharacterData.call(this,8,"#comment",baseURI,ownerDocument);
+var thx_xml_Comment = function(data,ownerDocument) {
+	thx_xml_CharacterData.call(this,8,"#comment",data,ownerDocument);
 };
 thx_xml_Comment.__name__ = ["thx","xml","Comment"];
-thx_xml_Comment.__interfaces__ = [thx_xml_dom_Comment];
 thx_xml_Comment.__super__ = thx_xml_CharacterData;
 thx_xml_Comment.prototype = $extend(thx_xml_CharacterData.prototype,{
 	__class__: thx_xml_Comment
 });
-var thx_xml_dom_Event = function() { };
-thx_xml_dom_Event.__name__ = ["thx","xml","dom","Event"];
-thx_xml_dom_Event.prototype = {
-	type: null
-	,target: null
-	,currentTarget: null
-	,eventPhase: null
-	,stopPropagation: null
-	,stopImmediatePropagation: null
-	,bubbles: null
-	,cancelable: null
-	,preventDefault: null
-	,defaultPrevented: null
-	,isTrusted: null
-	,timeStamp: null
-	,initEvent: null
-	,__class__: thx_xml_dom_Event
-};
 var thx_xml_Event = function(type,eventInitDict) {
-	eventInitDict = thx_xml_dom__$Event_EventInit_$Impl_$.ensure(eventInitDict);
+	eventInitDict = thx_xml__$Event_EventInit_$Impl_$.ensure(eventInitDict);
 	if(null == type) this.type = ""; else this.type = type;
 	if(null == eventInitDict.bubbles) this.bubbles = false; else this.bubbles = eventInitDict.bubbles;
 	if(null == eventInitDict.cancelable) this.cancelable = false; else this.cancelable = eventInitDict.cancelable;
@@ -4059,7 +4113,6 @@ var thx_xml_Event = function(type,eventInitDict) {
 	this.isTrusted = false;
 };
 thx_xml_Event.__name__ = ["thx","xml","Event"];
-thx_xml_Event.__interfaces__ = [thx_xml_dom_Event];
 thx_xml_Event.prototype = {
 	type: null
 	,target: null
@@ -4098,30 +4151,42 @@ thx_xml_Event.prototype = {
 	}
 	,__class__: thx_xml_Event
 };
-var thx_xml_dom_CustomEvent = function() { };
-thx_xml_dom_CustomEvent.__name__ = ["thx","xml","dom","CustomEvent"];
-thx_xml_dom_CustomEvent.__interfaces__ = [thx_xml_dom_Event];
-thx_xml_dom_CustomEvent.prototype = {
-	detail: null
-	,__class__: thx_xml_dom_CustomEvent
-};
 var thx_xml_CustomEvent = function(type,eventInitDict) {
-	eventInitDict = thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.ensure(eventInitDict);
+	eventInitDict = thx_xml__$CustomEvent_CustomEventInit_$Impl_$.ensure(eventInitDict);
 	thx_xml_Event.call(this,type,eventInitDict);
 	if(null == eventInitDict.detail) this.detail = false; else this.detail = eventInitDict.detail;
 };
 thx_xml_CustomEvent.__name__ = ["thx","xml","CustomEvent"];
-thx_xml_CustomEvent.__interfaces__ = [thx_xml_dom_CustomEvent];
 thx_xml_CustomEvent.__super__ = thx_xml_Event;
 thx_xml_CustomEvent.prototype = $extend(thx_xml_Event.prototype,{
 	detail: null
 	,__class__: thx_xml_CustomEvent
 });
-var thx_xml_dom_DOMException = function() { };
-thx_xml_dom_DOMException.__name__ = ["thx","xml","dom","DOMException"];
-thx_xml_dom_DOMException.prototype = {
-	code: null
-	,__class__: thx_xml_dom_DOMException
+var thx_xml__$CustomEvent_CustomEventInit_$Impl_$ = {};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.__name__ = ["thx","xml","_CustomEvent","CustomEventInit_Impl_"];
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.ensure = function(init) {
+	if(null == init) return { }; else return init;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.get_bubbles = function(this1) {
+	if(null == this1.bubbles) return false; else return this1.bubbles;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.set_bubbles = function(this1,v) {
+	return this1.bubbles = v;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.get_cancelable = function(this1) {
+	if(null == this1.cancelable) return false; else return this1.cancelable;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.set_cancelable = function(this1,v) {
+	return this1.cancelable = v;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.get_detail = function(this1) {
+	if(null == this1.detail) return false; else return this1.detail;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.set_detail = function(this1,v) {
+	return this1.detail = v;
+};
+thx_xml__$CustomEvent_CustomEventInit_$Impl_$.toObject = function(this1) {
+	return this1;
 };
 var thx_xml_DOMException = function(code,name,message,pos) {
 	this.code = code;
@@ -4129,31 +4194,190 @@ var thx_xml_DOMException = function(code,name,message,pos) {
 	thx_Error.call(this,message,null,pos);
 };
 thx_xml_DOMException.__name__ = ["thx","xml","DOMException"];
-thx_xml_DOMException.__interfaces__ = [thx_xml_dom_DOMException];
 thx_xml_DOMException.fromName = function(name,message,pos) {
-	var code = thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.fromName(name);
-	return new thx_xml_DOMException(code,name,null == message?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,pos);
+	var code = thx_xml__$DOMException_DOMExceptionCode_$Impl_$.fromName(name);
+	return new thx_xml_DOMException(code,name,null == message?thx_xml__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,pos);
 };
 thx_xml_DOMException.fromCode = function(code,name,message,pos) {
-	return new thx_xml_DOMException(code,null == name?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getName(code):name,null == message?thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,pos);
+	return new thx_xml_DOMException(code,null == name?thx_xml__$DOMException_DOMExceptionCode_$Impl_$.getName(code):name,null == message?thx_xml__$DOMException_DOMExceptionCode_$Impl_$.getMessage(code):message,pos);
 };
 thx_xml_DOMException.__super__ = thx_Error;
 thx_xml_DOMException.prototype = $extend(thx_Error.prototype,{
 	code: null
 	,__class__: thx_xml_DOMException
 });
-var thx_xml_dom_DOMImplementation = function() { };
-thx_xml_dom_DOMImplementation.__name__ = ["thx","xml","dom","DOMImplementation"];
-thx_xml_dom_DOMImplementation.prototype = {
-	createDocumentType: null
-	,createDocument: null
-	,createHTMLDocument: null
-	,hasFeature: null
-	,__class__: thx_xml_dom_DOMImplementation
+var thx_xml__$DOMException_DOMExceptionCode_$Impl_$ = {};
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.__name__ = ["thx","xml","_DOMException","DOMExceptionCode_Impl_"];
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.fromName = function(name) {
+	switch(name) {
+	case "IndexSizeError":
+		return 1;
+	case "DOMSTRING_SIZE_ERR":
+		return 2;
+	case "HierarchyRequestError":
+		return 3;
+	case "WrongDocumentError":
+		return 4;
+	case "InvalidCharacterError":
+		return 5;
+	case "NO_DATA_ALLOWED_ERR":
+		return 6;
+	case "NoModificationAllowedError":
+		return 7;
+	case "NotFoundError":
+		return 8;
+	case "NotSupportedError":
+		return 9;
+	case "INUSE_ATTRIBUTE_ERR":
+		return 10;
+	case "InvalidStateError":
+		return 11;
+	case "SyntaxError":
+		return 12;
+	case "InvalidModificationError":
+		return 13;
+	case "NamespaceError":
+		return 14;
+	case "InvalidAccessError":
+		return 15;
+	case "VALIDATION_ERR":
+		return 16;
+	case "TYPE_MISMATCH_ERR":
+		return 17;
+	case "SecurityError":
+		return 18;
+	case "NetworkError":
+		return 19;
+	case "AbortError":
+		return 20;
+	case "URLMismatchError":
+		return 21;
+	case "QuotaExceededError":
+		return 22;
+	case "TimeoutError":
+		return 23;
+	case "InvalidNodeTypeError":
+		return 24;
+	case "DataCloneError":
+		return 25;
+	default:
+		return 0;
+	}
+};
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.getMessage = function(this1) {
+	switch(this1) {
+	case 1:
+		return "The index is not in the allowed range";
+	case 2:
+		return "DOMSTRING_SIZE_ERR";
+	case 3:
+		return "The operation would yield an incorrect node tree";
+	case 4:
+		return "The object is in the wrong document";
+	case 5:
+		return "The string contains invalid characters";
+	case 6:
+		return "NO_DATA_ALLOWED_ERR";
+	case 7:
+		return "The object can not be modified";
+	case 8:
+		return "The object can not be found here";
+	case 9:
+		return "The operation is not supported";
+	case 10:
+		return "INUSE_ATTRIBUTE_ERR";
+	case 11:
+		return "The object is in an invalid state";
+	case 12:
+		return "The string did not match the expected pattern";
+	case 13:
+		return "The object can not be modified in this way";
+	case 14:
+		return "The operation is not allowed by Namespaces in XML";
+	case 15:
+		return "The object does not support the operation or argument";
+	case 16:
+		return "VALIDATION_ERR";
+	case 17:
+		return "TYPE_MISMATCH_ERR";
+	case 18:
+		return "The operation is insecure";
+	case 19:
+		return "A network error occurred";
+	case 20:
+		return "The operation was aborted";
+	case 21:
+		return "The given URL does not match another URL";
+	case 22:
+		return "The quota has been exceeded";
+	case 23:
+		return "The operation timed out";
+	case 24:
+		return "The supplied node is incorrect or has an incorrect ancestor for this operation";
+	case 25:
+		return "The object can not be cloned";
+	default:
+		return "Unknown error code " + this1;
+	}
+};
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.getName = function(this1) {
+	switch(this1) {
+	case 1:
+		return "IndexSizeError";
+	case 2:
+		return "DOMSTRING_SIZE_ERR";
+	case 3:
+		return "HierarchyRequestError";
+	case 4:
+		return "WrongDocumentError";
+	case 5:
+		return "InvalidCharacterError";
+	case 6:
+		return "NO_DATA_ALLOWED_ERR";
+	case 7:
+		return "NoModificationAllowedError";
+	case 8:
+		return "NotFoundError";
+	case 9:
+		return "NotSupportedError";
+	case 10:
+		return "INUSE_ATTRIBUTE_ERR";
+	case 11:
+		return "InvalidStateError";
+	case 12:
+		return "SyntaxError";
+	case 13:
+		return "InvalidModificationError";
+	case 14:
+		return "NamespaceError";
+	case 15:
+		return "InvalidAccessError";
+	case 16:
+		return "VALIDATION_ERR";
+	case 17:
+		return "TYPE_MISMATCH_ERR";
+	case 18:
+		return "SecurityError";
+	case 19:
+		return "NetworkError";
+	case 20:
+		return "AbortError";
+	case 21:
+		return "URLMismatchError";
+	case 22:
+		return "QuotaExceededError";
+	case 23:
+		return "TimeoutError";
+	case 24:
+		return "InvalidNodeTypeError";
+	case 25:
+		return "DataCloneError";
+	default:
+		return "Unknown error code " + this1;
+	}
 };
 var thx_xml_DOMImplementation = function() { };
 thx_xml_DOMImplementation.__name__ = ["thx","xml","DOMImplementation"];
-thx_xml_DOMImplementation.__interfaces__ = [thx_xml_dom_DOMImplementation];
 thx_xml_DOMImplementation.prototype = {
 	createDocumentType: function(qualifiedName,publicId,systemId) {
 		throw new js__$Boot_HaxeError("not implemented");
@@ -4169,58 +4393,46 @@ thx_xml_DOMImplementation.prototype = {
 	}
 	,__class__: thx_xml_DOMImplementation
 };
-var thx_xml_dom_NonElementParentNode = function() { };
-thx_xml_dom_NonElementParentNode.__name__ = ["thx","xml","dom","NonElementParentNode"];
-thx_xml_dom_NonElementParentNode.prototype = {
-	getElementById: null
-	,__class__: thx_xml_dom_NonElementParentNode
-};
-var thx_xml_dom_ParentNode = function() { };
-thx_xml_dom_ParentNode.__name__ = ["thx","xml","dom","ParentNode"];
-thx_xml_dom_ParentNode.prototype = {
-	children: null
-	,firstElementChild: null
-	,lastElementChild: null
-	,childElementCount: null
-	,querySelector: null
-	,querySelectorAll: null
-	,__class__: thx_xml_dom_ParentNode
-};
-var thx_xml_dom_Document = function() { };
-thx_xml_dom_Document.__name__ = ["thx","xml","dom","Document"];
-thx_xml_dom_Document.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
-thx_xml_dom_Document.prototype = {
-	implementation: null
-	,URL: null
-	,documentURI: null
-	,origin: null
-	,compatMode: null
-	,characterSet: null
-	,contentType: null
-	,doctype: null
-	,documentElement: null
-	,getElementsByTagName: null
-	,getElementsByTagNameNS: null
-	,getElementsByClassName: null
-	,createElement: null
-	,createElementNS: null
-	,createDocumentFragment: null
-	,createTextNode: null
-	,createComment: null
-	,createProcessingInstruction: null
-	,importNode: null
-	,adoptNode: null
-	,createEvent: null
-	,createRange: null
-	,createNodeIterator: null
-	,createTreeWalker: null
-	,__class__: thx_xml_dom_Document
+var thx_xml_DOMTokenList = function() { };
+thx_xml_DOMTokenList.__name__ = ["thx","xml","DOMTokenList"];
+thx_xml_DOMTokenList.prototype = {
+	length: null
+	,item: null
+	,contains: null
+	,add: null
+	,remove: null
+	,toggle: null
+	,__class__: thx_xml_DOMTokenList
 };
 var thx_xml_Document = function(baseURI) {
-	thx_xml_Node.call(this,9,"#document",baseURI,this);
+	this._baseURI = baseURI;
+	thx_xml_Node.call(this,9,"#document",null);
 };
 thx_xml_Document.__name__ = ["thx","xml","Document"];
-thx_xml_Document.__interfaces__ = [thx_xml_dom_Document];
+thx_xml_Document.validateName = function(localName) {
+};
+thx_xml_Document.validateQName = function(qualifiedNamespace) {
+};
+thx_xml_Document.validateQualifiedName = function(qualifiedNamespace) {
+	thx_xml_Document.validateName(qualifiedNamespace);
+	thx_xml_Document.validateQName(qualifiedNamespace);
+};
+thx_xml_Document.validateAndExtract = function($namespace,qualifiedName) {
+	if($namespace == "") $namespace = null;
+	thx_xml_Document.validateQualifiedName(qualifiedName);
+	var prefix = null;
+	var localName = qualifiedName;
+	var parts = thx_Strings.splitOnce(qualifiedName,":");
+	if(parts.length > 1) {
+		prefix = parts[0];
+		localName = parts[1];
+	}
+	if(null != prefix && null == $namespace) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 180, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if("xml" == prefix && thx_xml_Namespaces.xml != $namespace) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 184, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if(("xmlns" == qualifiedName || "xmlns" == prefix) && $namespace != thx_xml_Namespaces.xmlns) throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 188, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	if(thx_xml_Namespaces.xmlns == $namespace && qualifiedName != "xmlns" && prefix != "xmlns") throw thx_xml_DOMException.fromCode(14,null,null,{ fileName : "Document.hx", lineNumber : 192, className : "thx.xml.Document", methodName : "validateAndExtract"});
+	return { 'namespace' : $namespace, prefix : prefix, localName : localName, qualifiedName : qualifiedName};
+};
 thx_xml_Document.__super__ = thx_xml_Node;
 thx_xml_Document.prototype = $extend(thx_xml_Node.prototype,{
 	implementation: null
@@ -4242,29 +4454,40 @@ thx_xml_Document.prototype = $extend(thx_xml_Node.prototype,{
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,createElement: function(localName) {
-		throw new js__$Boot_HaxeError("not implemented");
+		thx_xml_Document.validateName(localName);
+		return new thx_xml_Element(localName,null,thx_xml_Namespaces.html,this);
 	}
 	,createElementNS: function($namespace,qualifiedName) {
-		throw new js__$Boot_HaxeError("not implemented");
+		var o = thx_xml_Document.validateAndExtract($namespace,qualifiedName);
+		return new thx_xml_Element(o.localName,o.prefix,o["namespace"],this);
 	}
 	,createDocumentFragment: function() {
-		throw new js__$Boot_HaxeError("not implemented");
+		return new thx_xml_DocumentFragment(this);
 	}
 	,createTextNode: function(data) {
-		throw new js__$Boot_HaxeError("not implemented");
+		return new thx_xml_Text(data,this);
 	}
 	,createComment: function(data) {
-		throw new js__$Boot_HaxeError("not implemented");
+		return new thx_xml_Comment(data,this);
 	}
 	,createProcessingInstruction: function(target,data) {
-		throw new js__$Boot_HaxeError("not implemented");
+		thx_xml_Document.validateName(target);
+		if(data.indexOf("?>") >= 0) throw thx_xml_DOMException.fromCode(5,null,null,{ fileName : "Document.hx", lineNumber : 62, className : "thx.xml.Document", methodName : "createProcessingInstruction"});
+		return new thx_xml_ProcessingInstruction(target,data,this);
 	}
 	,importNode: function(node,deep) {
 		if(deep == null) deep = false;
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,adoptNode: function(node) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if(node.nodeType == 9) throw thx_xml_DOMException.fromCode(9,null,null,{ fileName : "Document.hx", lineNumber : 72, className : "thx.xml.Document", methodName : "adoptNode"});
+		node.ownerDocument = this;
+		var $it0 = this.childNodesImpl.iterator();
+		while( $it0.hasNext() ) {
+			var node1 = $it0.next();
+			this.adoptNode(node1);
+		}
+		return node;
 	}
 	,createEvent: function(interfaceName) {
 		throw new js__$Boot_HaxeError("not implemented");
@@ -4291,16 +4514,46 @@ thx_xml_Document.prototype = $extend(thx_xml_Node.prototype,{
 	,querySelectorAll: function(selectors) {
 		throw new js__$Boot_HaxeError("not implemented");
 	}
+	,_baseURI: null
+	,isEqualNode: function(other) {
+		if(!thx_xml_Node.prototype.isEqualNode.call(this,other)) return false;
+		var otherDocument = other;
+		if(this.childNodes.length != otherDocument.childNodes.length) return false;
+		var _g1 = 0;
+		var _g = this.childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(!this.childNodes.item(i).isEqualNode(otherDocument.childNodes.item(i))) return false;
+		}
+		return true;
+	}
+	,get_baseURI: function() {
+		return this._baseURI;
+	}
 	,__class__: thx_xml_Document
 });
-var thx_xml_dom_DocumentFragment = function() { };
-thx_xml_dom_DocumentFragment.__name__ = ["thx","xml","dom","DocumentFragment"];
-thx_xml_dom_DocumentFragment.__interfaces__ = [thx_xml_dom_NonElementParentNode,thx_xml_dom_Node,thx_xml_dom_ParentNode];
-var thx_xml_DocumentFragment = function(baseURI,ownerDocument) {
-	thx_xml_Node.call(this,11,"#document-fragment",baseURI,ownerDocument);
+var thx_xml_NonElementParentNode = function() { };
+thx_xml_NonElementParentNode.__name__ = ["thx","xml","NonElementParentNode"];
+thx_xml_NonElementParentNode.prototype = {
+	getElementById: null
+	,__class__: thx_xml_NonElementParentNode
+};
+var thx_xml_ParentNode = function() { };
+thx_xml_ParentNode.__name__ = ["thx","xml","ParentNode"];
+thx_xml_ParentNode.prototype = {
+	children: null
+	,firstElementChild: null
+	,lastElementChild: null
+	,childElementCount: null
+	,querySelector: null
+	,querySelectorAll: null
+	,__class__: thx_xml_ParentNode
+};
+var thx_xml_DocumentFragment = function(ownerDocument) {
+	thx_xml_Node.call(this,11,"#document-fragment",ownerDocument);
 };
 thx_xml_DocumentFragment.__name__ = ["thx","xml","DocumentFragment"];
-thx_xml_DocumentFragment.__interfaces__ = [thx_xml_dom_DocumentFragment];
+thx_xml_DocumentFragment.__interfaces__ = [thx_xml_NonElementParentNode,thx_xml_ParentNode];
 thx_xml_DocumentFragment.__super__ = thx_xml_Node;
 thx_xml_DocumentFragment.prototype = $extend(thx_xml_Node.prototype,{
 	getElementById: function(id) {
@@ -4316,25 +4569,28 @@ thx_xml_DocumentFragment.prototype = $extend(thx_xml_Node.prototype,{
 	,querySelectorAll: function(selectors) {
 		throw new js__$Boot_HaxeError("not implemented");
 	}
+	,isEqualNode: function(other) {
+		if(!thx_xml_Node.prototype.isEqualNode.call(this,other)) return false;
+		var otherDocumentFragment = other;
+		if(this.childNodes.length != otherDocumentFragment.childNodes.length) return false;
+		var _g1 = 0;
+		var _g = this.childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(!this.childNodes.item(i).isEqualNode(otherDocumentFragment.childNodes.item(i))) return false;
+		}
+		return true;
+	}
 	,__class__: thx_xml_DocumentFragment
 });
-var thx_xml_dom_DocumentType = function() { };
-thx_xml_dom_DocumentType.__name__ = ["thx","xml","dom","DocumentType"];
-thx_xml_dom_DocumentType.__interfaces__ = [thx_xml_dom_ChildNode];
-thx_xml_dom_DocumentType.prototype = {
-	name: null
-	,publicId: null
-	,systemId: null
-	,__class__: thx_xml_dom_DocumentType
-};
-var thx_xml_DocumentType = function(name,publicId,systemId,baseURI,ownerDocument) {
+var thx_xml_DocumentType = function(name,publicId,systemId,ownerDocument) {
 	this.name = name;
 	this.publicId = publicId;
 	this.systemId = systemId;
-	thx_xml_Node.call(this,10,name,baseURI,ownerDocument);
+	thx_xml_Node.call(this,10,name,ownerDocument);
 };
 thx_xml_DocumentType.__name__ = ["thx","xml","DocumentType"];
-thx_xml_DocumentType.__interfaces__ = [thx_xml_dom_DocumentType];
+thx_xml_DocumentType.__interfaces__ = [thx_xml_ChildNode];
 thx_xml_DocumentType.__super__ = thx_xml_Node;
 thx_xml_DocumentType.prototype = $extend(thx_xml_Node.prototype,{
 	name: null
@@ -4344,39 +4600,24 @@ thx_xml_DocumentType.prototype = $extend(thx_xml_Node.prototype,{
 		throw new js__$Boot_HaxeError("not implemented");
 		return;
 	}
+	,isEqualNode: function(other) {
+		if(!thx_xml_Node.prototype.isEqualNode.call(this,other)) return false;
+		var otherDocType = other;
+		return this.name == otherDocType.name && this.publicId == otherDocType.publicId && this.systemId == otherDocType.systemId;
+	}
 	,__class__: thx_xml_DocumentType
 });
-var thx_xml_dom_Element = function() { };
-thx_xml_dom_Element.__name__ = ["thx","xml","dom","Element"];
-thx_xml_dom_Element.__interfaces__ = [thx_xml_dom_ChildNode,thx_xml_dom_NonDocumentTypeChildNode,thx_xml_dom_ParentNode];
-thx_xml_dom_Element.prototype = {
-	namespaceURI: null
-	,prefix: null
-	,localName: null
-	,tagName: null
-	,id: null
-	,className: null
-	,classList: null
-	,attributes: null
-	,getAttribute: null
-	,getAttributeNS: null
-	,setAttribute: null
-	,setAttributeNS: null
-	,removeAttribute: null
-	,removeAttributeNS: null
-	,hasAttribute: null
-	,hasAttributeNS: null
-	,getElementsByTagName: null
-	,getElementsByTagNameNS: null
-	,getElementsByClassName: null
-	,__class__: thx_xml_dom_Element
-};
-var thx_xml_Element = function(tagName,baseURI,ownerDocument) {
-	this.tagName = tagName;
-	thx_xml_Node.call(this,1,tagName,baseURI,ownerDocument);
+var thx_xml_Element = function(localName,prefix,namespaceURI,ownerDocument) {
+	this.attributes = [];
+	var tagName;
+	if(prefix == null) tagName = localName; else tagName = "" + prefix + ":" + localName;
+	this.localName = localName;
+	this.prefix = prefix;
+	this.namespaceURI = namespaceURI;
+	thx_xml_Node.call(this,1,tagName,ownerDocument);
 };
 thx_xml_Element.__name__ = ["thx","xml","Element"];
-thx_xml_Element.__interfaces__ = [thx_xml_dom_Element];
+thx_xml_Element.__interfaces__ = [thx_xml_ChildNode,thx_xml_NonDocumentTypeChildNode,thx_xml_ParentNode];
 thx_xml_Element.__super__ = thx_xml_Node;
 thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	namespaceURI: null
@@ -4388,10 +4629,17 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	,classList: null
 	,attributes: null
 	,getAttribute: function(name) {
-		throw new js__$Boot_HaxeError("not implemented");
+		return this.getAttributeNS(null,name);
 	}
 	,getAttributeNS: function($namespace,localName) {
-		throw new js__$Boot_HaxeError("not implemented");
+		var _g = 0;
+		var _g1 = this.attributes;
+		while(_g < _g1.length) {
+			var attr = _g1[_g];
+			++_g;
+			if(attr.localName == localName && attr.namespaceURI == $namespace) return attr.value;
+		}
+		return null;
 	}
 	,setAttribute: function(name,value) {
 		throw new js__$Boot_HaxeError("not implemented");
@@ -4440,22 +4688,53 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	,querySelectorAll: function(selectors) {
 		throw new js__$Boot_HaxeError("not implemented");
 	}
+	,locateNamespacePrefix: function($namespace) {
+		if(this.namespaceURI == $namespace && this.prefix != null) return this.prefix;
+		var pel = Std.instance(this.parentElement,thx_xml_Element);
+		if(null == pel) return null; else return pel.locateNamespacePrefix($namespace);
+	}
+	,isEqualNode: function(other) {
+		if(!thx_xml_Node.prototype.isEqualNode.call(this,other)) return false;
+		var otherElement = other;
+		if(this.namespaceURI != otherElement.namespaceURI || this.prefix != otherElement.prefix || this.localName != otherElement.localName || this.attributes.length != otherElement.attributes.length) return false;
+		if(this.childNodes.length != otherElement.childNodes.length) return false;
+		var _g1 = 0;
+		var _g = this.childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(!this.childNodes.item(i).isEqualNode(otherElement.childNodes.item(i))) return false;
+		}
+		return true;
+	}
 	,__class__: thx_xml_Element
 });
-var thx_xml_dom_HTMLCollectionImp = function() { };
-thx_xml_dom_HTMLCollectionImp.__name__ = ["thx","xml","dom","HTMLCollectionImp"];
-thx_xml_dom_HTMLCollectionImp.prototype = {
-	length: null
-	,item: null
-	,namedItem: null
-	,__class__: thx_xml_dom_HTMLCollectionImp
+var thx_xml__$Event_EventInit_$Impl_$ = {};
+thx_xml__$Event_EventInit_$Impl_$.__name__ = ["thx","xml","_Event","EventInit_Impl_"];
+thx_xml__$Event_EventInit_$Impl_$.ensure = function(init) {
+	if(null == init) return { }; else return init;
+};
+thx_xml__$Event_EventInit_$Impl_$.get_bubbles = function(this1) {
+	if(null == this1.bubbles) return false; else return this1.bubbles;
+};
+thx_xml__$Event_EventInit_$Impl_$.set_bubbles = function(this1,v) {
+	return this1.bubbles = v;
+};
+thx_xml__$Event_EventInit_$Impl_$.get_cancelable = function(this1) {
+	if(null == this1.cancelable) return false; else return this1.cancelable;
+};
+thx_xml__$Event_EventInit_$Impl_$.set_cancelable = function(this1,v) {
+	return this1.cancelable = v;
+};
+var thx_xml__$EventTarget_EventListener_$Impl_$ = {};
+thx_xml__$EventTarget_EventListener_$Impl_$.__name__ = ["thx","xml","_EventTarget","EventListener_Impl_"];
+thx_xml__$EventTarget_EventListener_$Impl_$.fromFunction = function(f) {
+	return { handleEvent : f};
 };
 var thx_xml_HTMLCollectionImp = function() {
 	this.items = [];
 	this.length = this.items.length;
 };
 thx_xml_HTMLCollectionImp.__name__ = ["thx","xml","HTMLCollectionImp"];
-thx_xml_HTMLCollectionImp.__interfaces__ = [thx_xml_dom_HTMLCollectionImp];
 thx_xml_HTMLCollectionImp.prototype = {
 	namedItem: function(name) {
 		var _g = 0;
@@ -4474,47 +4753,116 @@ thx_xml_HTMLCollectionImp.prototype = {
 	,items: null
 	,__class__: thx_xml_HTMLCollectionImp
 };
+var thx_xml__$HTMLCollection_HTMLCollection_$Impl_$ = {};
+thx_xml__$HTMLCollection_HTMLCollection_$Impl_$.__name__ = ["thx","xml","_HTMLCollection","HTMLCollection_Impl_"];
+thx_xml__$HTMLCollection_HTMLCollection_$Impl_$.namedItem = function(this1,name) {
+	return this1.namedItem(name);
+};
+thx_xml__$HTMLCollection_HTMLCollection_$Impl_$.item = function(this1,index) {
+	return this1.item(index);
+};
 var thx_xml_Namespaces = function() { };
 thx_xml_Namespaces.__name__ = ["thx","xml","Namespaces"];
-var thx_xml_dom_NodeListImp = function() { };
-thx_xml_dom_NodeListImp.__name__ = ["thx","xml","dom","NodeListImp"];
-thx_xml_dom_NodeListImp.prototype = {
-	item: null
-	,length: null
-	,__class__: thx_xml_dom_NodeListImp
+var thx_xml_NodeFilter = function() { };
+thx_xml_NodeFilter.__name__ = ["thx","xml","NodeFilter"];
+thx_xml_NodeFilter.prototype = {
+	acceptNode: null
+	,__class__: thx_xml_NodeFilter
+};
+var thx_xml_NodeIterator = function() { };
+thx_xml_NodeIterator.__name__ = ["thx","xml","NodeIterator"];
+thx_xml_NodeIterator.prototype = {
+	root: null
+	,referenceNode: null
+	,pointerBeforeReferenceNode: null
+	,whatToShow: null
+	,filter: null
+	,nextNode: null
+	,previousNode: null
+	,detach: null
+	,__class__: thx_xml_NodeIterator
 };
 var thx_xml_NodeListImp = function() {
 	this.items = [];
-	this.length = this.items.length;
+	this.length = 0;
 };
 thx_xml_NodeListImp.__name__ = ["thx","xml","NodeListImp"];
-thx_xml_NodeListImp.__interfaces__ = [thx_xml_dom_NodeListImp];
 thx_xml_NodeListImp.prototype = {
 	item: function(index) {
 		return this.items[index];
 	}
 	,length: null
 	,items: null
+	,insertBefore: function(node,ref) {
+		if(null == ref) this.items.push(node); else {
+			var pos = HxOverrides.indexOf(this.items,ref,0);
+			if(pos < 0) pos = this.length;
+			this.items.splice(pos,0,node);
+		}
+		this.length++;
+	}
+	,removeChild: function(node) {
+		if(HxOverrides.remove(this.items,node)) this.length--;
+	}
+	,indexOf: function(node) {
+		return HxOverrides.indexOf(this.items,node,0);
+	}
+	,iterator: function() {
+		return HxOverrides.iter(this.items);
+	}
 	,__class__: thx_xml_NodeListImp
 };
-var thx_xml_dom_ProcessingInstruction = function() { };
-thx_xml_dom_ProcessingInstruction.__name__ = ["thx","xml","dom","ProcessingInstruction"];
-thx_xml_dom_ProcessingInstruction.__interfaces__ = [thx_xml_dom_CharacterData];
-thx_xml_dom_ProcessingInstruction.prototype = {
-	target: null
-	,__class__: thx_xml_dom_ProcessingInstruction
+var thx_xml__$NodeList_NodeList_$Impl_$ = {};
+thx_xml__$NodeList_NodeList_$Impl_$.__name__ = ["thx","xml","_NodeList","NodeList_Impl_"];
+thx_xml__$NodeList_NodeList_$Impl_$.item = function(this1,index) {
+	return this1.item(index);
 };
-var thx_xml_ProcessingInstruction = function(target,ownerDocument) {
+var thx_xml_ProcessingInstruction = function(target,data,ownerDocument) {
 	this.target = target;
-	thx_xml_CharacterData.call(this,7,target,this.baseURI,ownerDocument);
+	thx_xml_CharacterData.call(this,7,target,data,ownerDocument);
 };
 thx_xml_ProcessingInstruction.__name__ = ["thx","xml","ProcessingInstruction"];
-thx_xml_ProcessingInstruction.__interfaces__ = [thx_xml_dom_ProcessingInstruction];
 thx_xml_ProcessingInstruction.__super__ = thx_xml_CharacterData;
 thx_xml_ProcessingInstruction.prototype = $extend(thx_xml_CharacterData.prototype,{
 	target: null
+	,isEqualNode: function(other) {
+		if(!thx_xml_CharacterData.prototype.isEqualNode.call(this,other)) return false;
+		var otherPI = other;
+		return this.target == otherPI.target;
+	}
 	,__class__: thx_xml_ProcessingInstruction
 });
+var thx_xml_Range = function() { };
+thx_xml_Range.__name__ = ["thx","xml","Range"];
+thx_xml_Range.prototype = {
+	startContainer: null
+	,startOffset: null
+	,endContainer: null
+	,endOffset: null
+	,collapsed: null
+	,commonAncestorContainer: null
+	,setStart: null
+	,setEnd: null
+	,setStartBefore: null
+	,setStartAfter: null
+	,setEndBefore: null
+	,setEndAfter: null
+	,collapse: null
+	,selectNode: null
+	,selectNodeContents: null
+	,compareBoundaryPoints: null
+	,deleteContents: null
+	,extractContents: null
+	,cloneContents: null
+	,insertNode: null
+	,surroundContents: null
+	,cloneRange: null
+	,detach: null
+	,isPointInRange: null
+	,comparePoint: null
+	,intersectsNode: null
+	,__class__: thx_xml_Range
+};
 var thx_xml_TestDOMException = function() {
 };
 thx_xml_TestDOMException.__name__ = ["thx","xml","TestDOMException"];
@@ -4588,353 +4936,52 @@ var thx_xml_TestNode = function() {
 };
 thx_xml_TestNode.__name__ = ["thx","xml","TestNode"];
 thx_xml_TestNode.prototype = {
-	__class__: thx_xml_TestNode
+	testInsertBefore: function() {
+	}
+	,__class__: thx_xml_TestNode
 };
-var thx_xml_dom_Text = function() { };
-thx_xml_dom_Text.__name__ = ["thx","xml","dom","Text"];
-thx_xml_dom_Text.__interfaces__ = [thx_xml_dom_CharacterData];
-thx_xml_dom_Text.prototype = {
-	splitText: null
-	,wholeText: null
-	,__class__: thx_xml_dom_Text
-};
-var thx_xml_Text = function(nodeType,nodeName,baseURI,ownerDocument) {
-	thx_xml_CharacterData.call(this,nodeType,nodeName,baseURI,ownerDocument);
+var thx_xml_Text = function(data,ownerDocument) {
+	thx_xml_CharacterData.call(this,3,"#text",data,ownerDocument);
 };
 thx_xml_Text.__name__ = ["thx","xml","Text"];
-thx_xml_Text.__interfaces__ = [thx_xml_dom_Text];
 thx_xml_Text.__super__ = thx_xml_CharacterData;
 thx_xml_Text.prototype = $extend(thx_xml_CharacterData.prototype,{
 	splitText: function(offset) {
-		throw new js__$Boot_HaxeError("not implemented");
+		if(offset > this.length) throw thx_xml_DOMException.fromCode(1,null,null,{ fileName : "Text.hx", lineNumber : 6, className : "thx.xml.Text", methodName : "splitText"});
+		var count = this.length - offset;
+		var newdata = this.data.substring(offset,offset + count);
+		var newnode = new thx_xml_Text(newdata,this.ownerDocument);
+		if(null != this.parentNode) this.parentNode.insertBefore(newnode,this.nextSibling);
+		this.replaceData(offset,count,"");
+		if(null == this.parentNode) {
+		}
+		return newnode;
 	}
 	,wholeText: null
+	,get_wholeText: function() {
+		return this.contiguousNodes().map(function(node) {
+			return node.data;
+		}).join("");
+	}
+	,contiguousNodes: function() {
+		var nodes = [this];
+		var node = this.previousSibling;
+		while(node != null && node.nodeType == 3) {
+			nodes.splice(0,0,node);
+			node = node.previousSibling;
+		}
+		node = this.nextSibling;
+		while(node != null && node.nodeType == 3) {
+			nodes.push(node);
+			node = node.nextSibling;
+		}
+		return nodes;
+	}
 	,__class__: thx_xml_Text
 });
-var thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$ = {};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.__name__ = ["thx","xml","dom","_CustomEvent","CustomEventInit_Impl_"];
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.ensure = function(init) {
-	if(null == init) return { }; else return init;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.get_bubbles = function(this1) {
-	if(null == this1.bubbles) return false; else return this1.bubbles;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.set_bubbles = function(this1,v) {
-	return this1.bubbles = v;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.get_cancelable = function(this1) {
-	if(null == this1.cancelable) return false; else return this1.cancelable;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.set_cancelable = function(this1,v) {
-	return this1.cancelable = v;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.get_detail = function(this1) {
-	if(null == this1.detail) return false; else return this1.detail;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.set_detail = function(this1,v) {
-	return this1.detail = v;
-};
-thx_xml_dom__$CustomEvent_CustomEventInit_$Impl_$.toObject = function(this1) {
-	return this1;
-};
-var thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$ = {};
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.__name__ = ["thx","xml","dom","_DOMException","DOMExceptionCode_Impl_"];
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.fromName = function(name) {
-	switch(name) {
-	case "IndexSizeError":
-		return 1;
-	case "DOMSTRING_SIZE_ERR":
-		return 2;
-	case "HierarchyRequestError":
-		return 3;
-	case "WrongDocumentError":
-		return 4;
-	case "InvalidCharacterError":
-		return 5;
-	case "NO_DATA_ALLOWED_ERR":
-		return 6;
-	case "NoModificationAllowedError":
-		return 7;
-	case "NotFoundError":
-		return 8;
-	case "NotSupportedError":
-		return 9;
-	case "INUSE_ATTRIBUTE_ERR":
-		return 10;
-	case "InvalidStateError":
-		return 11;
-	case "SyntaxError":
-		return 12;
-	case "InvalidModificationError":
-		return 13;
-	case "NamespaceError":
-		return 14;
-	case "InvalidAccessError":
-		return 15;
-	case "VALIDATION_ERR":
-		return 16;
-	case "TYPE_MISMATCH_ERR":
-		return 17;
-	case "SecurityError":
-		return 18;
-	case "NetworkError":
-		return 19;
-	case "AbortError":
-		return 20;
-	case "URLMismatchError":
-		return 21;
-	case "QuotaExceededError":
-		return 22;
-	case "TimeoutError":
-		return 23;
-	case "InvalidNodeTypeError":
-		return 24;
-	case "DataCloneError":
-		return 25;
-	default:
-		return 0;
-	}
-};
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getMessage = function(this1) {
-	switch(this1) {
-	case 1:
-		return "The index is not in the allowed range";
-	case 2:
-		return "DOMSTRING_SIZE_ERR";
-	case 3:
-		return "The operation would yield an incorrect node tree";
-	case 4:
-		return "The object is in the wrong document";
-	case 5:
-		return "The string contains invalid characters";
-	case 6:
-		return "NO_DATA_ALLOWED_ERR";
-	case 7:
-		return "The object can not be modified";
-	case 8:
-		return "The object can not be found here";
-	case 9:
-		return "The operation is not supported";
-	case 10:
-		return "INUSE_ATTRIBUTE_ERR";
-	case 11:
-		return "The object is in an invalid state";
-	case 12:
-		return "The string did not match the expected pattern";
-	case 13:
-		return "The object can not be modified in this way";
-	case 14:
-		return "The operation is not allowed by Namespaces in XML";
-	case 15:
-		return "The object does not support the operation or argument";
-	case 16:
-		return "VALIDATION_ERR";
-	case 17:
-		return "TYPE_MISMATCH_ERR";
-	case 18:
-		return "The operation is insecure";
-	case 19:
-		return "A network error occurred";
-	case 20:
-		return "The operation was aborted";
-	case 21:
-		return "The given URL does not match another URL";
-	case 22:
-		return "The quota has been exceeded";
-	case 23:
-		return "The operation timed out";
-	case 24:
-		return "The supplied node is incorrect or has an incorrect ancestor for this operation";
-	case 25:
-		return "The object can not be cloned";
-	default:
-		return "Unknown error code " + this1;
-	}
-};
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.getName = function(this1) {
-	switch(this1) {
-	case 1:
-		return "IndexSizeError";
-	case 2:
-		return "DOMSTRING_SIZE_ERR";
-	case 3:
-		return "HierarchyRequestError";
-	case 4:
-		return "WrongDocumentError";
-	case 5:
-		return "InvalidCharacterError";
-	case 6:
-		return "NO_DATA_ALLOWED_ERR";
-	case 7:
-		return "NoModificationAllowedError";
-	case 8:
-		return "NotFoundError";
-	case 9:
-		return "NotSupportedError";
-	case 10:
-		return "INUSE_ATTRIBUTE_ERR";
-	case 11:
-		return "InvalidStateError";
-	case 12:
-		return "SyntaxError";
-	case 13:
-		return "InvalidModificationError";
-	case 14:
-		return "NamespaceError";
-	case 15:
-		return "InvalidAccessError";
-	case 16:
-		return "VALIDATION_ERR";
-	case 17:
-		return "TYPE_MISMATCH_ERR";
-	case 18:
-		return "SecurityError";
-	case 19:
-		return "NetworkError";
-	case 20:
-		return "AbortError";
-	case 21:
-		return "URLMismatchError";
-	case 22:
-		return "QuotaExceededError";
-	case 23:
-		return "TimeoutError";
-	case 24:
-		return "InvalidNodeTypeError";
-	case 25:
-		return "DataCloneError";
-	default:
-		return "Unknown error code " + this1;
-	}
-};
-var thx_xml_dom_DOMTokenList = function() { };
-thx_xml_dom_DOMTokenList.__name__ = ["thx","xml","dom","DOMTokenList"];
-thx_xml_dom_DOMTokenList.prototype = {
-	length: null
-	,item: null
-	,contains: null
-	,add: null
-	,remove: null
-	,toggle: null
-	,__class__: thx_xml_dom_DOMTokenList
-};
-var thx_xml_dom_DOMSettableTokenList = function() { };
-thx_xml_dom_DOMSettableTokenList.__name__ = ["thx","xml","dom","DOMSettableTokenList"];
-thx_xml_dom_DOMSettableTokenList.__interfaces__ = [thx_xml_dom_DOMTokenList];
-thx_xml_dom_DOMSettableTokenList.prototype = {
-	value: null
-	,__class__: thx_xml_dom_DOMSettableTokenList
-};
-var thx_xml_dom__$Event_EventInit_$Impl_$ = {};
-thx_xml_dom__$Event_EventInit_$Impl_$.__name__ = ["thx","xml","dom","_Event","EventInit_Impl_"];
-thx_xml_dom__$Event_EventInit_$Impl_$.ensure = function(init) {
-	if(null == init) return { }; else return init;
-};
-thx_xml_dom__$Event_EventInit_$Impl_$.get_bubbles = function(this1) {
-	if(null == this1.bubbles) return false; else return this1.bubbles;
-};
-thx_xml_dom__$Event_EventInit_$Impl_$.set_bubbles = function(this1,v) {
-	return this1.bubbles = v;
-};
-thx_xml_dom__$Event_EventInit_$Impl_$.get_cancelable = function(this1) {
-	if(null == this1.cancelable) return false; else return this1.cancelable;
-};
-thx_xml_dom__$Event_EventInit_$Impl_$.set_cancelable = function(this1,v) {
-	return this1.cancelable = v;
-};
-var thx_xml_dom__$EventTarget_EventListener_$Impl_$ = {};
-thx_xml_dom__$EventTarget_EventListener_$Impl_$.__name__ = ["thx","xml","dom","_EventTarget","EventListener_Impl_"];
-thx_xml_dom__$EventTarget_EventListener_$Impl_$.fromFunction = function(f) {
-	return { handleEvent : f};
-};
-var thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$ = {};
-thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$.__name__ = ["thx","xml","dom","_HTMLCollection","HTMLCollection_Impl_"];
-thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$.namedItem = function(this1,name) {
-	return this1.namedItem(name);
-};
-thx_xml_dom__$HTMLCollection_HTMLCollection_$Impl_$.item = function(this1,index) {
-	return this1.item(index);
-};
-var thx_xml_dom_MutationObserver = function() { };
-thx_xml_dom_MutationObserver.__name__ = ["thx","xml","dom","MutationObserver"];
-thx_xml_dom_MutationObserver.prototype = {
-	observe: null
-	,disconnect: null
-	,takeRecords: null
-	,__class__: thx_xml_dom_MutationObserver
-};
-var thx_xml_dom_MutationRecord = function() { };
-thx_xml_dom_MutationRecord.__name__ = ["thx","xml","dom","MutationRecord"];
-thx_xml_dom_MutationRecord.prototype = {
-	type: null
-	,target: null
-	,addedNodes: null
-	,removedNodes: null
-	,previousSibling: null
-	,nextSibling: null
-	,attributeName: null
-	,attributeNamespace: null
-	,oldValue: null
-	,__class__: thx_xml_dom_MutationRecord
-};
-var thx_xml_dom_NodeFilter = function() { };
-thx_xml_dom_NodeFilter.__name__ = ["thx","xml","dom","NodeFilter"];
-thx_xml_dom_NodeFilter.prototype = {
-	acceptNode: null
-	,__class__: thx_xml_dom_NodeFilter
-};
-var thx_xml_dom_NodeIterator = function() { };
-thx_xml_dom_NodeIterator.__name__ = ["thx","xml","dom","NodeIterator"];
-thx_xml_dom_NodeIterator.prototype = {
-	root: null
-	,referenceNode: null
-	,pointerBeforeReferenceNode: null
-	,whatToShow: null
-	,filter: null
-	,nextNode: null
-	,previousNode: null
-	,detach: null
-	,__class__: thx_xml_dom_NodeIterator
-};
-var thx_xml_dom__$NodeList_NodeList_$Impl_$ = {};
-thx_xml_dom__$NodeList_NodeList_$Impl_$.__name__ = ["thx","xml","dom","_NodeList","NodeList_Impl_"];
-thx_xml_dom__$NodeList_NodeList_$Impl_$.item = function(this1,index) {
-	return this1.item(index);
-};
-var thx_xml_dom_Range = function() { };
-thx_xml_dom_Range.__name__ = ["thx","xml","dom","Range"];
-thx_xml_dom_Range.prototype = {
-	startContainer: null
-	,startOffset: null
-	,endContainer: null
-	,endOffset: null
-	,collapsed: null
-	,commonAncestorContainer: null
-	,setStart: null
-	,setEnd: null
-	,setStartBefore: null
-	,setStartAfter: null
-	,setEndBefore: null
-	,setEndAfter: null
-	,collapse: null
-	,selectNode: null
-	,selectNodeContents: null
-	,compareBoundaryPoints: null
-	,deleteContents: null
-	,extractContents: null
-	,cloneContents: null
-	,insertNode: null
-	,surroundContents: null
-	,cloneRange: null
-	,detach: null
-	,isPointInRange: null
-	,comparePoint: null
-	,intersectsNode: null
-	,__class__: thx_xml_dom_Range
-};
-var thx_xml_dom_TreeWalker = function() { };
-thx_xml_dom_TreeWalker.__name__ = ["thx","xml","dom","TreeWalker"];
-thx_xml_dom_TreeWalker.prototype = {
+var thx_xml_TreeWalker = function() { };
+thx_xml_TreeWalker.__name__ = ["thx","xml","TreeWalker"];
+thx_xml_TreeWalker.prototype = {
 	root: null
 	,whatToShow: null
 	,filter: null
@@ -4946,11 +4993,16 @@ thx_xml_dom_TreeWalker.prototype = {
 	,nextSibling: null
 	,previousNode: null
 	,nextNode: null
-	,__class__: thx_xml_dom_TreeWalker
+	,__class__: thx_xml_TreeWalker
 };
-var thx_xml_dom_XMLDocument = function() { };
-thx_xml_dom_XMLDocument.__name__ = ["thx","xml","dom","XMLDocument"];
-thx_xml_dom_XMLDocument.__interfaces__ = [thx_xml_dom_Document];
+var thx_xml_XMLDocument = function(baseURI) {
+	thx_xml_Document.call(this,baseURI);
+};
+thx_xml_XMLDocument.__name__ = ["thx","xml","XMLDocument"];
+thx_xml_XMLDocument.__super__ = thx_xml_Document;
+thx_xml_XMLDocument.prototype = $extend(thx_xml_Document.prototype,{
+	__class__: thx_xml_XMLDocument
+});
 var utest_Assert = function() { };
 utest_Assert.__name__ = ["utest","Assert"];
 utest_Assert.isTrue = function(cond,msg,pos) {
@@ -6911,35 +6963,35 @@ thx_Strings.STRIPTAGS = new EReg("</?[a-z]+[^>]*>","gi");
 thx_Strings.WSG = new EReg("[ \t\r\n]+","g");
 thx_Strings.SPLIT_LINES = new EReg("\r\n|\n\r|\n|\r","g");
 thx_Strings.CANONICALIZE_LINES = new EReg("\r\n|\n\r|\r","g");
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NOT_DEFINED = 0;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INDEX_SIZE_ERR = 1;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.DOMSTRING_SIZE_ERR = 2;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.HIERARCHY_REQUEST_ERR = 3;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.WRONG_DOCUMENT_ERR = 4;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INVALID_CHARACTER_ERR = 5;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NO_DATA_ALLOWED_ERR = 6;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NO_MODIFICATION_ALLOWED_ERR = 7;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NOT_FOUND_ERR = 8;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NOT_SUPPORTED_ERR = 9;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INUSE_ATTRIBUTE_ERR = 10;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INVALID_STATE_ERR = 11;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.SYNTAX_ERR = 12;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INVALID_MODIFICATION_ERR = 13;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NAMESPACE_ERR = 14;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INVALID_ACCESS_ERR = 15;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.VALIDATION_ERR = 16;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.TYPE_MISMATCH_ERR = 17;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.SECURITY_ERR = 18;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.NETWORK_ERR = 19;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.ABORT_ERR = 20;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.URL_MISMATCH_ERR = 21;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.QUOTA_EXCEEDED_ERR = 22;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.TIMEOUT_ERR = 23;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.INVALID_NODE_TYPE_ERR = 24;
+thx_xml__$DOMException_DOMExceptionCode_$Impl_$.DATA_CLONE_ERR = 25;
 thx_xml_Namespaces.html = "http://www.w3.org/1999/xhtml";
 thx_xml_Namespaces.xml = "http://www.w3.org/XML/1998/namespace";
 thx_xml_Namespaces.xmlns = "http://www.w3.org/2000/xmlns/";
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NOT_DEFINED = 0;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INDEX_SIZE_ERR = 1;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.DOMSTRING_SIZE_ERR = 2;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.HIERARCHY_REQUEST_ERR = 3;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.WRONG_DOCUMENT_ERR = 4;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INVALID_CHARACTER_ERR = 5;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NO_DATA_ALLOWED_ERR = 6;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NO_MODIFICATION_ALLOWED_ERR = 7;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NOT_FOUND_ERR = 8;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NOT_SUPPORTED_ERR = 9;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INUSE_ATTRIBUTE_ERR = 10;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INVALID_STATE_ERR = 11;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.SYNTAX_ERR = 12;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INVALID_MODIFICATION_ERR = 13;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NAMESPACE_ERR = 14;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INVALID_ACCESS_ERR = 15;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.VALIDATION_ERR = 16;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.TYPE_MISMATCH_ERR = 17;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.SECURITY_ERR = 18;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.NETWORK_ERR = 19;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.ABORT_ERR = 20;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.URL_MISMATCH_ERR = 21;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.QUOTA_EXCEEDED_ERR = 22;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.TIMEOUT_ERR = 23;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.INVALID_NODE_TYPE_ERR = 24;
-thx_xml_dom__$DOMException_DOMExceptionCode_$Impl_$.DATA_CLONE_ERR = 25;
 utest_TestHandler.POLLING_TIME = 10;
 utest_ui_text_HtmlReport.platform = "javascript";
 TestAll.main();

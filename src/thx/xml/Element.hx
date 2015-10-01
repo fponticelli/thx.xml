@@ -1,13 +1,12 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.DOMTokenList;
-import thx.xml.dom.Element as DOMElement;
-import thx.xml.dom.Node.NodeType;
-import thx.xml.dom.HTMLCollection as DOMHTMLCollection;
-import thx.xml.dom.NodeList as DOMNodeList;
+import thx.xml.Node.NodeType;
 
-class Element extends Node implements DOMElement {
+class Element
+    extends Node
+    implements ParentNode
+    implements NonDocumentTypeChildNode
+    implements ChildNode {
   public var namespaceURI(default, null) : Null<DOMString>;
   public var prefix(default, null) : Null<DOMString>;
   public var localName(default, null) : DOMString;
@@ -55,15 +54,15 @@ class Element extends Node implements DOMElement {
   }
 
   // TODO getElementsByTagName
-  public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
+  public function getElementsByTagName(localName : DOMString) : HTMLCollection {
     return throw 'not implemented';
   }
   // TODO getElementsByTagNameNS
-  public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
+  public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : HTMLCollection {
     return throw 'not implemented';
   }
   // TODO getElementsByClassName
-  public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
+  public function getElementsByClassName(classNames : DOMString) : HTMLCollection {
     return throw 'not implemented';
   }
 
@@ -85,19 +84,19 @@ class Element extends Node implements DOMElement {
     // TODO remove
     return throw "not implemented";
   }
-  public var nextElementSibling : Null<DOMElement>;
-  public var previousElementSibling : Null<DOMElement>;
+  public var nextElementSibling : Null<Element>;
+  public var previousElementSibling : Null<Element>;
 
-  public var children(default, null) : DOMHTMLCollection;
-  public var firstElementChild(default, null) : Null<DOMElement>;
-  public var lastElementChild(default, null) : Null<DOMElement>;
+  public var children(default, null) : HTMLCollection;
+  public var firstElementChild(default, null) : Null<Element>;
+  public var lastElementChild(default, null) : Null<Element>;
   public var childElementCount(default, null) : Int;
 
-  public function querySelector(selectors : DOMString) : Null<DOMElement> {
+  public function querySelector(selectors : DOMString) : Null<Element> {
     // TODO querySelector
     return throw "not implemented";
   }
-  public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+  public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
     return throw "not implemented";
   }
@@ -113,10 +112,10 @@ class Element extends Node implements DOMElement {
       return pel.locateNamespacePrefix(namespace);
   }
 
-  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+  override public function isEqualNode(?other : thx.xml.Node) : Bool {
     if(!super.isEqualNode(other))
       return false;
-    var otherElement : DOMElement = cast other;
+    var otherElement : Element = cast other;
     if(namespaceURI != otherElement.namespaceURI || prefix != otherElement.prefix || localName != otherElement.localName || attributes.length != otherElement.attributes.length)
       return false;
     // TODO isEqualNode, check attributes equality

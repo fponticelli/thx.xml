@@ -1,22 +1,17 @@
 package thx.xml;
 
-import thx.xml.dom.NodeList;
-import thx.xml.dom.Node as DOMNode;
-
-typedef NodeList = thx.xml.dom.NodeList;
-
-class NodeListImp implements thx.xml.dom.NodeList.NodeListImp {
-  public function item(index : Int) : Null<DOMNode>
+class NodeListImp {
+  public function item(index : Int) : Null<Node>
     return items[index];
   public var length(default, null) : Int;
 
-  var items : Array<DOMNode>;
+  var items : Array<Node>;
   public function new() {
     items = [];
     length = 0;
   }
 
-  public function insertBefore(node : DOMNode, ?ref : DOMNode) {
+  public function insertBefore(node : Node, ?ref : Node) {
     if(null == ref) {
       items.push(node);
     } else {
@@ -28,14 +23,21 @@ class NodeListImp implements thx.xml.dom.NodeList.NodeListImp {
     length++;
   }
 
-  public function removeChild(node : DOMNode) {
+  public function removeChild(node : Node) {
     if(items.remove(node))
       length--;
   }
 
-  public function indexOf(node : DOMNode)
+  public function indexOf(node : Node)
     return items.indexOf(node);
 
   public function iterator()
     return items.iterator();
+}
+
+@:forward(length)
+abstract NodeList(NodeListImp) from NodeListImp to NodeListImp {
+  @:arrayAccess
+  inline public function item(index : Int) : Null<Node>
+    return this.item(index);
 }

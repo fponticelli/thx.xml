@@ -1,11 +1,11 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.Element as DOMElement;
-import thx.xml.dom.CharacterData as DOMCharacterData;
-import thx.xml.dom.Node.NodeType;
+import thx.xml.Node.NodeType;
 
-class CharacterData extends Node implements DOMCharacterData {
+class CharacterData
+    extends Node
+    implements NonDocumentTypeChildNode
+    implements ChildNode {
   // [TreatNullAs=EmptyString]
   public var data : DOMString;
   public var length(default, null) : Int;
@@ -33,16 +33,16 @@ class CharacterData extends Node implements DOMCharacterData {
     // TODO remove
     return throw "not implemented";
   }
-  public var nextElementSibling : Null<DOMElement>;
-  public var previousElementSibling : Null<DOMElement>;
+  public var nextElementSibling : Null<Element>;
+  public var previousElementSibling : Null<Element>;
 
-  function new(nodeType : NodeType, nodeName : DOMString, data : DOMString, ownerDocument : thx.xml.dom.Document) {
+  function new(nodeType : NodeType, nodeName : DOMString, data : DOMString, ownerDocument : thx.xml.Document) {
     this.data = null == data ? "" : data;
     this.length = this.data.length;
     super(nodeType, nodeName, ownerDocument);
   }
 
-  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+  override public function isEqualNode(?other : thx.xml.Node) : Bool {
     if(!super.isEqualNode(other))
       return false;
     var otherCD : CharacterData = cast other;

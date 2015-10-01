@@ -1,25 +1,11 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.NodeFilter;
-import thx.xml.dom.Document as DOMDocument;
-import thx.xml.dom.Node as DOMNode;
-import thx.xml.dom.DocumentFragment as DOMDocumentFragment;
-import thx.xml.dom.DocumentType;
-import thx.xml.dom.Element as DOMElement;
-import thx.xml.dom.HTMLCollection as DOMHTMLCollection;
-import thx.xml.dom.Text as DOMText;
-import thx.xml.dom.ProcessingInstruction as DOMProcessingInstruction;
-import thx.xml.dom.Range as DOMRange;
-import thx.xml.dom.NodeList as DOMNodeList;
-import thx.xml.dom.NodeIterator as DOMNodeIterator;
-import thx.xml.dom.TreeWalker as DOMTreeWalker;
-
 using thx.Strings;
+import thx.xml.NodeFilter;
 
-class Document extends Node implements DOMDocument {
+class Document extends Node {
   // [SameObject]
-  public var implementation(default, null) : thx.xml.dom.DOMImplementation;
+  public var implementation(default, null) : DOMImplementation;
   public var URL(default, null) : DOMString;
   public var documentURI(default, null) : DOMString;
   public var origin(default, null) : DOMString;
@@ -28,21 +14,21 @@ class Document extends Node implements DOMDocument {
   public var contentType(default, null) : DOMString;
 
   public var doctype(default, null) : DocumentType;
-  public var documentElement(default, null) : Null<DOMElement>;
-  public function getElementsByTagName(localName : DOMString) : DOMHTMLCollection {
+  public var documentElement(default, null) : Null<Element>;
+  public function getElementsByTagName(localName : DOMString) : HTMLCollection {
     // TODO getElementsByTagName
     return throw "not implemented";
   }
-  public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : DOMHTMLCollection {
+  public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : HTMLCollection {
     // TODO getElementsByTagNameNS
     return throw "not implemented";
   }
-  public function getElementsByClassName(classNames : DOMString) : DOMHTMLCollection {
+  public function getElementsByClassName(classNames : DOMString) : HTMLCollection {
     // TODO getElementsByClassName
     return throw "not implemented";
   }
 
-  public function createElement(localName : DOMString) : DOMElement {
+  public function createElement(localName : DOMString) : Element {
     validateName(localName);
     // If the context object is an HTML document, let localName be converted to ASCII lowercase.
     // https://dom.spec.whatwg.org/#html-document
@@ -51,18 +37,18 @@ class Document extends Node implements DOMDocument {
   }
 
   @:access(thx.xml.Element.new)
-  public function createElementNS(namespace : Null<DOMString>, qualifiedName : DOMString) : DOMElement {
+  public function createElementNS(namespace : Null<DOMString>, qualifiedName : DOMString) : Element {
     var o = validateAndExtract(namespace, qualifiedName);
     // TODO createElementNS rethrow? not needed but nice to have
     // TODO createElementNS check if ownerDocument is applied this way
     return new Element(o.localName, o.prefix, o.namespace, this);
   }
   @:access(thx.xml.DocumentFragment.new)
-  public function createDocumentFragment() : DOMDocumentFragment {
+  public function createDocumentFragment() : DocumentFragment {
     return new DocumentFragment(this);
   }
   @:access(thx.xml.Text.new)
-  public function createTextNode(data : DOMString) : DOMText {
+  public function createTextNode(data : DOMString) : Text {
     return new Text(data, this);
   }
   @:access(thx.xml.Comment.new)
@@ -70,18 +56,18 @@ class Document extends Node implements DOMDocument {
     return new Comment(data, this);
   }
   @:access(thx.xml.ProcessingInstruction.new)
-  public function createProcessingInstruction(target : DOMString, data : DOMString) : DOMProcessingInstruction {
+  public function createProcessingInstruction(target : DOMString, data : DOMString) : ProcessingInstruction {
     validateName(target);
     if(data.contains("?>"))
       throw DOMException.fromCode(INVALID_CHARACTER_ERR);
     return new ProcessingInstruction(target, data, this);
   }
 
-  public function importNode(node : DOMNode, ?deep : Bool = false) : DOMNode {
+  public function importNode(node : Node, ?deep : Bool = false) : Node {
     // TODO importNode
     return throw "not implemented";
   }
-  public function adoptNode(node : DOMNode) : DOMNode {
+  public function adoptNode(node : Node) : Node {
     if(node.nodeType == DOCUMENT_NODE)
       throw DOMException.fromCode(NOT_SUPPORTED_ERR);
     // TODO adoptNode shadow root
@@ -98,37 +84,37 @@ class Document extends Node implements DOMDocument {
     return throw "not implemented";
   }
 
-  public function createRange() : DOMRange {
+  public function createRange() : Range {
     // TODO createRange
     return throw "not implemented";
   }
 
   // NodeFilter.SHOW_ALL = 0xFFFFFFFF
-  public function createNodeIterator(root : DOMNode, ?whatToShow : WhatToShow, ?filter : NodeFilter) : DOMNodeIterator {
+  public function createNodeIterator(root : Node, ?whatToShow : WhatToShow, ?filter : NodeFilter) : NodeIterator {
     // TODO createNodeIterator
     return throw "not implemented";
   }
-  public function createTreeWalker(root : DOMNode, ?whatToShow : WhatToShow, ?filter : NodeFilter) : DOMTreeWalker {
+  public function createTreeWalker(root : Node, ?whatToShow : WhatToShow, ?filter : NodeFilter) : TreeWalker {
     // TODO createTreeWalker
     return throw "not implemented";
   }
 
 
-  public function getElementById(id : String) : Null<DOMElement> {
+  public function getElementById(id : String) : Null<Element> {
     // TODO getElementById
     return throw "not implemented";
   }
 
-  public var children(default, null) : DOMHTMLCollection;
-  public var firstElementChild(default, null) : Null<DOMElement>;
-  public var lastElementChild(default, null) : Null<DOMElement>;
+  public var children(default, null) : HTMLCollection;
+  public var firstElementChild(default, null) : Null<Element>;
+  public var lastElementChild(default, null) : Null<Element>;
   public var childElementCount(default, null) : Int;
 
-  public function querySelector(selectors : DOMString) : Null<DOMElement> {
+  public function querySelector(selectors : DOMString) : Null<Element> {
     // TODO querySelector
     return throw "not implemented";
   }
-  public function querySelectorAll(selectors : DOMString) : DOMNodeList {
+  public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
     return throw "not implemented";
   }
@@ -139,10 +125,10 @@ class Document extends Node implements DOMDocument {
     super(DOCUMENT_NODE, "#document", null);
   }
 
-  override public function isEqualNode(?other : thx.xml.dom.Node) : Bool {
+  override public function isEqualNode(?other : thx.xml.Node) : Bool {
     if(!super.isEqualNode(other))
       return false;
-    var otherDocument : DOMDocument = cast other;
+    var otherDocument : Document = cast other;
     if(childNodes.length != otherDocument.childNodes.length)
       return false;
     for(i in 0...childNodes.length)

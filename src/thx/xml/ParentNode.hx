@@ -1,4 +1,4 @@
-package thx.xml.dom;
+package thx.xml;
 
 interface ParentNode {
   var children(default, null) : HTMLCollection;

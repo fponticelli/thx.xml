@@ -1,6 +1,6 @@
-package thx.xml.dom;
+package thx.xml;
 
-import thx.xml.dom.NodeFilter;
+import thx.xml.NodeFilter;
 
 interface NodeIterator {
   // [SameObject]

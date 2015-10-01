@@ -1,12 +1,9 @@
 package thx.xml;
 
-import thx.xml.dom.Event;
-import thx.xml.dom.DOMString;
-import thx.xml.dom.EventTarget.EventListener;
 using thx.Arrays;
 
 @:access(thx.xml.Event)
-class EventTarget implements thx.xml.dom.EventTarget {
+class EventTarget {
   public function addEventListener(type : DOMString, ?callback : EventListener, ?capture : Bool) : Void {
     if(null == callback || existsListener(type, callback, capture)) return;
     var list = ensureList(type);
@@ -108,3 +105,11 @@ class EventTarget implements thx.xml.dom.EventTarget {
     }
   }
 }
+
+@:forward(handleEvent)
+abstract EventListener(EventListenerImpl) from EventListenerImpl to EventListenerImpl {
+  @:from inline public static function fromFunction(f : Event -> Void) : EventListener
+    return { handleEvent : f };
+}
+
+typedef EventListenerImpl = { handleEvent : Event -> Void };

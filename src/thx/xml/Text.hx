@@ -1,12 +1,7 @@
 package thx.xml;
 
-import thx.xml.dom.DOMString;
-import thx.xml.dom.Text as DOMText;
-
-class Text
-    extends CharacterData
-    implements DOMText {
-  public function splitText(offset : Int) : DOMText {
+class Text extends CharacterData {
+  public function splitText(offset : Int) : Text {
     if(offset > length)
       throw DOMException.fromCode(INDEX_SIZE_ERR);
     var count = length - offset,
@@ -26,7 +21,7 @@ class Text
   }
   public var wholeText(get, null) : DOMString;
 
-  function new(data : DOMString, ownerDocument : thx.xml.dom.Document) {
+  function new(data : DOMString, ownerDocument : thx.xml.Document) {
     super(TEXT_NODE, "#text", data, ownerDocument);
   }
 
