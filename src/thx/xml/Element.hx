@@ -1,6 +1,5 @@
 package thx.xml;
 
-import thx.xml.dom.Attr;
 import thx.xml.dom.DOMString;
 import thx.xml.dom.DOMTokenList;
 import thx.xml.dom.Element as DOMElement;

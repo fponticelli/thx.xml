@@ -1,9 +1,8 @@
 package thx.xml;
 
-import thx.xml.dom.Attr as DOMAttr;
 import thx.xml.dom.DOMString;
 
-class Attr implements DOMAttr {
+class Attr {
   public var localName(default, null) : DOMString;
   public var value : DOMString;
   public var name(default, null) : DOMString;
