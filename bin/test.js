@@ -1367,19 +1367,17 @@ thx_Arrays.after = function(array,element) {
 	return array.slice(HxOverrides.indexOf(array,element,0) + 1);
 };
 thx_Arrays.all = function(arr,predicate) {
-	var _g = 0;
-	while(_g < arr.length) {
-		var element = arr[_g];
-		++_g;
+	var $it0 = HxOverrides.iter(arr);
+	while( $it0.hasNext() ) {
+		var element = $it0.next();
 		if(!predicate(element)) return false;
 	}
 	return true;
 };
 thx_Arrays.any = function(arr,predicate) {
-	var _g = 0;
-	while(_g < arr.length) {
-		var element = arr[_g];
-		++_g;
+	var $it0 = HxOverrides.iter(arr);
+	while( $it0.hasNext() ) {
+		var element = $it0.next();
 		if(predicate(element)) return true;
 	}
 	return false;
@@ -1441,14 +1439,12 @@ thx_Arrays.containsAny = function(array,elements,eq) {
 };
 thx_Arrays.cross = function(a,b) {
 	var r = [];
-	var _g = 0;
-	while(_g < a.length) {
-		var va = a[_g];
-		++_g;
-		var _g1 = 0;
-		while(_g1 < b.length) {
-			var vb = b[_g1];
-			++_g1;
+	var $it0 = HxOverrides.iter(a);
+	while( $it0.hasNext() ) {
+		var va = $it0.next();
+		var $it1 = HxOverrides.iter(b);
+		while( $it1.hasNext() ) {
+			var vb = $it1.next();
 			r.push([va,vb]);
 		}
 	}
@@ -1463,14 +1459,13 @@ thx_Arrays.crossMulti = function(array) {
 		var array1 = acopy.shift();
 		var tresult = result;
 		result = [];
-		var _g = 0;
-		while(_g < array1.length) {
-			var v1 = array1[_g];
-			++_g;
-			var _g1 = 0;
-			while(_g1 < tresult.length) {
-				var ar = tresult[_g1];
-				++_g1;
+		var $it0 = HxOverrides.iter(array1);
+		while( $it0.hasNext() ) {
+			var v1 = $it0.next();
+			var _g = 0;
+			while(_g < tresult.length) {
+				var ar = tresult[_g];
+				++_g;
 				var t = ar.slice();
 				t.push(v1);
 				result.push(t);
@@ -1481,18 +1476,18 @@ thx_Arrays.crossMulti = function(array) {
 };
 thx_Arrays.distinct = function(array,predicate) {
 	var result = [];
-	if(array.length <= 1) return array;
+	if(array.length <= 1) return result;
 	if(null == predicate) predicate = thx_Functions.equality;
-	var _g = 0;
-	while(_g < array.length) {
-		var v = [array[_g]];
-		++_g;
-		var keep = !thx_Arrays.any(result,(function(v) {
+	var $it0 = HxOverrides.iter(array);
+	while( $it0.hasNext() ) {
+		var v = $it0.next();
+		var v1 = [v];
+		var keep = !thx_Arrays.any(result,(function(v1) {
 			return function(r) {
-				return predicate(r,v[0]);
+				return predicate(r,v1[0]);
 			};
-		})(v));
-		if(keep) result.push(v[0]);
+		})(v1));
+		if(keep) result.push(v1[0]);
 	}
 	return result;
 };
@@ -1531,19 +1526,17 @@ thx_Arrays.extract = function(a,predicate) {
 };
 thx_Arrays.filterNull = function(a) {
 	var arr = [];
-	var _g = 0;
-	while(_g < a.length) {
-		var v = a[_g];
-		++_g;
+	var $it0 = HxOverrides.iter(a);
+	while( $it0.hasNext() ) {
+		var v = $it0.next();
 		if(null != v) arr.push(v);
 	}
 	return arr;
 };
 thx_Arrays.find = function(array,predicate) {
-	var _g = 0;
-	while(_g < array.length) {
-		var element = array[_g];
-		++_g;
+	var $it0 = HxOverrides.iter(array);
+	while( $it0.hasNext() ) {
+		var element = $it0.next();
 		if(predicate(element)) return element;
 	}
 	return null;
@@ -1615,10 +1608,9 @@ thx_Arrays.order = function(array,sort) {
 	return n;
 };
 thx_Arrays.pull = function(array,toRemove,equality) {
-	var _g = 0;
-	while(_g < toRemove.length) {
-		var element = toRemove[_g];
-		++_g;
+	var $it0 = HxOverrides.iter(toRemove);
+	while( $it0.hasNext() ) {
+		var element = $it0.next();
 		thx_Arrays.removeAll(array,element,equality);
 	}
 };
@@ -1662,7 +1654,8 @@ thx_Arrays.sample = function(array,n) {
 	return result;
 };
 thx_Arrays.sampleOne = function(array) {
-	return array[Std.random(array.length)];
+	var index = Std.random(array.length);
+	return array[index];
 };
 thx_Arrays.string = function(arr) {
 	return "[" + arr.map(thx_Dynamics.string).join(", ") + "]";
@@ -3373,6 +3366,11 @@ thx_Objects.removePath = function(o,path) {
 	}
 	return o;
 };
+var thx__$ReadonlyArray_ReadonlyArray_$Impl_$ = {};
+thx__$ReadonlyArray_ReadonlyArray_$Impl_$.__name__ = ["thx","_ReadonlyArray","ReadonlyArray_Impl_"];
+thx__$ReadonlyArray_ReadonlyArray_$Impl_$.get = function(this1,index) {
+	return this1[index];
+};
 var thx_Strings = function() { };
 thx_Strings.__name__ = ["thx","Strings"];
 thx_Strings.after = function(value,searchFor) {
@@ -4169,6 +4167,9 @@ thx_xml_Attr.prototype = {
 	,namespaceURI: null
 	,prefix: null
 	,specified: null
+	,toString: function() {
+		return this.value;
+	}
 	,__class__: thx_xml_Attr
 };
 var thx_xml_EventTarget = function() {
@@ -5114,7 +5115,7 @@ thx_xml_DocumentType.prototype = $extend(thx_xml_Node.prototype,{
 	,__class__: thx_xml_DocumentType
 });
 var thx_xml_Element = function(localName,prefix,namespaceURI,ownerDocument) {
-	this.attributes = [];
+	this.attributes = this._attributes = [];
 	var tagName;
 	if(prefix == null) tagName = localName; else tagName = "" + prefix + ":" + localName;
 	this.localName = localName;
@@ -5134,52 +5135,50 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	,className: null
 	,classList: null
 	,attributes: null
+	,_attributes: null
 	,getAttribute: function(name) {
-		return this.getAttributeNS(null,name);
+		var attr = this.getAttributeObj(name);
+		if(null != attr) return attr.value; else return null;
 	}
 	,getAttributeNS: function($namespace,localName) {
-		var _g = 0;
-		var _g1 = this.attributes;
-		while(_g < _g1.length) {
-			var attr = _g1[_g];
-			++_g;
-			if(attr.localName == localName && attr.namespaceURI == $namespace) return attr.value;
-		}
-		return null;
+		var attr = this.getAttributeObjNS($namespace,localName);
+		if(null != attr) return attr.value; else return null;
 	}
 	,setAttribute: function(name,value) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 33, className : "thx.xml.Element", methodName : "setAttribute"});
-		return;
+		var attr = this.getAttributeObj(name);
+		if(null == attr) {
+			attr = new thx_xml_Attr(name,value,name,null,null);
+			this._attributes.push(attr);
+		} else attr.value = value;
 	}
 	,setAttributeNS: function($namespace,name,value) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 37, className : "thx.xml.Element", methodName : "setAttributeNS"});
-		return;
+		if("" == $namespace) $namespace = null;
 	}
 	,removeAttribute: function(name) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 41, className : "thx.xml.Element", methodName : "removeAttribute"});
-		return;
+		var attr = this.getAttributeObj(name);
+		if(null != attr) HxOverrides.remove(this._attributes,attr);
 	}
 	,removeAttributeNS: function($namespace,localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 45, className : "thx.xml.Element", methodName : "removeAttributeNS"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 72, className : "thx.xml.Element", methodName : "removeAttributeNS"});
 		return;
 	}
 	,hasAttribute: function(name) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 49, className : "thx.xml.Element", methodName : "hasAttribute"});
+		return this.getAttributeObj(name) != null;
 	}
 	,hasAttributeNS: function($namespace,localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 53, className : "thx.xml.Element", methodName : "hasAttributeNS"});
+		return this.getAttributeObjNS($namespace,localName) != null;
 	}
 	,getElementsByTagName: function(localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 58, className : "thx.xml.Element", methodName : "getElementsByTagName"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 83, className : "thx.xml.Element", methodName : "getElementsByTagName"});
 	}
 	,getElementsByTagNameNS: function($namespace,localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 62, className : "thx.xml.Element", methodName : "getElementsByTagNameNS"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 87, className : "thx.xml.Element", methodName : "getElementsByTagNameNS"});
 	}
 	,getElementsByClassName: function(classNames) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 66, className : "thx.xml.Element", methodName : "getElementsByClassName"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 91, className : "thx.xml.Element", methodName : "getElementsByClassName"});
 	}
 	,remove: function() {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 85, className : "thx.xml.Element", methodName : "remove"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 110, className : "thx.xml.Element", methodName : "remove"});
 		return;
 	}
 	,nextElementSibling: null
@@ -5189,10 +5188,26 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	,lastElementChild: null
 	,childElementCount: null
 	,querySelector: function(selectors) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 97, className : "thx.xml.Element", methodName : "querySelector"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 122, className : "thx.xml.Element", methodName : "querySelector"});
 	}
 	,querySelectorAll: function(selectors) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 101, className : "thx.xml.Element", methodName : "querySelectorAll"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 126, className : "thx.xml.Element", methodName : "querySelectorAll"});
+	}
+	,getAttributeObj: function(name) {
+		var $it0 = HxOverrides.iter(this.attributes);
+		while( $it0.hasNext() ) {
+			var attr = $it0.next();
+			if(attr.name == name) return attr;
+		}
+		return null;
+	}
+	,getAttributeObjNS: function($namespace,localName) {
+		var $it0 = HxOverrides.iter(this.attributes);
+		while( $it0.hasNext() ) {
+			var attr = $it0.next();
+			if(attr.namespaceURI == $namespace && attr.localName == localName) return attr;
+		}
+		return null;
 	}
 	,locateNamespacePrefix: function($namespace) {
 		if(this.namespaceURI == $namespace && this.prefix != null) return this.prefix;

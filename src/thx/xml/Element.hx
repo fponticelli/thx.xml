@@ -1,5 +1,6 @@
 package thx.xml;
 
+import thx.ReadonlyArray;
 import thx.xml.Node.NodeType;
 
 class Element
@@ -19,39 +20,65 @@ class Element
 
   // [SameObject]
   // TODO attributes, cannot really use Array here or it can be modified without using setAttribute
-  public var attributes(default, null) : Array<Attr>;
-  public function getAttribute(name : DOMString) : Null<DOMString>
-    return getAttributeNS(null, name);
+  public var attributes(default, null) : ReadonlyArray<Attr>;
+  var _attributes(default, null) : Array<Attr>;
+  public function getAttribute(name : DOMString) : Null<DOMString> {
+    var attr = getAttributeObj(name);
+    if(null != attr)
+      return attr.value;
+    else
+      return null;
+  }
+
   public function getAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Null<DOMString> {
-    for(attr in attributes)
-      if(attr.localName == localName && attr.namespaceURI == namespace)
-        return attr.value;
-    return null;
+    var attr = getAttributeObjNS(namespace, localName);
+    if(null != attr)
+      return attr.value;
+    else
+      return null;
   }
-  // TODO setAttribute
+
+  @:access(thx.xml.Attr.new)
   public function setAttribute(name : DOMString, value : DOMString) : Void {
-    return throw new thx.error.NotImplemented();
+    // TODO If name does not match the Name production in XML, throw an "InvalidCharacterError" exception.
+    var attr = getAttributeObj(name);
+    if(null == attr) {
+      attr = new Attr(name, value, name, null, null);
+      _attributes.push(attr);
+    } else {
+      attr.value = value;
+    }
   }
+
   // TODO setAttributeNS
+  @:access(thx.xml.Attr.new)
   public function setAttributeNS(namespace : Null<DOMString>, name : DOMString, value : DOMString) : Void {
-    return throw new thx.error.NotImplemented();
+    if("" == namespace)
+      namespace = null;
+    // If name contains a ":" (U+003E), then split the string on it and let prefix be the part before and localName the part after. Otherwise, let prefix be null and localName be name.
+    // If prefix is not null and namespace is null, throw a "NamespaceError" exception.
+    // If prefix is "xml" and namespace is not the XML namespace, throw a "NamespaceError" exception.
+    // If name or prefix is "xmlns" and namespace is not the XMLNS namespace, throw a "NamespaceError" exception.
+    // If namespace is the XMLNS namespace and neither name nor prefix is "xmlns", throw a "NamespaceError" exception.
+    // Set an attribute for the context object using localName, value, and also name, prefix, and namespace.
   }
-  // TODO removeAttribute
+
   public function removeAttribute(name : DOMString) : Void {
-    return throw new thx.error.NotImplemented();
+    var attr = getAttributeObj(name);
+    if(null != attr)
+      _attributes.remove(attr);
   }
+
   // TODO removeAttributeNS
   public function removeAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Void {
     return throw new thx.error.NotImplemented();
   }
-  // TODO hasAttribute
-  public function hasAttribute(name : DOMString) : Bool {
-    return throw new thx.error.NotImplemented();
-  }
-  // TODO hasAttributeNS
-  public function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool {
-    return throw new thx.error.NotImplemented();
-  }
+
+  public function hasAttribute(name : DOMString) : Bool
+    return getAttributeObj(name) != null;
+
+  public function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool
+    return getAttributeObjNS(namespace, localName) != null;
 
   // TODO getElementsByTagName
   public function getElementsByTagName(localName : DOMString) : HTMLCollection {
@@ -67,7 +94,7 @@ class Element
   }
 
   function new(localName : DOMString, prefix : Null<DOMString>, namespaceURI : Null<DOMString>,  ownerDocument : Document) {
-    this.attributes = [];
+    this.attributes = this._attributes = [];
     var tagName;
     if(prefix == null) {
       tagName = localName;
@@ -99,6 +126,25 @@ class Element
   public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
     return throw new thx.error.NotImplemented();
+  }
+
+  function getAttributeObj(name : DOMString) : Attr {
+    // TODO If the context object is in the HTML namespace and its node document is an HTML document, let name be converted to ASCII lowercase.
+    for(attr in attributes)
+      if(attr.name == name)
+        return attr;
+    return null;
+  }
+
+  function getAttributeObjNS(namespace : Null<DOMString>, localName : DOMString) : Attr {
+    // TODO If the context object is in the HTML namespace and its node document is an HTML document, let name be converted to ASCII lowercase.
+    // TODO If name does not match the QName production in Namespaces in XML, throw a "NamespaceError" exception.
+
+    // If name contains a ":" (U+003E), then split the string on it and let prefix be the part before and localName the part after. Otherwise, let prefix be null and localName be name.
+    for(attr in attributes)
+      if(attr.namespaceURI == namespace && attr.localName == localName)
+        return attr;
+    return null;
   }
 
   function locateNamespacePrefix(namespace : DOMString) : Null<DOMString> {
