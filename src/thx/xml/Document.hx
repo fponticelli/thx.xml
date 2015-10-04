@@ -201,3 +201,45 @@ class Document extends Node {
     };
   }
 }
+
+@:access(thx.xml.Document.new)
+class Documents {
+  public static function toDom4(xml : Xml) : Document {
+    var doc = new Document(null);
+    switch [xml.nodeType, xml.firstChild()] {
+      case [Document, child] if(child.nodeType == Xml.DocType):
+        appendToDom(child, doc, doc);
+        xml = child.firstElement();
+      case [Document, child]:
+        xml = child.firstElement();
+      case _:
+    }
+    if(null != xml)
+      appendToDom(xml, doc, doc);
+    return doc;
+  }
+
+  static function appendToDom(xml : Xml, node : Node, doc : Document) {
+    switch xml.nodeType {
+      case ProcessingInstruction:
+        // TODO
+      case DocType:
+        // TODO
+      case Comment:
+        node.appendChild(doc.createComment(xml.nodeValue));
+      case CData:
+        // TODO
+      case PCData:
+        // TODO
+      case Element:
+        var child = doc.createElement(xml.nodeName);
+        for(attr in xml.attributes())
+          child.setAttribute(attr, xml.get(attr));
+        node.appendChild(child);
+        for(n in xml.iterator())
+          appendToDom(n, child, doc);
+      case _:
+        throw new thx.Error('invalid xml nodeType ${xml.nodeType}');
+    }
+  }
+}

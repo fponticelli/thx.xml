@@ -5,6 +5,7 @@ class TestAll {
     UTest.run([
         new thx.xml.TestDOMException(),
         new thx.xml.TestEvent(),
+        new thx.xml.TestHaxeNativeXML(),
         new thx.xml.TestNode()
       ]);
   }
