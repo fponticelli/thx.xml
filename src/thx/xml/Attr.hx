@@ -18,6 +18,9 @@ class Attr {
   }
 
   // NON-STANDARD
+  public function toString() : String
+    return value;
+
   static public function equals(self : Attr, that : Attr) {
     return self.localName == that.localName &&
       self.value == that.value &&
