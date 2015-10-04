@@ -17,15 +17,15 @@ class Document extends Node {
   public var documentElement(default, null) : Null<Element>;
   public function getElementsByTagName(localName : DOMString) : HTMLCollection {
     // TODO getElementsByTagName
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : HTMLCollection {
     // TODO getElementsByTagNameNS
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function getElementsByClassName(classNames : DOMString) : HTMLCollection {
     // TODO getElementsByClassName
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   public function createElement(localName : DOMString) : Element {
@@ -65,7 +65,7 @@ class Document extends Node {
 
   public function importNode(node : Node, ?deep : Bool = false) : Node {
     // TODO importNode
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function adoptNode(node : Node) : Node {
     if(node.nodeType == DOCUMENT_NODE)
@@ -81,28 +81,28 @@ class Document extends Node {
 
   public function createEvent(interfaceName : DOMString) : Event {
     // TODO createEvent
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   public function createRange() : Range {
     // TODO createRange
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   // NodeFilter.SHOW_ALL = 0xFFFFFFFF
   public function createNodeIterator(root : Node, ?whatToShow : WhatToShow, ?filter : NodeFilter) : NodeIterator {
     // TODO createNodeIterator
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function createTreeWalker(root : Node, ?whatToShow : WhatToShow, ?filter : NodeFilter) : TreeWalker {
     // TODO createTreeWalker
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
 
   public function getElementById(id : String) : Null<Element> {
     // TODO getElementById
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   public var children(default, null) : HTMLCollection;
@@ -112,11 +112,11 @@ class Document extends Node {
 
   public function querySelector(selectors : DOMString) : Null<Element> {
     // TODO querySelector
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   var _baseURI : DOMString;

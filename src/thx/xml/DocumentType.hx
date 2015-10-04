@@ -10,7 +10,7 @@ class DocumentType
 
   public function remove() : Void {
     // TODO remove
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   function new(name : DOMString, publicId : DOMString, systemId : DOMString, ownerDocument : Document) {

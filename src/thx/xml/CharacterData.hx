@@ -11,27 +11,27 @@ class CharacterData
   public var length(default, null) : Int;
   public function substringData(offset : Int, count : Int) : DOMString {
     // TODO substringData
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function appendData(data : DOMString) : Void {
     // TODO appendData
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function insertData(offset : Int, data : DOMString) : Void {
     // TODO insertData
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function deleteData(offset : Int, count : Int) : Void {
     // TODO deleteData
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function replaceData(offset : Int, count : Int, data : DOMString) : Void {
     // TODO replaceData
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function remove() : Void {
     // TODO remove
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public var nextElementSibling : Null<Element>;
   public var previousElementSibling : Null<Element>;

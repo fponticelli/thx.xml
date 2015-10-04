@@ -30,40 +30,40 @@ class Element
   }
   // TODO setAttribute
   public function setAttribute(name : DOMString, value : DOMString) : Void {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO setAttributeNS
   public function setAttributeNS(namespace : Null<DOMString>, name : DOMString, value : DOMString) : Void {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO removeAttribute
   public function removeAttribute(name : DOMString) : Void {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO removeAttributeNS
   public function removeAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Void {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO hasAttribute
   public function hasAttribute(name : DOMString) : Bool {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO hasAttributeNS
   public function hasAttributeNS(namespace : Null<DOMString>, localName : DOMString) : Bool {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
 
   // TODO getElementsByTagName
   public function getElementsByTagName(localName : DOMString) : HTMLCollection {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO getElementsByTagNameNS
   public function getElementsByTagNameNS(namespace : Null<DOMString>, localName : DOMString) : HTMLCollection {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
   // TODO getElementsByClassName
   public function getElementsByClassName(classNames : DOMString) : HTMLCollection {
-    return throw 'not implemented';
+    return throw new thx.error.NotImplemented();
   }
 
   function new(localName : DOMString, prefix : Null<DOMString>, namespaceURI : Null<DOMString>,  ownerDocument : Document) {
@@ -82,7 +82,7 @@ class Element
 
   public function remove() : Void {
     // TODO remove
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public var nextElementSibling : Null<Element>;
   public var previousElementSibling : Null<Element>;
@@ -94,11 +94,11 @@ class Element
 
   public function querySelector(selectors : DOMString) : Null<Element> {
     // TODO querySelector
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   function locateNamespacePrefix(namespace : DOMString) : Null<DOMString> {

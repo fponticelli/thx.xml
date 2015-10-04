@@ -6,7 +6,7 @@ class DocumentFragment
   implements NonElementParentNode {
   public function getElementById(id : String) : Null<Element> {
     // TODO getElementById
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   public var children(default, null) : HTMLCollection;
@@ -16,11 +16,11 @@ class DocumentFragment
 
   public function querySelector(selectors : DOMString) : Null<Element> {
     // TODO querySelector
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
   public function querySelectorAll(selectors : DOMString) : NodeList {
     // TODO querySelectorAll
-    return throw "not implemented";
+    return throw new thx.error.NotImplemented();
   }
 
   function new(ownerDocument : Document) {
