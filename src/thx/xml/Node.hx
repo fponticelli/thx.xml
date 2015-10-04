@@ -107,9 +107,10 @@ class Node extends EventTarget {
     return defaultNamespace == namespace;
   }
 
+  // TODO override in subclasses
   public function insertBefore(node : Node, ?child : Null<Node>) : Node {
     // ensure pre-insertion validity
-    ensurePreInsertionValidity(this, node, child);
+    ensurePreInsertionValidity(node, child);
 
     // Let reference child be child
     var referenceChild = child;
@@ -118,8 +119,14 @@ class Node extends EventTarget {
     if(referenceChild == node)
       referenceChild = node.nextSibling;
 
+    trace(node.nodeType);
+    var doc : Document = switch this.nodeType {
+                case NodeType.DOCUMENT_NODE: cast this;
+                case _: ownerDocument;
+              };
+    trace(doc);
     // Adopt node into parent’s node document
-    adopt(ownerDocument, node);
+    adopt(doc, node);
 
     // Insert node into parent before reference child
     childNodesImpl.insertBefore(node, child);
@@ -134,32 +141,32 @@ class Node extends EventTarget {
     doc.adoptNode(node);
   }
 
-  static function ensurePreInsertionValidity(parent : Node, node : Node, ?child : Node) {
+  function ensurePreInsertionValidity(node : Node, ?child : Node, ?pos : haxe.PosInfos) {
     // TODO ensurePreInsertionValidity, move this to subclass
-    if(parent.nodeType != DOCUMENT_NODE &&
-       parent.nodeType != DOCUMENT_FRAGMENT_NODE &&
-       parent.nodeType != ELEMENT_NODE)
-      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
-    if(isHostIncludingInclusiveAncestor(node, parent))
-      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
-    if(null != child && child.parentNode != parent)
-      throw DOMException.fromCode(NOT_FOUND_ERR);
+    if(this.nodeType != DOCUMENT_NODE &&
+       this.nodeType != DOCUMENT_FRAGMENT_NODE &&
+       this.nodeType != ELEMENT_NODE)
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
+    if(isHostIncludingInclusiveAncestor(this, node))
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
+    if(null != child && child.parentNode != this)
+      throw DOMException.fromCode(NOT_FOUND_ERR, pos);
     if(node.nodeType != DOCUMENT_FRAGMENT_NODE &&
        node.nodeType != DOCUMENT_TYPE_NODE &&
        node.nodeType != ELEMENT_NODE &&
        node.nodeType != TEXT_NODE &&
        node.nodeType != PROCESSING_INSTRUCTION_NODE &&
        node.nodeType != COMMENT_NODE)
-      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
-    if((node.nodeType == TEXT_NODE && parent.nodeType == DOCUMENT_NODE) ||
-       (node.nodeType == DOCUMENT_TYPE_NODE && parent.nodeType != DOCUMENT_NODE))
-      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
-    if(parent.nodeType == DOCUMENT_NODE) {
-      var doc : Document = cast parent;
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
+    if((node.nodeType == TEXT_NODE && this.nodeType == DOCUMENT_NODE) ||
+       (node.nodeType == DOCUMENT_TYPE_NODE && this.nodeType != DOCUMENT_NODE))
+      throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
+    if(this.nodeType == DOCUMENT_NODE) {
+      var doc : Document = cast this;
       if(node.nodeType == DOCUMENT_FRAGMENT_NODE) {
         var frag : DocumentFragment = cast node;
         if(frag.childElementCount > 1 || frag.textContent != null) // TODO, or != ""? or it is not enough?
-          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
         if(frag.childElementCount == 1) {
           if(doc.documentElement != null || (null != child && child.nodeType == DOCUMENT_TYPE_NODE) // ||
           // TODO ensurePreInsertionValidity, child is not null and a doctype is following child
@@ -172,14 +179,14 @@ class Node extends EventTarget {
           //(null != child && )
           // TODO ensurePreInsertionValidity, child is not null and a doctype is following child
         )
-          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
       } else if(node.nodeType == DOCUMENT_TYPE_NODE) {
         if(doc.doctype != null)
-          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
         else if(child.previousSibling != null && child.previousSibling.nodeType == ELEMENT_NODE)
-          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
         else if(null == child && doc.documentElement != null)
-          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR);
+          throw DOMException.fromCode(HIERARCHY_REQUEST_ERR, pos);
       }
     }
   }
@@ -190,22 +197,22 @@ class Node extends EventTarget {
     return node;
   }
 
-  static function isAncestor(subject : Node, node : Node) {
+  static function isAncestor(ancestor : Node, node : Node) {
     while(node.parentNode != null) {
-      if(node.parentNode == subject)
+      if(node.parentNode == ancestor)
         return true;
       node = node.parentNode;
     }
     return false;
   }
 
-  static function isHostIncludingInclusiveAncestor(subject : Node, node : Node) {
-    return isInclusiveAncestor(subject, node) || true; // TODO isHostIncludingInclusiveAncestor, needs to implement the
+  static function isHostIncludingInclusiveAncestor(ancestor : Node, node : Node) {
+    return isInclusiveAncestor(ancestor, node) || false; // TODO isHostIncludingInclusiveAncestor, needs to implement the
     // second part of https://dom.spec.whatwg.org/#concept-tree-host-including-inclusive-ancestor
   }
 
-  static function isInclusiveAncestor(subject : Node, node : Node)
-    return subject == node || isAncestor(subject, node);
+  static function isInclusiveAncestor(ancestor : Node, node : Node)
+    return ancestor == node || isAncestor(ancestor, node);
 
   static function isDescendant(ancestor : Node, node : Node) {
     node = node.parentNode;
