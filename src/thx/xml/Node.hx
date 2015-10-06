@@ -269,7 +269,7 @@ class Node extends EventTarget {
     var index = childNodesImpl.indexOf(node);
     // TODO parentRemoveChild, operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove
 
-    // TODO parentRemoveChild, change NodeIteratos (step 6): https://dom.spec.whatwg.org/#concept-node-remove
+    // TODO parentRemoveChild, change NodeIterator (step 6): https://dom.spec.whatwg.org/#concept-node-remove
 
     var oldPreviousSibling = node.previousSibling;
     childNodesImpl.removeChild(node);

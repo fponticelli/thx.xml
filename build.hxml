@@ -7,3 +7,36 @@
 -main TestAll
 
 -cmd node bin/test.js
+
+thx.xml.Attr
+thx.xml.CharacterData
+thx.xml.ChildNode
+thx.xml.Comment
+thx.xml.CustomEvent
+thx.xml.Document
+thx.xml.DocumentFragment
+thx.xml.DOMException
+thx.xml.DOMImplementation
+thx.xml.DOMSettableTokenList
+thx.xml.DOMString
+thx.xml.DOMTimeStamp
+thx.xml.DOMTokenList
+thx.xml.Element
+thx.xml.Event
+thx.xml.EventTarget
+thx.xml.HTMLCollection
+thx.xml.MutationObserver
+thx.xml.MutationRecord
+thx.xml.Namespaces
+thx.xml.Node
+thx.xml.NodeFilter
+thx.xml.NodeIterator
+thx.xml.NodeList
+thx.xml.NonDocumentTypeChildNode
+thx.xml.NonElementParentNode
+thx.xml.ParentNode
+thx.xml.ProcessingInstruction
+thx.xml.Range
+thx.xml.Text
+thx.xml.TreeWalker
+thx.xml.XMLDocument
