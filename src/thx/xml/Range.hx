@@ -1,38 +1,78 @@
 package thx.xml;
 
-interface Range {
-  var startContainer(default, null) : Node;
-  var startOffset(default, null) : Int;
-  var endContainer(default, null) : Node;
-  var endOffset(default, null) : Int;
-  var collapsed(default, null) : Bool;
-  var commonAncestorContainer(default, null) : Node;
+class Range {
+  public var startContainer(default, null) : Node;
+  public var startOffset(default, null) : Int;
+  public var endContainer(default, null) : Node;
+  public var endOffset(default, null) : Int;
+  public var collapsed(default, null) : Bool;
+  public var commonAncestorContainer(default, null) : Node;
 
-  function setStart(node : Node, offset : Int) : Void;
-  function setEnd(node : Node, offset : Int) : Void;
-  function setStartBefore(node : Node) : Void;
-  function setStartAfter(node : Node) : Void;
-  function setEndBefore(node : Node) : Void;
-  function setEndAfter(node : Node) : Void;
-  function collapse(?toStart : Bool = false) : Void;
-  function selectNode(node : Node) : Void;
-  function selectNodeContents(node : Node) : Void;
+  public function setStart(node : Node, offset : Int) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function setEnd(node : Node, offset : Int) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function setStartBefore(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function setStartAfter(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function setEndBefore(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function setEndAfter(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function collapse(?toStart : Bool = false) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function selectNode(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function selectNodeContents(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
 
-  function compareBoundaryPoints(how : RangeHow, sourceRange : Range) : Int;
+  public function compareBoundaryPoints(how : RangeHow, sourceRange : Range) : Int {
+    return throw new thx.error.NotImplemented();
+  }
 
-  function deleteContents() : Void;
-  function extractContents() : DocumentFragment;
-  function cloneContents() : DocumentFragment;
-  function insertNode(node : Node) : Void;
-  function surroundContents(newParent : Node) : Void;
+  public function deleteContents() : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function extractContents() : DocumentFragment {
+    return throw new thx.error.NotImplemented();
+  }
+  public function cloneContents() : DocumentFragment {
+    return throw new thx.error.NotImplemented();
+  }
+  public function insertNode(node : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
+  public function surroundContents(newParent : Node) : Void {
+    return throw new thx.error.NotImplemented();
+  }
 
-  function cloneRange() : Range;
-  function detach() : Void;
+  public function cloneRange() : Range {
+    return throw new thx.error.NotImplemented();
+  }
+  public function detach() : Void {
+    return throw new thx.error.NotImplemented();
+  }
 
-  function isPointInRange(node : Node, offset : Int) : Bool;
-  function comparePoint(node : Node, offset : Int) : Int;
+  public function isPointInRange(node : Node, offset : Int) : Bool {
+    return throw new thx.error.NotImplemented();
+  }
+  public function comparePoint(node : Node, offset : Int) : Int {
+    return throw new thx.error.NotImplemented();
+  }
 
-  function intersectsNode(node : Node) : Bool;
+  public function intersectsNode(node : Node) : Bool {
+    return throw new thx.error.NotImplemented();
+  }
 
   // stringifier;
 }

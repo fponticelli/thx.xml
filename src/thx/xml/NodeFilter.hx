@@ -1,7 +1,9 @@
 package thx.xml;
 
-interface NodeFilter {
-  function acceptNode(node : Node) : NodeFilterAccept;
+class NodeFilter {
+  public function acceptNode(node : Node) : NodeFilterAccept {
+    return throw new thx.error.NotImplemented();
+  }
 }
 
 @:enum

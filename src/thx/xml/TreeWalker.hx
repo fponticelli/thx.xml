@@ -2,17 +2,31 @@ package thx.xml;
 
 import thx.xml.NodeFilter;
 
-interface TreeWalker {
-  var root(default, null) : Node;
-  var whatToShow(default, null) : WhatToShow;
-  var filter(default, null) : Null<NodeFilter>;
-  var currentNode : Node;
+class TreeWalker {
+  public var root(default, null) : Node;
+  public var whatToShow(default, null) : WhatToShow;
+  public var filter(default, null) : Null<NodeFilter>;
+  public var currentNode : Node;
 
-  function parentNode() : Null<Node>;
-  function firstChild() : Null<Node>;
-  function lastChild() : Null<Node>;
-  function previousSibling() : Null<Node>;
-  function nextSibling() : Null<Node>;
-  function previousNode() : Null<Node>;
-  function nextNode() : Null<Node>;
+  public function parentNode() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function firstChild() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function lastChild() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function previousSibling() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function nextSibling() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function previousNode() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function nextNode() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
 }

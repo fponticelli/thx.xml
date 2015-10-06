@@ -1,6 +1,6 @@
 package thx.xml;
 
-interface DOMSettableTokenList
+class DOMSettableTokenList
   extends DOMTokenList {
-  var value : String;
+  public var value : String;
 }

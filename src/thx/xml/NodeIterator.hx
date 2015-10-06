@@ -2,16 +2,22 @@ package thx.xml;
 
 import thx.xml.NodeFilter;
 
-interface NodeIterator {
+class NodeIterator {
   // [SameObject]
-  var root(default, null) : Node;
-  var referenceNode(default, null) : Node;
-  var pointerBeforeReferenceNode(default, null) : Bool;
-  var whatToShow(default, null) : WhatToShow;
-  var filter(default, null) : Null<NodeFilter>;
+  public var root(default, null) : Node;
+  public var referenceNode(default, null) : Node;
+  public var pointerBeforeReferenceNode(default, null) : Bool;
+  public var whatToShow(default, null) : WhatToShow;
+  public var filter(default, null) : Null<NodeFilter>;
 
-  function nextNode() : Null<Node>;
-  function previousNode() : Null<Node>;
+  public function nextNode() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
+  public function previousNode() : Null<Node> {
+    return throw new thx.error.NotImplemented();
+  }
 
-  function detach() : Void;
+  public function detach() : Void {
+    return throw new thx.error.NotImplemented();
+  }
 }

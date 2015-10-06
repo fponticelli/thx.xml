@@ -1,13 +1,13 @@
 package thx.xml;
 
-interface MutationRecord {
-  var type(default, null) : DOMString;
-  var target(default, null) : Node;
-  var addedNodes(default, null) : NodeList;
-  var removedNodes(default, null) : NodeList;
-  var previousSibling(default, null) : Null<Node>;
-  var nextSibling(default, null) : Null<Node>;
-  var attributeName(default, null) : Null<DOMString>;
-  var attributeNamespace(default, null) : Null<DOMString>;
-  var oldValue(default, null) : Null<DOMString>;
+class MutationRecord {
+  public var type(default, null) : DOMString;
+  public var target(default, null) : Node;
+  public var addedNodes(default, null) : NodeList;
+  public var removedNodes(default, null) : NodeList;
+  public var previousSibling(default, null) : Null<Node>;
+  public var nextSibling(default, null) : Null<Node>;
+  public var attributeName(default, null) : Null<DOMString>;
+  public var attributeNamespace(default, null) : Null<DOMString>;
+  public var oldValue(default, null) : Null<DOMString>;
 }
