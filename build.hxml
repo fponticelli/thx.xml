@@ -40,3 +40,6 @@ thx.xml.Range
 thx.xml.Text
 thx.xml.TreeWalker
 thx.xml.XMLDocument
+
+thx.xml.io.XMLReader
+thx.xml.io.XMLWriter
