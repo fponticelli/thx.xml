@@ -1,6 +1,6 @@
 package thx.xml;
 
-@:forward(length)
+@:forward(length, iterator)
 abstract NodeList(NodeListImpl) from NodeListImpl to NodeListImpl {
   @:arrayAccess
   inline public function item(index : Int) : Null<Node>
@@ -38,6 +38,7 @@ class NodeListImpl {
   public function indexOf(node : Node)
     return items.indexOf(node);
 
-  public function iterator()
+  // NOT STANDARD
+  public function iterator() : Iterator<Node>
     return items.iterator();
 }

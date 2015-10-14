@@ -265,6 +265,10 @@ class Node extends EventTarget {
   }
 
   // NON-STANDARD
+  public function toString() {
+    return thx.xml.io.XMLWriter.nodeToBytes(this).toString();
+  }
+
   function parentRemoveChild(node : Node, ?suppressObservers = false) {
     var index = childNodesImpl.indexOf(node);
     // TODO parentRemoveChild, operate on ranges (steps 2 to 5): https://dom.spec.whatwg.org/#concept-node-remove

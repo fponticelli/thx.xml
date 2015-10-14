@@ -120,7 +120,7 @@ class Document extends Node {
   }
 
   var _baseURI : DOMString;
-  function new(baseURI : DOMString) {
+  public function new(?baseURI : DOMString) {
     _baseURI = baseURI;
     super(DOCUMENT_NODE, "#document", null);
   }
