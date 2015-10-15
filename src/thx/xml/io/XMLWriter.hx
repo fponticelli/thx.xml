@@ -14,8 +14,17 @@ class XMLWriter {
   }
 
   var stream : Output;
-  public function new(stream : Output) {
+  var line : Int = 0;
+  var pos : Int = 0;
+  var level : Int = 0;
+  var indentChar : String;
+  var indentLength : Int;
+  var oneIndent : String;
+  public function new(stream : Output, indentChar : String = " ", indentLength : Int = 2) {
     this.stream = stream;
+    this.indentChar = indentChar;
+    this.indentLength = indentLength;
+    this.oneIndent = indentChar.repeat(indentLength);
   }
 
   public function writeCharacterData(cd : CharacterData) {
@@ -82,7 +91,19 @@ class XMLWriter {
     write('"');
   }
 
+  function indent() {
+    for(i in 0...level)
+      write(oneIndent);
+  }
+
   function write(s : String) {
+    pos += s.length;
     stream.writeString(s);
+  }
+
+  function newline() {
+    stream.writeString("\n");
+    line++;
+    pos = 0;
   }
 }

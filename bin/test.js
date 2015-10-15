@@ -2947,6 +2947,8 @@ var thx_Nil = { __ename__ : ["thx","Nil"], __constructs__ : ["nil"] };
 thx_Nil.nil = ["nil",0];
 thx_Nil.nil.toString = $estr;
 thx_Nil.nil.__enum__ = thx_Nil;
+var thx_Nulls = function() { };
+thx_Nulls.__name__ = ["thx","Nulls"];
 var thx_Objects = function() { };
 thx_Objects.__name__ = ["thx","Objects"];
 thx_Objects.compare = function(a,b) {
@@ -4945,7 +4947,6 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	,localName: null
 	,tagName: null
 	,id: null
-	,className: null
 	,classList: null
 	,attributes: null
 	,_attributes: null
@@ -4972,7 +4973,7 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 		if(null != attr) HxOverrides.remove(this._attributes,attr);
 	}
 	,removeAttributeNS: function($namespace,localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 74, className : "thx.xml.Element", methodName : "removeAttributeNS"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 75, className : "thx.xml.Element", methodName : "removeAttributeNS"});
 		return;
 	}
 	,hasAttribute: function(name) {
@@ -4982,16 +4983,16 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 		return this.getAttributeObjNS($namespace,localName) != null;
 	}
 	,getElementsByTagName: function(localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 85, className : "thx.xml.Element", methodName : "getElementsByTagName"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 86, className : "thx.xml.Element", methodName : "getElementsByTagName"});
 	}
 	,getElementsByTagNameNS: function($namespace,localName) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 89, className : "thx.xml.Element", methodName : "getElementsByTagNameNS"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 90, className : "thx.xml.Element", methodName : "getElementsByTagNameNS"});
 	}
 	,getElementsByClassName: function(classNames) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 93, className : "thx.xml.Element", methodName : "getElementsByClassName"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 94, className : "thx.xml.Element", methodName : "getElementsByClassName"});
 	}
 	,remove: function() {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 112, className : "thx.xml.Element", methodName : "remove"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 113, className : "thx.xml.Element", methodName : "remove"});
 		return;
 	}
 	,nextElementSibling: null
@@ -5001,10 +5002,10 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 	,lastElementChild: null
 	,childElementCount: null
 	,querySelector: function(selectors) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 124, className : "thx.xml.Element", methodName : "querySelector"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 125, className : "thx.xml.Element", methodName : "querySelector"});
 	}
 	,querySelectorAll: function(selectors) {
-		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 128, className : "thx.xml.Element", methodName : "querySelectorAll"});
+		throw new thx_error_NotImplemented({ fileName : "Element.hx", lineNumber : 129, className : "thx.xml.Element", methodName : "querySelectorAll"});
 	}
 	,getAttributeObj: function(name) {
 		var $it0 = HxOverrides.iter(this.attributes);
@@ -5039,6 +5040,17 @@ thx_xml_Element.prototype = $extend(thx_xml_Node.prototype,{
 			if(!this.childNodes.item(i).isEqualNode(otherElement.childNodes.item(i))) return false;
 		}
 		return true;
+	}
+	,get_className: function() {
+		var t;
+		var _0 = this;
+		var _1;
+		if(null == _0) t = null; else if(null == (_1 = _0.getAttribute("class"))) t = null; else t = _1;
+		if(t != null) return t; else return "";
+	}
+	,set_className: function(value) {
+		this.setAttribute("class",value);
+		return value;
 	}
 	,__class__: thx_xml_Element
 });
@@ -5383,7 +5395,7 @@ thx_xml_TestXMLWriter.prototype = {
 	}
 	,testElementToString: function() {
 		var el = this.doc.createElement("a");
-		el.className = "custom-class";
+		el.set_className("custom-class");
 		el.setAttribute("href","http://google.com/");
 		el.setAttribute("target","_blank");
 		var text = this.doc.createTextNode("link it good");
@@ -5475,8 +5487,16 @@ thx_xml_io_XMLReader.__name__ = ["thx","xml","io","XMLReader"];
 thx_xml_io_XMLReader.prototype = {
 	__class__: thx_xml_io_XMLReader
 };
-var thx_xml_io_XMLWriter = function(stream) {
+var thx_xml_io_XMLWriter = function(stream,indentChar,indentLength) {
+	if(indentLength == null) indentLength = 2;
+	if(indentChar == null) indentChar = " ";
+	this.level = 0;
+	this.pos = 0;
+	this.line = 0;
 	this.stream = stream;
+	this.indentChar = indentChar;
+	this.indentLength = indentLength;
+	this.oneIndent = thx_Strings.repeat(indentChar,indentLength);
 };
 thx_xml_io_XMLWriter.__name__ = ["thx","xml","io","XMLWriter"];
 thx_xml_io_XMLWriter.nodeToBytes = function(node) {
@@ -5487,6 +5507,12 @@ thx_xml_io_XMLWriter.nodeToBytes = function(node) {
 };
 thx_xml_io_XMLWriter.prototype = {
 	stream: null
+	,line: null
+	,pos: null
+	,level: null
+	,indentChar: null
+	,indentLength: null
+	,oneIndent: null
 	,writeCharacterData: function(cd) {
 	}
 	,writeComment: function(comment) {
@@ -5536,7 +5562,7 @@ thx_xml_io_XMLWriter.prototype = {
 			throw new js__$Boot_HaxeError("not implemented yet");
 			break;
 		default:
-			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 69, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
+			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 78, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
 		}
 	}
 	,writeText: function(text) {
@@ -5549,8 +5575,22 @@ thx_xml_io_XMLWriter.prototype = {
 		this.write(StringTools.htmlEscape(attr.value,true));
 		this.write("\"");
 	}
+	,indent: function() {
+		var _g1 = 0;
+		var _g = this.level;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this.write(this.oneIndent);
+		}
+	}
 	,write: function(s) {
+		this.pos += s.length;
 		this.stream.writeString(s);
+	}
+	,newline: function() {
+		this.stream.writeString("\n");
+		this.line++;
+		this.pos = 0;
 	}
 	,__class__: thx_xml_io_XMLWriter
 };
