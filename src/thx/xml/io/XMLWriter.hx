@@ -44,8 +44,11 @@ class XMLWriter {
   }
 
   public function writeElement(el : Element) {
-    // TODO add prefix
-    write('<${el.localName}');
+    write('<');
+    if(currentPrefix != el.prefix && el.prefix != null)
+      write('${el.prefix}:');
+    currentPrefix = el.prefix;
+    write(el.localName);
     for(attr in el.attributes) {
       write(' ');
       writeAttribute(attr);
