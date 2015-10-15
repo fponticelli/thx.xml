@@ -3950,7 +3950,7 @@ thx_xml_Attr.prototype = {
 	,prefix: null
 	,specified: null
 	,toString: function() {
-		return this.value;
+		return thx_xml_io_XMLWriter.attrToBytes(this).toString();
 	}
 	,__class__: thx_xml_Attr
 };
@@ -5497,12 +5497,19 @@ var thx_xml_io_XMLWriter = function(stream,indentChar,indentLength) {
 	this.indentChar = indentChar;
 	this.indentLength = indentLength;
 	this.oneIndent = thx_Strings.repeat(indentChar,indentLength);
+	this.currentPrefix = null;
 };
 thx_xml_io_XMLWriter.__name__ = ["thx","xml","io","XMLWriter"];
 thx_xml_io_XMLWriter.nodeToBytes = function(node) {
 	var buffer = new haxe_io_BytesOutput();
 	var writer = new thx_xml_io_XMLWriter(buffer);
 	writer.writeNode(node);
+	return buffer.getBytes();
+};
+thx_xml_io_XMLWriter.attrToBytes = function(attr) {
+	var buffer = new haxe_io_BytesOutput();
+	var writer = new thx_xml_io_XMLWriter(buffer);
+	writer.writeAttribute(attr);
 	return buffer.getBytes();
 };
 thx_xml_io_XMLWriter.prototype = {
@@ -5513,6 +5520,7 @@ thx_xml_io_XMLWriter.prototype = {
 	,indentChar: null
 	,indentLength: null
 	,oneIndent: null
+	,currentPrefix: null
 	,writeCharacterData: function(cd) {
 	}
 	,writeComment: function(comment) {
@@ -5522,7 +5530,10 @@ thx_xml_io_XMLWriter.prototype = {
 	,writeDocumentType: function(docType) {
 	}
 	,writeElement: function(el) {
-		this.write("<" + el.localName);
+		this.write("<");
+		if(this.currentPrefix != el.prefix && el.prefix != null) this.write("" + el.prefix + ":");
+		this.currentPrefix = el.prefix;
+		this.write(el.localName);
 		var $it0 = HxOverrides.iter(el.attributes);
 		while( $it0.hasNext() ) {
 			var attr = $it0.next();
@@ -5562,7 +5573,7 @@ thx_xml_io_XMLWriter.prototype = {
 			throw new js__$Boot_HaxeError("not implemented yet");
 			break;
 		default:
-			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 78, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
+			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 90, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
 		}
 	}
 	,writeText: function(text) {

@@ -19,7 +19,7 @@ class Attr {
 
   // NON-STANDARD
   public function toString() : String
-    return value;
+    return thx.xml.io.XMLWriter.attrToBytes(this).toString();
 
   static public function equals(self : Attr, that : Attr) {
     return self.localName == that.localName &&

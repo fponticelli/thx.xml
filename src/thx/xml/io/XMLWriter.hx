@@ -13,6 +13,13 @@ class XMLWriter {
     return buffer.getBytes();
   }
 
+  public static function attrToBytes(attr : Attr) : Bytes {
+    var buffer = new haxe.io.BytesOutput();
+    var writer = new XMLWriter(buffer);
+    writer.writeAttribute(attr);
+    return buffer.getBytes();
+  }
+
   var stream : Output;
   var line : Int = 0;
   var pos : Int = 0;
@@ -20,11 +27,13 @@ class XMLWriter {
   var indentChar : String;
   var indentLength : Int;
   var oneIndent : String;
+  var currentPrefix : String;
   public function new(stream : Output, indentChar : String = " ", indentLength : Int = 2) {
     this.stream = stream;
     this.indentChar = indentChar;
     this.indentLength = indentLength;
     this.oneIndent = indentChar.repeat(indentLength);
+    this.currentPrefix = null;
   }
 
   public function writeCharacterData(cd : CharacterData) {
