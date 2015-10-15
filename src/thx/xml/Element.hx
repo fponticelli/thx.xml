@@ -2,6 +2,7 @@ package thx.xml;
 
 import thx.ReadonlyArray;
 import thx.xml.Node.NodeType;
+using thx.Nulls;
 
 class Element
     extends Node
@@ -14,7 +15,7 @@ class Element
   public var tagName(default, null) : DOMString;
 
   public var id : DOMString;
-  public var className : DOMString;
+  public var className(get, set) : DOMString;
   // [SameObject]
   public var classList(default, null) : DOMTokenList;
 
@@ -171,5 +172,13 @@ class Element
       if(!childNodes[i].isEqualNode(otherElement.childNodes[i]))
         return false;
     return true;
+  }
+
+  function get_className()
+    return getAttribute("class").or("");
+
+  function set_className(value : String) {
+    setAttribute("class", value);
+    return value;
   }
 }
