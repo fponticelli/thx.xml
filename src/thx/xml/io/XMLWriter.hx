@@ -48,6 +48,17 @@ class XMLWriter {
 
   }
 
+  public function writeDocumentFragment(doc : DocumentFragment) {
+
+  }
+
+  public function writeProcessingInstruction(pi : ProcessingInstruction) {
+    write('<?${pi.target}');
+    if(pi.data != "")
+      write(' ${pi.data}');
+    write('?>');
+  }
+
   public function writeDocumentType(docType : DocumentType) {
     write('<!DOCTYPE ');
     write(docType.name);
@@ -86,7 +97,7 @@ class XMLWriter {
       case TEXT_NODE:
         writeText(cast node);
       case PROCESSING_INSTRUCTION_NODE:
-        throw 'not implemented yet';
+        writeProcessingInstruction(cast node);
       case COMMENT_NODE:
         writeComment(cast node);
       case DOCUMENT_NODE:
@@ -94,7 +105,7 @@ class XMLWriter {
       case DOCUMENT_TYPE_NODE:
         writeDocumentType(cast node);
       case DOCUMENT_FRAGMENT_NODE:
-        throw 'not implemented yet';
+        writeDocumentFragment(cast node);
       case _:
         throw new Error('unsupported node type ${node.nodeType}');
     };
