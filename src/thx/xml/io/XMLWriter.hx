@@ -5,6 +5,7 @@ import haxe.io.Output;
 import thx.xml.*;
 using thx.Strings;
 
+// TODO prettify output
 class XMLWriter {
   public static function nodeToBytes(node : Node) : Bytes {
     var buffer = new haxe.io.BytesOutput();
@@ -37,7 +38,7 @@ class XMLWriter {
   }
 
   public function writeCharacterData(cd : CharacterData) {
-
+    write('<![CDATA[${cd.data}]]');
   }
 
   public function writeComment(comment : Comment) {
@@ -45,11 +46,13 @@ class XMLWriter {
   }
 
   public function writeDocument(doc : Document) {
-
+    for(node in doc.childNodes)
+      writeNode(node);
   }
 
   public function writeDocumentFragment(doc : DocumentFragment) {
-
+    for(node in doc.childNodes)
+      writeNode(node);
   }
 
   public function writeProcessingInstruction(pi : ProcessingInstruction) {
@@ -98,6 +101,8 @@ class XMLWriter {
         writeText(cast node);
       case PROCESSING_INSTRUCTION_NODE:
         writeProcessingInstruction(cast node);
+      case CDATA_SECTION_NODE:
+        writeCharacterData(cast node);
       case COMMENT_NODE:
         writeComment(cast node);
       case DOCUMENT_NODE:

@@ -5543,11 +5543,29 @@ thx_xml_io_XMLWriter.prototype = {
 	,oneIndent: null
 	,currentPrefix: null
 	,writeCharacterData: function(cd) {
+		this.write("<![CDATA[" + cd.data + "]]");
 	}
 	,writeComment: function(comment) {
 		this.write("<!--" + comment.data + "-->");
 	}
 	,writeDocument: function(doc) {
+		var $it0 = doc.childNodes.iterator();
+		while( $it0.hasNext() ) {
+			var node = $it0.next();
+			this.writeNode(node);
+		}
+	}
+	,writeDocumentFragment: function(doc) {
+		var $it0 = doc.childNodes.iterator();
+		while( $it0.hasNext() ) {
+			var node = $it0.next();
+			this.writeNode(node);
+		}
+	}
+	,writeProcessingInstruction: function(pi) {
+		this.write("<?" + pi.target);
+		if(pi.data != "") this.write(" " + pi.data);
+		this.write("?>");
 	}
 	,writeDocumentType: function(docType) {
 		this.write("<!DOCTYPE ");
@@ -5587,7 +5605,10 @@ thx_xml_io_XMLWriter.prototype = {
 			this.writeText(node);
 			break;
 		case 7:
-			throw new js__$Boot_HaxeError("not implemented yet");
+			this.writeProcessingInstruction(node);
+			break;
+		case 4:
+			this.writeCharacterData(node);
 			break;
 		case 8:
 			this.writeComment(node);
@@ -5599,10 +5620,10 @@ thx_xml_io_XMLWriter.prototype = {
 			this.writeDocumentType(node);
 			break;
 		case 11:
-			throw new js__$Boot_HaxeError("not implemented yet");
+			this.writeDocumentFragment(node);
 			break;
 		default:
-			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 99, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
+			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 114, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
 		}
 	}
 	,writeText: function(text) {
