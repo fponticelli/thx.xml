@@ -45,15 +45,13 @@ class XMLWriter {
     write('<!--${comment.data}-->');
   }
 
-  public function writeDocument(doc : Document) {
+  public function writeDocument(doc : Document)
     for(node in doc.childNodes)
       writeNode(node);
-  }
 
-  public function writeDocumentFragment(doc : DocumentFragment) {
+  public function writeDocumentFragment(doc : DocumentFragment)
     for(node in doc.childNodes)
       writeNode(node);
-  }
 
   public function writeProcessingInstruction(pi : ProcessingInstruction) {
     write('<?${pi.target}');

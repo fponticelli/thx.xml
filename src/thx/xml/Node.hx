@@ -119,12 +119,11 @@ class Node extends EventTarget {
     if(referenceChild == node)
       referenceChild = node.nextSibling;
 
-    trace(node.nodeType);
     var doc : Document = switch this.nodeType {
                 case NodeType.DOCUMENT_NODE: cast this;
                 case _: ownerDocument;
               };
-    trace(doc);
+
     // Adopt node into parent’s node document
     adopt(doc, node);
 
