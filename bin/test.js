@@ -4224,6 +4224,8 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		haxe_Log.trace(doc,{ fileName : "Node.hx", lineNumber : 127, className : "thx.xml.Node", methodName : "insertBefore"});
 		thx_xml_Node.adopt(doc,node);
 		this.childNodesImpl.insertBefore(node,child);
+		if(null == this.firstChild) this.firstChild = node;
+		if(null == this.lastChild || null == child) this.lastChild = node;
 		return node;
 	}
 	,ensurePreInsertionValidity: function(node,child,pos) {
@@ -4238,7 +4240,7 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 				var frag = node;
 				if(frag.childElementCount > 1 || frag.textContent != null) throw thx_xml_DOMException.fromCode(3,null,null,pos);
 				if(frag.childElementCount == 1) {
-					if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 174, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+					if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 181, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 				}
 			} else if(node.nodeType == 1) {
 				if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,pos);
@@ -4257,7 +4259,7 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,removeChild: function(child) {
-		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 262, className : "thx.xml.Node", methodName : "removeChild"});
+		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 269, className : "thx.xml.Node", methodName : "removeChild"});
 		this.parentRemoveChild(child);
 		return child;
 	}
@@ -5565,13 +5567,15 @@ thx_xml_io_XMLWriter.prototype = {
 			this.write(" ");
 			this.writeAttribute(attr);
 		}
-		this.write(">");
-		var $it1 = el.childNodes.iterator();
-		while( $it1.hasNext() ) {
-			var node = $it1.next();
-			this.writeNode(node);
+		if(el.firstChild == null) this.write("/>"); else {
+			this.write(">");
+			var $it1 = el.childNodes.iterator();
+			while( $it1.hasNext() ) {
+				var node = $it1.next();
+				this.writeNode(node);
+			}
+			this.write("</" + el.localName + ">");
 		}
-		this.write("</" + el.localName + ">");
 	}
 	,writeNode: function(node) {
 		var _g = node.nodeType;
@@ -5598,7 +5602,7 @@ thx_xml_io_XMLWriter.prototype = {
 			throw new js__$Boot_HaxeError("not implemented yet");
 			break;
 		default:
-			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 96, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
+			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 99, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
 		}
 	}
 	,writeText: function(text) {

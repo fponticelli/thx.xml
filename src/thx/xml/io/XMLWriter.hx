@@ -69,11 +69,14 @@ class XMLWriter {
       writeAttribute(attr);
     }
 
-    write('>');
-    for(node in el.childNodes)
-      writeNode(node);
-
-    write('</${el.localName}>');
+    if(el.firstChild == null) {
+      write('/>');
+    } else {
+      write('>');
+      for(node in el.childNodes)
+        writeNode(node);
+      write('</${el.localName}>');
+    }
   }
 
   public function writeNode(node : Node)
