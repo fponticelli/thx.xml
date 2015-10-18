@@ -131,6 +131,13 @@ class Node extends EventTarget {
     // Insert node into parent before reference child
     childNodesImpl.insertBefore(node, child);
 
+    // custom TODO: check
+    if(null == firstChild)
+      firstChild = node;
+
+    if(null == lastChild || null == child)
+      lastChild = node;
+
     // Return node
     return node;
   }
