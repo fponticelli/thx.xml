@@ -80,7 +80,7 @@ class EventTarget {
   }
 
   function setEventTarget(event : thx.xml.Event) {
-    // TODOsetEventTarget,  add override
+    // TODO setEventTarget,  add override
     event.target = this;
   }
 
