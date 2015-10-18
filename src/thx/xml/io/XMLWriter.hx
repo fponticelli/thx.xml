@@ -49,7 +49,13 @@ class XMLWriter {
   }
 
   public function writeDocumentType(docType : DocumentType) {
-
+    write('<!DOCTYPE ');
+    write(docType.name);
+    if(docType.publicId != "")
+      write(' PUBLIC "${docType.publicId}"');
+    if(docType.systemId != "")
+      write(' SYSTEM "${docType.systemId}"');
+    write('>');
   }
 
   public function writeElement(el : Element) {

@@ -15,8 +15,8 @@ class DocumentType
 
   function new(name : DOMString, publicId : DOMString, systemId : DOMString, ownerDocument : Document) {
     this.name = name;
-    this.publicId = publicId;
-    this.systemId = systemId;
+    this.publicId = null == publicId ? "" : publicId;
+    this.systemId = null == systemId ? "" : systemId;
     super(DOCUMENT_TYPE_NODE, name, ownerDocument);
   }
 
