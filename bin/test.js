@@ -300,6 +300,9 @@ StringBuf.prototype = {
 	,add: function(x) {
 		this.b += Std.string(x);
 	}
+	,addSub: function(s,pos,len) {
+		if(len == null) this.b += HxOverrides.substr(s,pos,null); else this.b += HxOverrides.substr(s,pos,len);
+	}
 	,__class__: StringBuf
 };
 var StringTools = function() { };
@@ -447,17 +450,72 @@ Type.enumParameters = function(e) {
 Type.enumIndex = function(e) {
 	return e[1];
 };
-var Xml = function() { };
+var Xml = function(nodeType) {
+	this.nodeType = nodeType;
+	this.children = [];
+	this.attributeMap = new haxe_ds_StringMap();
+};
 Xml.__name__ = ["Xml"];
+Xml.parse = function(str) {
+	return haxe_xml_Parser.parse(str);
+};
+Xml.createElement = function(name) {
+	var xml = new Xml(Xml.Element);
+	if(xml.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + xml.nodeType);
+	xml.nodeName = name;
+	return xml;
+};
+Xml.createPCData = function(data) {
+	var xml = new Xml(Xml.PCData);
+	if(xml.nodeType == Xml.Document || xml.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + xml.nodeType);
+	xml.nodeValue = data;
+	return xml;
+};
+Xml.createCData = function(data) {
+	var xml = new Xml(Xml.CData);
+	if(xml.nodeType == Xml.Document || xml.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + xml.nodeType);
+	xml.nodeValue = data;
+	return xml;
+};
+Xml.createComment = function(data) {
+	var xml = new Xml(Xml.Comment);
+	if(xml.nodeType == Xml.Document || xml.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + xml.nodeType);
+	xml.nodeValue = data;
+	return xml;
+};
+Xml.createDocType = function(data) {
+	var xml = new Xml(Xml.DocType);
+	if(xml.nodeType == Xml.Document || xml.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + xml.nodeType);
+	xml.nodeValue = data;
+	return xml;
+};
+Xml.createProcessingInstruction = function(data) {
+	var xml = new Xml(Xml.ProcessingInstruction);
+	if(xml.nodeType == Xml.Document || xml.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + xml.nodeType);
+	xml.nodeValue = data;
+	return xml;
+};
+Xml.createDocument = function() {
+	return new Xml(Xml.Document);
+};
 Xml.prototype = {
 	nodeType: null
 	,nodeName: null
 	,nodeValue: null
+	,parent: null
 	,children: null
 	,attributeMap: null
 	,get: function(att) {
 		if(this.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + this.nodeType);
 		return this.attributeMap.get(att);
+	}
+	,set: function(att,value) {
+		if(this.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + this.nodeType);
+		this.attributeMap.set(att,value);
+	}
+	,exists: function(att) {
+		if(this.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + this.nodeType);
+		return this.attributeMap.exists(att);
 	}
 	,attributes: function() {
 		if(this.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + this.nodeType);
@@ -473,6 +531,20 @@ Xml.prototype = {
 			if(child.nodeType == Xml.Element) return child;
 		}
 		return null;
+	}
+	,addChild: function(x) {
+		if(this.nodeType != Xml.Document && this.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + this.nodeType);
+		if(x.parent != null) x.parent.removeChild(x);
+		this.children.push(x);
+		x.parent = this;
+	}
+	,removeChild: function(x) {
+		if(this.nodeType != Xml.Document && this.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + this.nodeType);
+		if(HxOverrides.remove(this.children,x)) {
+			x.parent = null;
+			return true;
+		}
+		return false;
 	}
 	,__class__: Xml
 };
@@ -856,6 +928,477 @@ haxe_io_Error.OutsideBounds = ["OutsideBounds",2];
 haxe_io_Error.OutsideBounds.toString = $estr;
 haxe_io_Error.OutsideBounds.__enum__ = haxe_io_Error;
 haxe_io_Error.Custom = function(e) { var $x = ["Custom",3,e]; $x.__enum__ = haxe_io_Error; $x.toString = $estr; return $x; };
+var haxe_xml_Parser = function() { };
+haxe_xml_Parser.__name__ = ["haxe","xml","Parser"];
+haxe_xml_Parser.parse = function(str,strict) {
+	if(strict == null) strict = false;
+	var doc = Xml.createDocument();
+	haxe_xml_Parser.doParse(str,strict,0,doc);
+	return doc;
+};
+haxe_xml_Parser.doParse = function(str,strict,p,parent) {
+	if(p == null) p = 0;
+	var xml = null;
+	var state = 1;
+	var next = 1;
+	var aname = null;
+	var start = 0;
+	var nsubs = 0;
+	var nbrackets = 0;
+	var c = str.charCodeAt(p);
+	var buf = new StringBuf();
+	var escapeNext = 1;
+	var attrValQuote = -1;
+	while(!(c != c)) {
+		switch(state) {
+		case 0:
+			switch(c) {
+			case 10:case 13:case 9:case 32:
+				break;
+			default:
+				state = next;
+				continue;
+			}
+			break;
+		case 1:
+			switch(c) {
+			case 60:
+				state = 0;
+				next = 2;
+				break;
+			default:
+				start = p;
+				state = 13;
+				continue;
+			}
+			break;
+		case 13:
+			if(c == 60) {
+				buf.addSub(str,start,p - start);
+				var child = Xml.createPCData(buf.b);
+				buf = new StringBuf();
+				parent.addChild(child);
+				nsubs++;
+				state = 0;
+				next = 2;
+			} else if(c == 38) {
+				buf.addSub(str,start,p - start);
+				state = 18;
+				escapeNext = 13;
+				start = p + 1;
+			}
+			break;
+		case 17:
+			if(c == 93 && str.charCodeAt(p + 1) == 93 && str.charCodeAt(p + 2) == 62) {
+				var child1 = Xml.createCData(HxOverrides.substr(str,start,p - start));
+				parent.addChild(child1);
+				nsubs++;
+				p += 2;
+				state = 1;
+			}
+			break;
+		case 2:
+			switch(c) {
+			case 33:
+				if(str.charCodeAt(p + 1) == 91) {
+					p += 2;
+					if(HxOverrides.substr(str,p,6).toUpperCase() != "CDATA[") throw new js__$Boot_HaxeError("Expected <![CDATA[");
+					p += 5;
+					state = 17;
+					start = p + 1;
+				} else if(str.charCodeAt(p + 1) == 68 || str.charCodeAt(p + 1) == 100) {
+					if(HxOverrides.substr(str,p + 2,6).toUpperCase() != "OCTYPE") throw new js__$Boot_HaxeError("Expected <!DOCTYPE");
+					p += 8;
+					state = 16;
+					start = p + 1;
+				} else if(str.charCodeAt(p + 1) != 45 || str.charCodeAt(p + 2) != 45) throw new js__$Boot_HaxeError("Expected <!--"); else {
+					p += 2;
+					state = 15;
+					start = p + 1;
+				}
+				break;
+			case 63:
+				state = 14;
+				start = p;
+				break;
+			case 47:
+				if(parent == null) throw new js__$Boot_HaxeError("Expected node name");
+				start = p + 1;
+				state = 0;
+				next = 10;
+				break;
+			default:
+				state = 3;
+				start = p;
+				continue;
+			}
+			break;
+		case 3:
+			if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45)) {
+				if(p == start) throw new js__$Boot_HaxeError("Expected node name");
+				xml = Xml.createElement(HxOverrides.substr(str,start,p - start));
+				parent.addChild(xml);
+				nsubs++;
+				state = 0;
+				next = 4;
+				continue;
+			}
+			break;
+		case 4:
+			switch(c) {
+			case 47:
+				state = 11;
+				break;
+			case 62:
+				state = 9;
+				break;
+			default:
+				state = 5;
+				start = p;
+				continue;
+			}
+			break;
+		case 5:
+			if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45)) {
+				var tmp;
+				if(start == p) throw new js__$Boot_HaxeError("Expected attribute name");
+				tmp = HxOverrides.substr(str,start,p - start);
+				aname = tmp;
+				if(xml.exists(aname)) throw new js__$Boot_HaxeError("Duplicate attribute");
+				state = 0;
+				next = 6;
+				continue;
+			}
+			break;
+		case 6:
+			switch(c) {
+			case 61:
+				state = 0;
+				next = 7;
+				break;
+			default:
+				throw new js__$Boot_HaxeError("Expected =");
+			}
+			break;
+		case 7:
+			switch(c) {
+			case 34:case 39:
+				buf = new StringBuf();
+				state = 8;
+				start = p + 1;
+				attrValQuote = c;
+				break;
+			default:
+				throw new js__$Boot_HaxeError("Expected \"");
+			}
+			break;
+		case 8:
+			switch(c) {
+			case 38:
+				buf.addSub(str,start,p - start);
+				state = 18;
+				escapeNext = 8;
+				start = p + 1;
+				break;
+			case 62:
+				if(strict) throw new js__$Boot_HaxeError("Invalid unescaped " + String.fromCharCode(c) + " in attribute value"); else if(c == attrValQuote) {
+					buf.addSub(str,start,p - start);
+					var val = buf.b;
+					buf = new StringBuf();
+					xml.set(aname,val);
+					state = 0;
+					next = 4;
+				}
+				break;
+			case 60:
+				if(strict) throw new js__$Boot_HaxeError("Invalid unescaped " + String.fromCharCode(c) + " in attribute value"); else if(c == attrValQuote) {
+					buf.addSub(str,start,p - start);
+					var val1 = buf.b;
+					buf = new StringBuf();
+					xml.set(aname,val1);
+					state = 0;
+					next = 4;
+				}
+				break;
+			default:
+				if(c == attrValQuote) {
+					buf.addSub(str,start,p - start);
+					var val2 = buf.b;
+					buf = new StringBuf();
+					xml.set(aname,val2);
+					state = 0;
+					next = 4;
+				}
+			}
+			break;
+		case 9:
+			p = haxe_xml_Parser.doParse(str,strict,p,xml);
+			start = p;
+			state = 1;
+			break;
+		case 11:
+			switch(c) {
+			case 62:
+				state = 1;
+				break;
+			default:
+				throw new js__$Boot_HaxeError("Expected >");
+			}
+			break;
+		case 12:
+			switch(c) {
+			case 62:
+				if(nsubs == 0) parent.addChild(Xml.createPCData(""));
+				return p;
+			default:
+				throw new js__$Boot_HaxeError("Expected >");
+			}
+			break;
+		case 10:
+			if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45)) {
+				if(start == p) throw new js__$Boot_HaxeError("Expected node name");
+				var v = HxOverrides.substr(str,start,p - start);
+				if(v != (function($this) {
+					var $r;
+					if(parent.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + parent.nodeType);
+					$r = parent.nodeName;
+					return $r;
+				}(this))) throw new js__$Boot_HaxeError("Expected </" + (function($this) {
+					var $r;
+					if(parent.nodeType != Xml.Element) throw "Bad node type, expected Element but found " + parent.nodeType;
+					$r = parent.nodeName;
+					return $r;
+				}(this)) + ">");
+				state = 0;
+				next = 12;
+				continue;
+			}
+			break;
+		case 15:
+			if(c == 45 && str.charCodeAt(p + 1) == 45 && str.charCodeAt(p + 2) == 62) {
+				var xml1 = Xml.createComment(HxOverrides.substr(str,start,p - start));
+				parent.addChild(xml1);
+				nsubs++;
+				p += 2;
+				state = 1;
+			}
+			break;
+		case 16:
+			if(c == 91) nbrackets++; else if(c == 93) nbrackets--; else if(c == 62 && nbrackets == 0) {
+				var xml2 = Xml.createDocType(HxOverrides.substr(str,start,p - start));
+				parent.addChild(xml2);
+				nsubs++;
+				state = 1;
+			}
+			break;
+		case 14:
+			if(c == 63 && str.charCodeAt(p + 1) == 62) {
+				p++;
+				var str1 = HxOverrides.substr(str,start + 1,p - start - 2);
+				var xml3 = Xml.createProcessingInstruction(str1);
+				parent.addChild(xml3);
+				nsubs++;
+				state = 1;
+			}
+			break;
+		case 18:
+			if(c == 59) {
+				var s = HxOverrides.substr(str,start,p - start);
+				if(s.charCodeAt(0) == 35) {
+					var c1;
+					if(s.charCodeAt(1) == 120) c1 = Std.parseInt("0" + HxOverrides.substr(s,1,s.length - 1)); else c1 = Std.parseInt(HxOverrides.substr(s,1,s.length - 1));
+					buf.b += String.fromCharCode(c1);
+				} else if(!haxe_xml_Parser.escapes.exists(s)) {
+					if(strict) throw new js__$Boot_HaxeError("Undefined entity: " + s);
+					buf.b += Std.string("&" + s + ";");
+				} else buf.add(haxe_xml_Parser.escapes.get(s));
+				start = p + 1;
+				state = escapeNext;
+			} else if(!(c >= 97 && c <= 122 || c >= 65 && c <= 90 || c >= 48 && c <= 57 || c == 58 || c == 46 || c == 95 || c == 45) && c != 35) {
+				if(strict) throw new js__$Boot_HaxeError("Invalid character in entity: " + String.fromCharCode(c));
+				buf.b += "&";
+				buf.addSub(str,start,p - start);
+				p--;
+				start = p + 1;
+				state = escapeNext;
+			}
+			break;
+		}
+		c = StringTools.fastCodeAt(str,++p);
+	}
+	if(state == 1) {
+		start = p;
+		state = 13;
+	}
+	if(state == 13) {
+		if(p != start || nsubs == 0) {
+			buf.addSub(str,start,p - start);
+			var xml4 = Xml.createPCData(buf.b);
+			parent.addChild(xml4);
+			nsubs++;
+		}
+		return p;
+	}
+	if(!strict && state == 18 && escapeNext == 13) {
+		buf.b += "&";
+		buf.addSub(str,start,p - start);
+		var xml5 = Xml.createPCData(buf.b);
+		parent.addChild(xml5);
+		nsubs++;
+		return p;
+	}
+	throw new js__$Boot_HaxeError("Unexpected end");
+};
+var haxe_xml_Printer = function(pretty) {
+	this.output = new StringBuf();
+	this.pretty = pretty;
+};
+haxe_xml_Printer.__name__ = ["haxe","xml","Printer"];
+haxe_xml_Printer.print = function(xml,pretty) {
+	if(pretty == null) pretty = false;
+	var printer = new haxe_xml_Printer(pretty);
+	printer.writeNode(xml,"");
+	return printer.output.b;
+};
+haxe_xml_Printer.prototype = {
+	output: null
+	,pretty: null
+	,writeNode: function(value,tabs) {
+		var _g = value.nodeType;
+		switch(_g) {
+		case 2:
+			this.output.b += Std.string(tabs + "<![CDATA[");
+			this.write(StringTools.trim((function($this) {
+				var $r;
+				if(value.nodeType == Xml.Document || value.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + value.nodeType);
+				$r = value.nodeValue;
+				return $r;
+			}(this))));
+			this.output.b += "]]>";
+			if(this.pretty) this.output.b += "\n";
+			break;
+		case 3:
+			var commentContent;
+			if(value.nodeType == Xml.Document || value.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + value.nodeType);
+			commentContent = value.nodeValue;
+			commentContent = new EReg("[\n\r\t]+","g").replace(commentContent,"");
+			commentContent = "<!--" + commentContent + "-->";
+			if(tabs == null) this.output.b += "null"; else this.output.b += "" + tabs;
+			this.write(StringTools.trim(commentContent));
+			if(this.pretty) this.output.b += "\n";
+			break;
+		case 6:
+			var $it0 = (function($this) {
+				var $r;
+				if(value.nodeType != Xml.Document && value.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + value.nodeType);
+				$r = HxOverrides.iter(value.children);
+				return $r;
+			}(this));
+			while( $it0.hasNext() ) {
+				var child = $it0.next();
+				this.writeNode(child,tabs);
+			}
+			break;
+		case 0:
+			this.output.b += Std.string(tabs + "<");
+			this.write((function($this) {
+				var $r;
+				if(value.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + value.nodeType);
+				$r = value.nodeName;
+				return $r;
+			}(this)));
+			var $it1 = value.attributes();
+			while( $it1.hasNext() ) {
+				var attribute = $it1.next();
+				this.output.b += Std.string(" " + attribute + "=\"");
+				this.write(StringTools.htmlEscape(value.get(attribute),true));
+				this.output.b += "\"";
+			}
+			if(this.hasChildren(value)) {
+				this.output.b += ">";
+				if(this.pretty) this.output.b += "\n";
+				var $it2 = (function($this) {
+					var $r;
+					if(value.nodeType != Xml.Document && value.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + value.nodeType);
+					$r = HxOverrides.iter(value.children);
+					return $r;
+				}(this));
+				while( $it2.hasNext() ) {
+					var child1 = $it2.next();
+					this.writeNode(child1,this.pretty?tabs + "\t":tabs);
+				}
+				this.output.b += Std.string(tabs + "</");
+				this.write((function($this) {
+					var $r;
+					if(value.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element but found " + value.nodeType);
+					$r = value.nodeName;
+					return $r;
+				}(this)));
+				this.output.b += ">";
+				if(this.pretty) this.output.b += "\n";
+			} else {
+				this.output.b += "/>";
+				if(this.pretty) this.output.b += "\n";
+			}
+			break;
+		case 1:
+			var nodeValue;
+			if(value.nodeType == Xml.Document || value.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + value.nodeType);
+			nodeValue = value.nodeValue;
+			if(nodeValue.length != 0) {
+				this.write(tabs + StringTools.htmlEscape(nodeValue));
+				if(this.pretty) this.output.b += "\n";
+			}
+			break;
+		case 5:
+			this.write("<?" + (function($this) {
+				var $r;
+				if(value.nodeType == Xml.Document || value.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + value.nodeType);
+				$r = value.nodeValue;
+				return $r;
+			}(this)) + "?>");
+			break;
+		case 4:
+			this.write("<!DOCTYPE " + (function($this) {
+				var $r;
+				if(value.nodeType == Xml.Document || value.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + value.nodeType);
+				$r = value.nodeValue;
+				return $r;
+			}(this)) + ">");
+			break;
+		}
+	}
+	,write: function(input) {
+		if(input == null) this.output.b += "null"; else this.output.b += "" + input;
+	}
+	,hasChildren: function(value) {
+		var $it0 = (function($this) {
+			var $r;
+			if(value.nodeType != Xml.Document && value.nodeType != Xml.Element) throw new js__$Boot_HaxeError("Bad node type, expected Element or Document but found " + value.nodeType);
+			$r = HxOverrides.iter(value.children);
+			return $r;
+		}(this));
+		while( $it0.hasNext() ) {
+			var child = $it0.next();
+			var _g = child.nodeType;
+			switch(_g) {
+			case 0:case 1:
+				return true;
+			case 2:case 3:
+				if(StringTools.ltrim((function($this) {
+					var $r;
+					if(child.nodeType == Xml.Document || child.nodeType == Xml.Element) throw new js__$Boot_HaxeError("Bad node type, unexpected " + child.nodeType);
+					$r = child.nodeValue;
+					return $r;
+				}(this))).length != 0) return true;
+				break;
+			default:
+			}
+		}
+		return false;
+	}
+	,__class__: haxe_xml_Printer
+};
 var js__$Boot_HaxeError = function(val) {
 	Error.call(this);
 	this.val = val;
@@ -3163,6 +3706,8 @@ thx__$ReadonlyArray_ReadonlyArray_$Impl_$.__name__ = ["thx","_ReadonlyArray","Re
 thx__$ReadonlyArray_ReadonlyArray_$Impl_$.get = function(this1,index) {
 	return this1[index];
 };
+var thx_StaticResource = function() { };
+thx_StaticResource.__name__ = ["thx","StaticResource"];
 var thx_Strings = function() { };
 thx_Strings.__name__ = ["thx","Strings"];
 thx_Strings.after = function(value,searchFor) {
@@ -4211,7 +4756,6 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		this.ensurePreInsertionValidity(node,child,{ fileName : "Node.hx", lineNumber : 113, className : "thx.xml.Node", methodName : "insertBefore"});
 		var referenceChild = child;
 		if(referenceChild == node) referenceChild = node.nextSibling;
-		haxe_Log.trace(node.nodeType,{ fileName : "Node.hx", lineNumber : 122, className : "thx.xml.Node", methodName : "insertBefore"});
 		var doc;
 		var _g = this.nodeType;
 		switch(_g) {
@@ -4221,7 +4765,6 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		default:
 			doc = this.ownerDocument;
 		}
-		haxe_Log.trace(doc,{ fileName : "Node.hx", lineNumber : 127, className : "thx.xml.Node", methodName : "insertBefore"});
 		thx_xml_Node.adopt(doc,node);
 		this.childNodesImpl.insertBefore(node,child);
 		if(null == this.firstChild) this.firstChild = node;
@@ -4240,7 +4783,7 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 				var frag = node;
 				if(frag.childElementCount > 1 || frag.textContent != null) throw thx_xml_DOMException.fromCode(3,null,null,pos);
 				if(frag.childElementCount == 1) {
-					if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 181, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
+					if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,{ fileName : "Node.hx", lineNumber : 180, className : "thx.xml.Node", methodName : "ensurePreInsertionValidity"});
 				}
 			} else if(node.nodeType == 1) {
 				if(doc.documentElement != null || null != child && child.nodeType == 10) throw thx_xml_DOMException.fromCode(3,null,null,pos);
@@ -4259,7 +4802,7 @@ thx_xml_Node.prototype = $extend(thx_xml_EventTarget.prototype,{
 		throw new js__$Boot_HaxeError("not implemented");
 	}
 	,removeChild: function(child) {
-		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 269, className : "thx.xml.Node", methodName : "removeChild"});
+		if(child.parentNode != this) throw thx_xml_DOMException.fromCode(8,null,null,{ fileName : "Node.hx", lineNumber : 268, className : "thx.xml.Node", methodName : "removeChild"});
 		this.parentRemoveChild(child);
 		return child;
 	}
@@ -5396,7 +5939,18 @@ var thx_xml_TestHaxeNativeXML = function() {
 };
 thx_xml_TestHaxeNativeXML.__name__ = ["thx","xml","TestHaxeNativeXML"];
 thx_xml_TestHaxeNativeXML.prototype = {
-	__class__: thx_xml_TestHaxeNativeXML
+	testFromXml: function() {
+		var xml = Xml.parse("<doc><child attr=\"value\">text</child></doc>");
+		var doc = thx_xml_Documents.toDom4(xml);
+		utest_Assert.notNull(doc.documentElement,null,{ fileName : "TestHaxeNativeXML.hx", lineNumber : 12, className : "thx.xml.TestHaxeNativeXML", methodName : "testFromXml"});
+		utest_Assert.equals("doc",doc.documentElement.tagName,null,{ fileName : "TestHaxeNativeXML.hx", lineNumber : 13, className : "thx.xml.TestHaxeNativeXML", methodName : "testFromXml"});
+		utest_Assert.equals(1,doc.documentElement.childElementCount,null,{ fileName : "TestHaxeNativeXML.hx", lineNumber : 14, className : "thx.xml.TestHaxeNativeXML", methodName : "testFromXml"});
+		var child = doc.documentElement.children.item(0);
+		utest_Assert.equals("child",child.tagName,null,{ fileName : "TestHaxeNativeXML.hx", lineNumber : 16, className : "thx.xml.TestHaxeNativeXML", methodName : "testFromXml"});
+		utest_Assert.equals("value",child.getAttribute("attr"),null,{ fileName : "TestHaxeNativeXML.hx", lineNumber : 17, className : "thx.xml.TestHaxeNativeXML", methodName : "testFromXml"});
+		utest_Assert.equals("text",child.textContent,null,{ fileName : "TestHaxeNativeXML.hx", lineNumber : 18, className : "thx.xml.TestHaxeNativeXML", methodName : "testFromXml"});
+	}
+	,__class__: thx_xml_TestHaxeNativeXML
 };
 var thx_xml_TestNode = function() {
 };
@@ -5409,6 +5963,7 @@ thx_xml_TestNode.prototype = {
 var thx_xml_TestXMLWriter = function() {
 };
 thx_xml_TestXMLWriter.__name__ = ["thx","xml","TestXMLWriter"];
+thx_xml_TestXMLWriter.__interfaces__ = [thx_StaticResource];
 thx_xml_TestXMLWriter.prototype = {
 	doc: null
 	,setup: function() {
@@ -5421,7 +5976,13 @@ thx_xml_TestXMLWriter.prototype = {
 		el.setAttribute("target","_blank");
 		var text = this.doc.createTextNode("link it good");
 		el.appendChild(text);
-		utest_Assert.equals("<a class=\"custom-class\" href=\"http://google.com/\" target=\"_blank\">link it good</a>",el.toString(),null,{ fileName : "TestXMLWriter.hx", lineNumber : 21, className : "thx.xml.TestXMLWriter", methodName : "testElementToString"});
+		utest_Assert.equals("<a class=\"custom-class\" href=\"http://google.com/\" target=\"_blank\">link it good</a>",el.toString(),null,{ fileName : "TestXMLWriter.hx", lineNumber : 25, className : "thx.xml.TestXMLWriter", methodName : "testElementToString"});
+	}
+	,testSample: function() {
+		var $native = Xml.parse(thx_xml_TestXMLWriter.sample);
+		utest_Assert.equals(thx_xml_TestXMLWriter.sample,StringTools.replace(haxe_xml_Printer.print($native),"&#039;","'"),null,{ fileName : "TestXMLWriter.hx", lineNumber : 30, className : "thx.xml.TestXMLWriter", methodName : "testSample"});
+		var doc = thx_xml_Documents.toDom4($native);
+		utest_Assert.equals(thx_xml_TestXMLWriter.sample,doc.toString(),null,{ fileName : "TestXMLWriter.hx", lineNumber : 32, className : "thx.xml.TestXMLWriter", methodName : "testSample"});
 	}
 	,__class__: thx_xml_TestXMLWriter
 };
@@ -5623,7 +6184,7 @@ thx_xml_io_XMLWriter.prototype = {
 			this.writeDocumentFragment(node);
 			break;
 		default:
-			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 114, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
+			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 113, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
 		}
 	}
 	,writeText: function(text) {
@@ -7597,8 +8158,23 @@ var Uint8Array = $global.Uint8Array || js_html_compat_Uint8Array._new;
     ;
 DateTools.DAYS_OF_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
 Xml.Element = 0;
+Xml.PCData = 1;
+Xml.CData = 2;
+Xml.Comment = 3;
 Xml.DocType = 4;
+Xml.ProcessingInstruction = 5;
 Xml.Document = 6;
+haxe_xml_Parser.escapes = (function($this) {
+	var $r;
+	var h = new haxe_ds_StringMap();
+	if(__map_reserved.lt != null) h.setReserved("lt","<"); else h.h["lt"] = "<";
+	if(__map_reserved.gt != null) h.setReserved("gt",">"); else h.h["gt"] = ">";
+	if(__map_reserved.amp != null) h.setReserved("amp","&"); else h.h["amp"] = "&";
+	if(__map_reserved.quot != null) h.setReserved("quot","\""); else h.h["quot"] = "\"";
+	if(__map_reserved.apos != null) h.setReserved("apos","'"); else h.h["apos"] = "'";
+	$r = h;
+	return $r;
+}(this));
 js_Boot.__toStr = {}.toString;
 js_html_compat_Uint8Array.BYTES_PER_ELEMENT = 1;
 thx_Floats.TOLERANCE = 10e-5;
@@ -7647,6 +8223,7 @@ thx_xml__$DOMException_DOMExceptionCode_$Impl_$.DATA_CLONE_ERR = 25;
 thx_xml_Namespaces.html = "http://www.w3.org/1999/xhtml";
 thx_xml_Namespaces.xml = "http://www.w3.org/XML/1998/namespace";
 thx_xml_Namespaces.xmlns = "http://www.w3.org/2000/xmlns/";
+thx_xml_TestXMLWriter.sample = "<?xml version=\"1.0\"?>\n<?xml-stylesheet href=\"catalog.xsl\" type=\"text/xsl\"?>\n<!DOCTYPE catalog SYSTEM \"catalog.dtd\">\n<catalog>\n  <product description=\"Cardigan Sweater\" product_image=\"cardigan.jpg\">\n    <catalog_item gender=\"Men's\">\n      <item_number>QWZ5671</item_number>\n      <price>39.95</price>\n      <size description=\"Medium\">\n        <color_swatch image=\"red_cardigan.jpg\">Red</color_swatch>\n        <color_swatch image=\"burgundy_cardigan.jpg\">Burgundy</color_swatch>\n      </size>\n      <size description=\"Large\">\n        <color_swatch image=\"red_cardigan.jpg\">Red</color_swatch>\n        <color_swatch image=\"burgundy_cardigan.jpg\">Burgundy</color_swatch>\n      </size>\n    </catalog_item>\n    <catalog_item gender=\"Women's\">\n      <item_number>RRX9856</item_number>\n      <price>42.50</price>\n      <size description=\"Small\">\n        <color_swatch image=\"red_cardigan.jpg\">Red</color_swatch>\n        <color_swatch image=\"navy_cardigan.jpg\">Navy</color_swatch>\n        <color_swatch image=\"burgundy_cardigan.jpg\">Burgundy</color_swatch>\n      </size>\n      <size description=\"Medium\">\n        <color_swatch image=\"red_cardigan.jpg\">Red</color_swatch>\n        <color_swatch image=\"navy_cardigan.jpg\">Navy</color_swatch>\n        <color_swatch image=\"burgundy_cardigan.jpg\">Burgundy</color_swatch>\n        <color_swatch image=\"black_cardigan.jpg\">Black</color_swatch>\n      </size>\n      <size description=\"Large\">\n        <color_swatch image=\"navy_cardigan.jpg\">Navy</color_swatch>\n        <color_swatch image=\"black_cardigan.jpg\">Black</color_swatch>\n      </size>\n      <size description=\"Extra Large\">\n        <color_swatch image=\"burgundy_cardigan.jpg\">Burgundy</color_swatch>\n        <color_swatch image=\"black_cardigan.jpg\">Black</color_swatch>\n      </size>\n    </catalog_item>\n  </product>\n</catalog>\n";
 utest_TestHandler.POLLING_TIME = 10;
 utest_ui_text_HtmlReport.platform = "javascript";
 TestAll.main();
