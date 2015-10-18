@@ -1,3 +1,4 @@
 {
-  "&sample" : "sample.xml"
+  "&sample" : "sample.xml",
+  "&formatted" : "formatted.xml"
 }
