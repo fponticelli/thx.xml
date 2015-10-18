@@ -41,7 +41,7 @@ class XMLWriter {
   }
 
   public function writeComment(comment : Comment) {
-
+    write('<!--${comment.data}-->');
   }
 
   public function writeDocument(doc : Document) {

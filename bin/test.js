@@ -2924,10 +2924,23 @@ thx_Iterators.zip5 = function(it1,it2,it3,it4,it5) {
 };
 var thx_Maps = function() { };
 thx_Maps.__name__ = ["thx","Maps"];
+thx_Maps.copyTo = function(src,dst) {
+	var $it0 = src.keys();
+	while( $it0.hasNext() ) {
+		var key = $it0.next();
+		dst.set(key,src.get(key));
+	}
+	return dst;
+};
 thx_Maps.tuples = function(map) {
 	return thx_Iterators.map(map.keys(),function(key) {
 		var _1 = map.get(key);
 		return { _0 : key, _1 : _1};
+	});
+};
+thx_Maps.values = function(map) {
+	return thx_Iterators.map(map.keys(),function(key) {
+		return map.get(key);
 	});
 };
 thx_Maps.toObject = function(map) {
@@ -3304,6 +3317,9 @@ thx_Strings.isDigitsOnly = function(value) {
 thx_Strings.isEmpty = function(value) {
 	return value == null || value == "";
 };
+thx_Strings.lowerCaseFirst = function(value) {
+	return value.substring(0,1).toLowerCase() + value.substring(1);
+};
 thx_Strings.random = function(value,length) {
 	if(length == null) length = 1;
 	return haxe_Utf8.sub(value,Math.floor((value.length - length + 1) * Math.random()),length);
@@ -3421,6 +3437,9 @@ thx_Strings.underscore = function(s) {
 	s = new EReg("([a-z\\d])([A-Z])","g").replace(s,"$1_$2");
 	s = new EReg("-","g").replace(s,"_");
 	return s.toLowerCase();
+};
+thx_Strings.upperCaseFirst = function(value) {
+	return value.substring(0,1).toUpperCase() + value.substring(1);
 };
 thx_Strings.upTo = function(value,searchFor) {
 	var pos = value.indexOf(searchFor);
@@ -4907,8 +4926,8 @@ thx_xml_DocumentFragment.prototype = $extend(thx_xml_Node.prototype,{
 });
 var thx_xml_DocumentType = function(name,publicId,systemId,ownerDocument) {
 	this.name = name;
-	this.publicId = publicId;
-	this.systemId = systemId;
+	if(null == publicId) this.publicId = ""; else this.publicId = publicId;
+	if(null == systemId) this.systemId = ""; else this.systemId = systemId;
 	thx_xml_Node.call(this,10,name,ownerDocument);
 };
 thx_xml_DocumentType.__name__ = ["thx","xml","DocumentType"];
@@ -5524,10 +5543,16 @@ thx_xml_io_XMLWriter.prototype = {
 	,writeCharacterData: function(cd) {
 	}
 	,writeComment: function(comment) {
+		this.write("<!--" + comment.data + "-->");
 	}
 	,writeDocument: function(doc) {
 	}
 	,writeDocumentType: function(docType) {
+		this.write("<!DOCTYPE ");
+		this.write(docType.name);
+		if(docType.publicId != "") this.write(" PUBLIC \"" + docType.publicId + "\"");
+		if(docType.systemId != "") this.write(" SYSTEM \"" + docType.systemId + "\"");
+		this.write(">");
 	}
 	,writeElement: function(el) {
 		this.write("<");
@@ -5573,7 +5598,7 @@ thx_xml_io_XMLWriter.prototype = {
 			throw new js__$Boot_HaxeError("not implemented yet");
 			break;
 		default:
-			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 90, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
+			throw new thx_Error("unsupported node type " + node.nodeType,null,{ fileName : "XMLWriter.hx", lineNumber : 96, className : "thx.xml.io.XMLWriter", methodName : "writeNode"});
 		}
 	}
 	,writeText: function(text) {
